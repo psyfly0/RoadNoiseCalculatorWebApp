@@ -1,0 +1,14 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+<meta charset="UTF-8">
+<title>Bejelentkezés</title>
+</head>
+<body>
+	<form method="post" action="/logout">
+		<h2 class="form-signin-heading">Biztosan ki akarsz lépni?</h2>
+		<input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+		<button type="submit">Kilépés</button>
+	</form>
+</body>
+</html>
