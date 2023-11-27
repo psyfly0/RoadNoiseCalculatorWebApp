@@ -42,6 +42,7 @@ public class WebSecurityConfig {
 	@Order(1)
 	SecurityFilterChain apiSecurityFilterChain(HttpSecurity http) throws Exception {
 	    return http
+	    		.csrf(csrf -> csrf.disable())
 	            .securityMatcher("/console/**")
 	            .authorizeHttpRequests(auth -> {
 	                auth.anyRequest().authenticated();

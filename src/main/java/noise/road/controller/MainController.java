@@ -11,9 +11,9 @@ public class MainController {
 		return "index";
 	}
 	
-	@GetMapping("/a")
-	public String a() {
-		return "a";
+	@GetMapping("/console")
+	public String console() {
+		return "console/console";
 	}
 
 }

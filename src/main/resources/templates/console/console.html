@@ -1,10 +1,81 @@
 <!DOCTYPE html>
 <html lang="hu">
 	<head>
-		<meta charset="utf-8">
-		<title>RoNoCa - Belépés</title>
+	    <meta charset="utf-8">
+	    <title>RoNoCa - Főoldal</title>
+	    <!-- Load React Libraries -->
+	    <!-- Note: when deploying, replace “development.js” with “production.min.js”. -->
+		<script src="https://unpkg.com/react@17/umd/react.production.min.js" crossorigin></script>
+	    <script src="https://unpkg.com/react-dom@17/umd/react-dom.production.min.js" crossorigin></script>
+	    <script src="https://unpkg.com/babel-standalone@6/babel.min.js"></script>
 	</head>
 	<body>
-		<h1>KONZOL OLDAL</h1>
+		<h1>valami</h1>
+	    <div id="root"></div>
+	    
+	<!-- React component script -->
+	<script type="text/babel">
+        const FileUploadComponent = () => {
+            const [file, setFile] = React.useState(null);
+            const [attributeData, setAttributeData] = React.useState([]);
+
+            const handleFileChange = (event) => {
+                const selectedFile = event.target.files[0];
+                setFile(selectedFile);
+            };
+
+            const handleFileUpload = async () => {
+                const formData = new FormData();
+                formData.append('zipFile', file);
+
+                try {
+                    const response = await fetch('/console/fileLoad', {
+                        method: 'POST',
+                        body: formData,
+                    });
+
+                    if (response.ok) {
+                        const data = await response.json();
+                        setAttributeData(data);
+                    } else {
+                        console.error('Failed to upload file');
+                    }
+                } catch (error) {
+                    console.error('Error uploading file:', error);
+                }
+            };
+
+            return (
+                <div>
+                    <h1>KONZOL OLDAL</h1>
+                    <input type="file" accept=".zip" onChange={handleFileChange} />
+                    <button onClick={handleFileUpload}>Upload</button>
+
+                    <table>
+                        <thead>
+                            <tr>
+                                {attributeData.length > 0 &&
+                                    Object.keys(attributeData[0]).map((key) => (
+                                        <th key={key}>{key}</th>
+                                    ))}
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {attributeData.map((row, index) => (
+                                <tr key={index}>
+                                    {Object.values(row).map((value, idx) => (
+                                        <td key={idx}>{value}</td>
+                                    ))}
+                                </tr>
+                            ))}
+                        </tbody>
+                    </table>
+                </div>
+            );
+        };
+
+        ReactDOM.render(<FileUploadComponent />, document.getElementById('root'));
+    </script>
+	
 	</body>
 </html>
