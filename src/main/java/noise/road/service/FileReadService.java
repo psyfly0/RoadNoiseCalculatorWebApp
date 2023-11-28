@@ -15,7 +15,7 @@ import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.zip.ZipEntry;
@@ -125,13 +125,7 @@ public class FileReadService {
                     featureList.add(feature);
                 }  
                 featureIterator.close();
-                
-                
-            /*    while (featureIterator.hasNext()) {
-                    SimpleFeature feature = featureIterator.next();
-                    Geometry geometry = (Geometry) feature.getDefaultGeometry();
-                    geometries.add(geometry);
-                }*/
+
         	}
             List<Map<String, Object>> attributes = readDbfFile(dbfFile);
             if (!geometries.isEmpty()) {
@@ -152,7 +146,7 @@ public class FileReadService {
              FileChannel channel = inputStream.getChannel();
              DbaseFileReader dbfReader = new DbaseFileReader(channel, false, Charset.defaultCharset())) {
 
-            // get column names from header
+            // get column names from header	
             DbaseFileHeader header = dbfReader.getHeader();
             List<String> columns = new ArrayList<>();
             for (int i = 0; i < header.getNumFields(); i++) {
@@ -162,7 +156,7 @@ public class FileReadService {
             List<Map<String, Object>> records = new ArrayList<>();
             while (dbfReader.hasNext()) {
                 Object[] record = dbfReader.readEntry();
-                Map<String, Object> recordMap = new HashMap<>();
+                Map<String, Object> recordMap = new LinkedHashMap<>();
                 
                 for (int i = 0; i < record.length; i++) {
                     recordMap.put(columns.get(i), record[i]);
