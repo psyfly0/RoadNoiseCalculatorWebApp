@@ -24,11 +24,14 @@ public class DbfData {
 	@Column(name = "ID")
 	private Integer id;
 	
+	@Column(name = "FILE_ID")
+	private Integer file_id;
+	
 	@Column(name = "FILE_NAME")
 	private String fileName;
 	
-	@Column(name = "FILE_ID")
-	private Integer file_id;
+	@Column(name = "FILE_UNIQUE_ID")
+	private Integer file_unique_id;
 	
 	@Column(name = "IDENTIFIER")
 	private Integer identifier;

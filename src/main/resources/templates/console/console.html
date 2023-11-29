@@ -2,7 +2,7 @@
 <html lang="hu">
 	<head>
 	    <meta charset="utf-8">
-	    <title>RoNoCa - Főoldal</title>
+	    <title>Fájl feltöltés</title>
 	    <!-- Load React Libraries -->
 	    <!-- Note: when deploying, replace “development.js” with “production.min.js”. -->
 		<script src="https://unpkg.com/react@17/umd/react.development.js" crossorigin></script>
@@ -122,6 +122,7 @@
 		            if (response.ok) {
 						console.log('SaveToDatabase Response:', await response.text());
 		                console.log('Data filtered and sent to backend successfully');
+		                window.location.href = '/display';
 		                // Optionally handle success here
 		            } else {
 		                console.error('Failed to filter data');

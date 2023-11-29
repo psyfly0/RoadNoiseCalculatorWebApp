@@ -13,9 +13,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.ObjectMapper;
-
 import lombok.extern.slf4j.Slf4j;
 import noise.road.dto.DbfDataPreprocessDTO;
 import noise.road.dto.SaveDbfRequest;
@@ -47,8 +44,9 @@ public class FileReadSaveController {
         List<DbfDataPreprocessDTO> requestBody = saveDbfRequest.getMappedData();
         
     	dbfDataService.saveDbfData(requestBody, fileName);
- 
-    	return ResponseEntity.ok("Data saved successfully to the database");
+     
+        return ResponseEntity.ok("Data saved successfully to the database");
+       
     }
 
 }
