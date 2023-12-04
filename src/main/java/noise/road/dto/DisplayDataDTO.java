@@ -10,6 +10,7 @@ import lombok.NoArgsConstructor;
 public class DisplayDataDTO {
 	
 	private String fileName;
+	private Integer file_id;
 	private Integer identifier;
 	private Integer kmh1;
 	private Integer kmh2;

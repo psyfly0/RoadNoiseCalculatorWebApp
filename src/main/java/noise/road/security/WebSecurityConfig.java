@@ -8,6 +8,7 @@ import org.springframework.security.access.hierarchicalroles.RoleHierarchyImpl;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
@@ -43,11 +44,11 @@ public class WebSecurityConfig {
 	SecurityFilterChain apiSecurityFilterChain(HttpSecurity http) throws Exception {
 	    return http
 	    		.csrf(csrf -> csrf.disable())
-	            .securityMatcher("/console/**")
+	            .securityMatcher("/console/**", "/calculations/**")
 	            .authorizeHttpRequests(auth -> {
 	                auth.anyRequest().authenticated();
 	            })
-	          //  .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+	        //    .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.ALWAYS))
 	            .httpBasic(Customizer.withDefaults())
 	            .build();
 	}
@@ -84,7 +85,7 @@ public class WebSecurityConfig {
 	            .formLogin(form -> form
 	            		.loginPage("/login")
 	            		.loginProcessingUrl("/login")
-	            		.defaultSuccessUrl("/console", true)
+	            		.defaultSuccessUrl("/console/upload", true)
 	            		.failureUrl("/login?error=true	")
 	            		.permitAll()
 	            		)

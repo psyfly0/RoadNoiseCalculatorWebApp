@@ -31,7 +31,7 @@ public class DbfDataService {
 			
 			dbfData.setFile_id(file_id);
 			dbfData.setFileName(fName);
-			dbfData.setFile_id(file_unique_id);
+			dbfData.setFile_unique_id(file_unique_id);
 			
 			dbfData.setIdentifier(dto.getIdentifier());
 			dbfData.setSpeed1(dto.getKmh1());
@@ -66,9 +66,20 @@ public class DbfDataService {
 		file_id++;
 	}
 	
+
+	
+	
+	public Map<Integer, List<DisplayDataDTO>> getAll() {
+		List<DbfData> allFiles = dbfDataRepository.findAll();
+		List<DisplayDataDTO> displayDataList = mapToDisplayDTO(allFiles);
+		return displayDataList.stream()
+	            .collect(Collectors.groupingBy(DisplayDataDTO::getFile_id));
+	}
+	
 	public List<DisplayDataDTO> getLatestSavedFile() {
         List<DbfData> latestFiles = dbfDataRepository.findAllByLatestFileId();
-        return mapToDisplayDTO(latestFiles);
+        List<DisplayDataDTO> displayDataList = mapToDisplayDTO(latestFiles);
+        return displayDataList;
     }
 	
     private List<DisplayDataDTO> mapToDisplayDTO(List<DbfData> dbfDataList) {
@@ -80,6 +91,7 @@ public class DbfDataService {
     private DisplayDataDTO mapToDisplayDTO(DbfData dbfData) {
         DisplayDataDTO displayDataDTO = new DisplayDataDTO();
         displayDataDTO.setFileName(dbfData.getFileName());
+        displayDataDTO.setFile_id(dbfData.getFile_id());
         displayDataDTO.setIdentifier(dbfData.getIdentifier());
         displayDataDTO.setKmh1(dbfData.getSpeed1());
         displayDataDTO.setKmh2(dbfData.getSpeed2());

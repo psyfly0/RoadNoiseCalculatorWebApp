@@ -8,9 +8,27 @@
 		<script src="https://unpkg.com/react@17/umd/react.development.js" crossorigin></script>
   		<script src="https://unpkg.com/react-dom@17/umd/react-dom.development.js" crossorigin></script>
 	    <script src="https://unpkg.com/babel-standalone@6/babel.min.js"></script>
-		    
-		<body>
-			<h1>display</h1>
-		</body>
-	</head>
+	</head>    
+	<body>
+		<h1>display</h1>
+		<a href="/console/upload">Back to Console</a>
+		
+		<div>
+		    <label for="calculations">Számítások:</label>
+		    <select id="calculations" onchange="handleCalculationChange()">
+		        <option value="">Számítási műveletek</option>
+		        <option value="/backend/endpoint1">Minden érték számítása</option>
+		        <option value="/calculations/LAeq">Egyenértékű A-hangnyomásszint számítása</option>
+		        <option value="/backend/endpoint3">Hangteljesítményszint számítása</option>
+		        <option value="/backend/endpoint4">Védőtávolság számítása</option>
+		        <option value="/backend/endpoint5">Hatásterület számítása</option>
+		        <option value="/backend/endpoint6">Adott távolságon adódó zajterhelés számítása</option>
+		    </select>
+		</div>
+		
+		<div id="root"></div>
+		<script type="text/babel" src="/displayJS/display.js">
+			
+	  </script>
+	</body>
 </html>

@@ -11,9 +11,14 @@ public class MainController {
 		return "index";
 	}
 	
-	@GetMapping("/console")
+	@GetMapping("console/upload")
 	public String console() {
-		return "console/console";
+		return "console/upload";
+	}
+	
+	@GetMapping("console/display")
+	public String display() {
+		return "console/display";
 	}
 
 }
