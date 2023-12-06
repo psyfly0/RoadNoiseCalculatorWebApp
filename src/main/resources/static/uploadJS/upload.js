@@ -16,12 +16,49 @@
 			'R_II_ak_kat_E': 'reverseAcCatNight2',
 			'R_III_ak_kat_E': 'reverseAcCatNight3'
 		};
+		
+	const parameterMapping = {
+		    'lthDay': 'Határérték Nappal',
+		    'lthNight': 'Határérték Éjjel',
+		    'roadSurfaceRoughness': 'K (útburkolati érdesség)',
+		    'reflection': 'Kr (reflexió)',
+		    'soundAbsorptionFactor': 'C (hangelnyelési tényező)',
+		    'angleOfView': 'Látószög',
+		    'trafficType': 'Forgalom típusa',
+		    'slopeElevation': 'Lejtés/emelkedés (%-ban)',
+		};
+	
+	const defaultValues = {
+	    'lthDay': 65.0,
+	    'lthNight': 55.0,
+	    'roadSurfaceRoughness': 0.29,
+	    'reflection': 0.5,
+	    'soundAbsorptionFactor': 12.5,
+	    'angleOfView': 180.0,
+	    'trafficType': 'egyenletes',
+	    'slopeElevation': 0.0,
+	};
+	
+	const selectableValues = {
+	    'lthDay': [50.0, 55.0, 60.0, 65.0],
+	    'lthNight': [40.0, 45.0, 50.0, 55.0],
+	    'roadSurfaceRoughness': [0.0, 0.29, 0.49, 0.67, 0.78],
+	    'reflection': [0.5, 1.0, 1.5, 2.0, 2.5, 3.5],
+	    'soundAbsorptionFactor': [12.5, 15.0],
+	    'trafficType' : ['egyenletes', 'lassuló', 'gyorsuló']
+	};
+	
+	const userInputValues = {
+		'angleOfView' : true,
+		'slopeElevation' : true
+	};
 
 		const FileUploadComponent = () => {
 		    const [file, setFile] = React.useState(null);
 		    const [fileName, setFileName] = React.useState('');
 		    const [attributeData, setAttributeData] = React.useState([]);
 		    const [columnNames, setColumnNames] = React.useState([]);
+		    const [fileUploadSuccess, setFileUploadSuccess] = React.useState(false);
 		
 		    const handleFileChange = (event) => {
 		        const selectedFile = event.target.files[0];
@@ -65,6 +102,7 @@
 		                console.log('FileLoad Response Data:', data);
 		                setAttributeData(data);
 		                setColumnNames(Array(data[0] ? Object.keys(data[0]) : []).fill(''));
+		                setFileUploadSuccess(true);
 		            } else {
 		                console.error('Failed to upload file');
 		            }
@@ -78,6 +116,8 @@
 		        updatedColumnNames[index] = event.target.value;
 		        setColumnNames(updatedColumnNames);
 		    };
+		    
+
 		
 		    const handleFilterClick = async () => {
 		        const filteredData = filterTableBySelectedColumns();
@@ -88,12 +128,15 @@
 		            const mappedKey = columnMapping[key] || key; // Use mapping if available, else use the same key
 		            mappedRow[mappedKey] = row[key];
 		        });
-		        return mappedRow;
-		    });
+		        	return mappedRow;
+		    	});
+		    	
+
 		
+				// Send mappedData and fileName to '/console/saveToDatabase' endpoint
 		        try {
 					console.log('SaveToDatabase Request Data:', { fileName, mappedData });
-		            const response = await fetch('/console/saveToDatabase', {
+		            const response1 = await fetch('/console/saveToDatabase', {
 		                method: 'POST',
 		                headers: {
 		                    'Content-Type': 'application/json',
@@ -101,10 +144,10 @@
 		                body: JSON.stringify({ fileName, mappedData }),
 		            });
 		
-		            if (response.ok) {
-						console.log('SaveToDatabase Response:', await response.text());
+		            if (response1.ok) {
+						console.log('SaveToDatabase Response:', await response1.text());
 		                console.log('Data filtered and sent to backend successfully');
-		                window.location.href = '/console/display';
+		               
 		                // Optionally handle success here
 		            } else {
 		                console.error('Failed to filter data');
@@ -113,12 +156,103 @@
 		            console.error('Error filtering data:', error);
 		        }
 		    };
+		    
+			// Modify parameters FORM
+			   
+	     	const [showModifyForm, setShowModifyForm] = React.useState(false);
+    		const [modifiedParameters, setModifiedParameters] = React.useState({});
+
+		    const handleModifyParametersClick = () => {
+		        // Show the form only if response1 was successful
+		        if (attributeData.length > 0) {
+		            setShowModifyForm(true);
+		        } else {
+		            console.error('No data available to modify parameters');
+		        }
+		    };
+
+		    const handleFormSubmit = async (event) => {
+		        event.preventDefault();
+		
+			// Create a copy of modifiedParameters to retain unchanged parameters
+		    const updatedParameters = { ...defaultValues, ...modifiedParameters };
+		
+		        // Send modifiedParameters to '/console/saveMutableParameters' endpoint
+		        try {
+		            console.log('SaveMutableParameters Request Data:', updatedParameters);
+		            const response2 = await fetch('/console/saveMutableParameters', {
+		                method: 'POST',
+		                headers: {
+		                    'Content-Type': 'application/json',
+		                },
+		                body: JSON.stringify(updatedParameters),
+		            });
+		
+		            if (response2.ok) {
+		                console.log('Modified Parameters sent to backend successfully');
+		                window.location.href = '/console/display';
+
+		            } else {
+		                console.error('Failed to send Modified Parameters to backend');
+		            }
+		        } catch (error) {
+		            console.error('Error sending Modified Parameters:', error);
+		        }
+		    };
 		
 		    return (
 		        <div>
 		            <h1>KONZOL OLDAL</h1>
 		            <input type="file" accept=".zip" onChange={handleFileChange} />
 		            <button onClick={handleFileUpload}>Upload</button>
+		            
+		            {attributeData.length > 0 && (
+		                <button onClick={handleModifyParametersClick} disabled={!fileUploadSuccess}>
+		                    Modify Parameters
+		                </button>
+		            )}
+
+		            {showModifyForm && (
+		                <form onSubmit={handleFormSubmit}>
+		                    {Object.entries(parameterMapping).map(([key, value]) => (
+		                        <div key={key}>
+		                            <label htmlFor={key}>{value}</label>
+		                            {userInputValues[key] ? (
+		                                <input
+		                                    type="text"
+		                                    id={key}
+		                                    value={modifiedParameters[key] || defaultValues[key]}
+		                                    onChange={(event) =>
+		                                        setModifiedParameters({
+		                                            ...modifiedParameters,
+		                                            [key]: event.target.value,
+		                                        })
+		                                    }
+		                                />
+		                            ) : (
+		                                <select
+		                                    id={key}
+		                                    value={modifiedParameters[key] || defaultValues[key]}
+		                                    onChange={(event) =>
+		                                        setModifiedParameters({
+		                                            ...modifiedParameters,
+		                                            [key]: event.target.value,
+		                                        })
+		                                    }
+		                                >
+		                                    {selectableValues[key].map((option) => (
+		                                        <option key={option} value={option}>
+		                                            {option}
+		                                        </option>
+		                                    ))}
+		                                </select>
+		                            )}
+		                        </div>
+		                    ))}
+		                    <button type="submit">Submit</button>
+		                </form>
+		            )}
+		            
 		
 		            <table>
 		                <thead>
@@ -159,3 +293,6 @@
 		};
 		
 		ReactDOM.render(<FileUploadComponent />, document.getElementById('root'));
+		
+		
+				

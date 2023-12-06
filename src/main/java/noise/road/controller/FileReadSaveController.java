@@ -15,8 +15,10 @@ import org.springframework.web.multipart.MultipartFile;
 
 import lombok.extern.slf4j.Slf4j;
 import noise.road.dto.DbfDataPreprocessDTO;
+import noise.road.dto.MutableParametersDTO;
 import noise.road.dto.SaveDbfRequest;
 import noise.road.dto.ShapeDataDTO;
+import noise.road.service.ConstantParametersService;
 import noise.road.service.DbfDataService;
 import noise.road.service.FileReadService;
 
@@ -25,11 +27,16 @@ import noise.road.service.FileReadService;
 @Slf4j
 public class FileReadSaveController {
 	
+	private boolean constantsAlreadySaved = false;
+	
 	@Autowired
 	private FileReadService fileReadService;
 	
 	@Autowired
 	private DbfDataService dbfDataService;
+	
+	@Autowired
+	private ConstantParametersService constantParametersService;
 
     @PostMapping("/fileLoad")
     public List<Map<String, Object>> fileLoad(@RequestParam("zipFile") MultipartFile zipFile) throws IOException {
@@ -40,6 +47,11 @@ public class FileReadSaveController {
     
     @PostMapping("/saveToDatabase")
     public ResponseEntity<String> saveToDatabase(@RequestBody SaveDbfRequest saveDbfRequest) {
+    	if (!constantsAlreadySaved) {
+    		constantParametersService.insertParametersToDatabase();
+    		constantsAlreadySaved = true;
+    	}
+    	
     	String fileName = saveDbfRequest.getFileName();
         List<DbfDataPreprocessDTO> requestBody = saveDbfRequest.getMappedData();
         
@@ -47,6 +59,12 @@ public class FileReadSaveController {
      
         return ResponseEntity.ok("Data saved successfully to the database");
        
+    }
+    
+    @PostMapping("/saveMutableParameters")
+    public ResponseEntity<String> saveMutableParametersToDatabase(@RequestBody MutableParametersDTO parameters) {
+    	log.info("Mutable parameters: {}", parameters);
+    	return ResponseEntity.ok("Mutable parameters saved successfully to the database");
     }
 
 }
