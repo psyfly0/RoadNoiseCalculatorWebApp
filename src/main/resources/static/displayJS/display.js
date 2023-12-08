@@ -20,36 +20,38 @@
 		        'R_I_ak_kat_E': 'reverseAcCatNight1',
 		        'R_II_ak_kat_E': 'reverseAcCatNight2',
 		        'R_III_ak_kat_E': 'reverseAcCatNight3',
-		        'proba' : 'valami'
+		        'LAEq Nappal' : 'laeqDay'
 		    };
 		    
 		    
+		    let selectedValue = '';
 		    
 		    // listener for calculations div
 		    function handleCalculationChange() {
 			    const selectElement = document.getElementById('calculations');
-			    const selectedValue = selectElement.value;
-			
+			    selectedValue = selectElement.value;
+			}
 			    // Perform actions based on the selected option value (selectedValue)
-			    if (selectedValue !== '' && activeFileId) {
-					console.log('active field:', activeFileId);
-			        fetch(`${selectedValue}/${activeFileId}`, {
-			            method: 'POST',
-			            headers: {
-			                'Content-Type': 'application/json'
-			            },
-			            body: JSON.stringify({ fileId: activeFileId })
-			        })
-			        .then(response => {
-			            if (!response.ok) {
-			                throw new Error('Network response was not ok');
-			            }
-			            // Handle the response as needed
-			        })
-			        .catch(error => {
-			            console.error('There was a problem with the fetch operation:', error);
-			        });
-			    }
+			    function handleSubmit() {
+				    if (selectedValue !== '' && activeFileId) {
+						console.log('active field:', activeFileId);
+				        fetch(`${selectedValue}/${activeFileId}`, {
+				            method: 'POST',
+				            headers: {
+				                'Content-Type': 'application/json'
+				            },
+				            body: JSON.stringify({ fileId: activeFileId })
+				        })
+				        .then(response => {
+				            if (!response.ok) {
+				                throw new Error('Network response was not ok');
+				            }
+				           
+				        })
+				        .catch(error => {
+				            console.error('There was a problem with the fetch operation:', error);
+				        });
+				    }
 			}
 
 		
@@ -90,6 +92,10 @@
 			            </span>
 			        );
 			    });
+			    
+			    // Set activeFileId for the lowest file_id by default
+			    const lowestFileId = Math.min(...Object.keys(groupedData));
+			    activeFileId = lowestFileId;
 			
 			    ReactDOM.render(
 			        <div>
@@ -100,7 +106,7 @@
 			    );
 			
 			    // Display the table for the lowest file_id by default
-			    const lowestFileId = Math.min(...Object.keys(groupedData));
+			  //  const lowestFileId = Math.min(...Object.keys(groupedData));
 			    renderTable(groupedData[lowestFileId]);
 			};
 			
@@ -114,30 +120,24 @@
     			// Displaying the table name (fileName) above the table
 				const tableName = <h2>{fileName}</h2>;
 			    
-			    // Extract unique column keys from the data
-			    const allColumnKeys = data.reduce((keys, dataItem) => {
-			        return [...keys, ...Object.keys(dataItem)];
-			    }, []);
-			
-			    const uniqueColumnKeys = [...new Set(allColumnKeys)];
-			
-			    const columnsToDisplay = Object.entries(columnMapping)
+			     // Filter out fields that have null values based on columnMapping
+			    const nonNullColumns = Object.entries(columnMapping)
 			        .filter(([displayName, columnKey]) => {
-			            // Check if the column exists in the data
-			            return uniqueColumnKeys.includes(columnKey);
+			            // Check if the column exists in the data and if its value is not null
+			            return data.some(item => item[columnKey] !== null && item[columnKey] !== undefined);
 			        })
 			        .map(([displayName, columnKey]) => {
 			            return { displayName, columnKey };
 			        });
 			
-			    const tableHeaders = columnsToDisplay.map(({ displayName }, index) => (
+			    const tableHeaders = nonNullColumns.map(({ displayName }, index) => (
 			        <th key={index}>{displayName}</th>
 			    ));
 			
 			    const tableRows = data.map((dataItem, index) => {
 			        return (
 			            <tr key={index}>
-			                {columnsToDisplay.map(({ columnKey }, idx) => {
+			                {nonNullColumns.map(({ columnKey }, idx) => {
 			                    const cellValue = dataItem[columnKey];
 			                    return <td key={idx}>{cellValue}</td>;
 			                })}

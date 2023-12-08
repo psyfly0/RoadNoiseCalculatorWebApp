@@ -21,12 +21,14 @@ import noise.road.dto.ShapeDataDTO;
 import noise.road.service.ConstantParametersService;
 import noise.road.service.DbfDataService;
 import noise.road.service.FileReadService;
+import noise.road.service.MutableParametersService;
 
 @RestController
 @RequestMapping("/console")
 @Slf4j
 public class FileReadSaveController {
 	
+	private int uploadedDataLength = 0;
 	private boolean constantsAlreadySaved = false;
 	
 	@Autowired
@@ -37,6 +39,9 @@ public class FileReadSaveController {
 	
 	@Autowired
 	private ConstantParametersService constantParametersService;
+	
+	@Autowired
+	private MutableParametersService mutableParametersService;
 
     @PostMapping("/fileLoad")
     public List<Map<String, Object>> fileLoad(@RequestParam("zipFile") MultipartFile zipFile) throws IOException {
@@ -50,12 +55,17 @@ public class FileReadSaveController {
     	if (!constantsAlreadySaved) {
     		constantParametersService.insertParametersToDatabase();
     		constantsAlreadySaved = true;
-    	}
+    	}   	
     	
     	String fileName = saveDbfRequest.getFileName();
         List<DbfDataPreprocessDTO> requestBody = saveDbfRequest.getMappedData();
         
+        log.info("requestBody: {}", requestBody);
+        
     	dbfDataService.saveDbfData(requestBody, fileName);
+    	
+    	// fetch the length of data for mutable parameters
+    	uploadedDataLength = requestBody.size();
      
         return ResponseEntity.ok("Data saved successfully to the database");
        
@@ -64,6 +74,8 @@ public class FileReadSaveController {
     @PostMapping("/saveMutableParameters")
     public ResponseEntity<String> saveMutableParametersToDatabase(@RequestBody MutableParametersDTO parameters) {
     	log.info("Mutable parameters: {}", parameters);
+    	mutableParametersService.saveInitialMutableParameters(parameters, uploadedDataLength);
+    	
     	return ResponseEntity.ok("Mutable parameters saved successfully to the database");
     }
 

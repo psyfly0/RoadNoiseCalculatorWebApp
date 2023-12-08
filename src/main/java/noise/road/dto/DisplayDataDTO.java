@@ -1,5 +1,6 @@
 package noise.road.dto;
 
+import jakarta.persistence.Column;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -31,5 +32,14 @@ public class DisplayDataDTO {
 	private Integer reverseAcCatNight1;
 	private Integer reverseAcCatNight2;
 	private Integer reverseAcCatNight3;
+	private Double laeqDay;
+	private Double laeqNight;
+	private Double lwDay;
+	private Double lwNight;
+	private Double impactAreaDay;
+	private Double impactAreaNight;
+	private Double protectiveDistanceDay;
+	private Double protectiveDistanceNight;
 	
 }
+

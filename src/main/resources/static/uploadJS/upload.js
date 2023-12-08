@@ -52,6 +52,7 @@
 		'angleOfView' : true,
 		'slopeElevation' : true
 	};
+	
 
 		const FileUploadComponent = () => {
 		    const [file, setFile] = React.useState(null);
@@ -102,7 +103,7 @@
 		                console.log('FileLoad Response Data:', data);
 		                setAttributeData(data);
 		                setColumnNames(Array(data[0] ? Object.keys(data[0]) : []).fill(''));
-		                setFileUploadSuccess(true);
+		                
 		            } else {
 		                console.error('Failed to upload file');
 		            }
@@ -147,8 +148,8 @@
 		            if (response1.ok) {
 						console.log('SaveToDatabase Response:', await response1.text());
 		                console.log('Data filtered and sent to backend successfully');
-		               
-		                // Optionally handle success here
+		                setFileUploadSuccess(true);
+		                console.log('Response1 success:', fileUploadSuccess);
 		            } else {
 		                console.error('Failed to filter data');
 		            }
@@ -190,6 +191,7 @@
 		
 		            if (response2.ok) {
 		                console.log('Modified Parameters sent to backend successfully');
+		                setShowModifyForm(false);
 		                window.location.href = '/console/display';
 
 		            } else {
