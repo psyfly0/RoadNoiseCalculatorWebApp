@@ -11,8 +11,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import lombok.extern.slf4j.Slf4j;
+import noise.road.dto.DbfDataDTO;
 import noise.road.dto.DisplayDataDTO;
-import noise.road.service.DbfDataService;
+import noise.road.service.SaveDisplayService;
 
 @RestController
 @RequestMapping("/console")
@@ -20,20 +21,20 @@ import noise.road.service.DbfDataService;
 public class DisplayController {
 	
 	@Autowired
-    private DbfDataService dbfDataService;
+    private SaveDisplayService saveDisplayService;
 
 	@GetMapping("/displayLatestFile")
-    public List<DisplayDataDTO> displayLatestFile() {
-		List<DisplayDataDTO> a = dbfDataService.getLatestSavedFile();
+    public List<DbfDataDTO> displayLatestFile() {
+		List<DbfDataDTO> a = saveDisplayService.getLatestSavedFile();
 		log.info("latest file: {}", a);
-        return dbfDataService.getLatestSavedFile();
+        return saveDisplayService.getLatestSavedFile();
     }
 	
 	@GetMapping("/displayData")
-	public Map<Integer, List<DisplayDataDTO>> displayAll() {
-		Map<Integer, List<DisplayDataDTO>> proba = dbfDataService.getAll();
+	public Map<Integer, List<DbfDataDTO>> displayAll() {
+		Map<Integer, List<DbfDataDTO>> proba = saveDisplayService.getAll();
 		log.info("All files: {}", proba);
-		return dbfDataService.getAll();
+		return saveDisplayService.getAll();
 	}
 	
 }

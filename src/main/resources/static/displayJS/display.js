@@ -1,29 +1,35 @@
  // Define mapping of user-friendly column names to actual column names
 		    const columnMapping = {
 		        'Azonosító': 'identifier',
-		        'I_km/h': 'kmh1',
-		        'II_km/h': 'kmh2',
-		        'III_km/h': 'kmh3',
-		        'I_ak_kat_N': 'acCatDay1',
-		        'II_ak_kat_N': 'acCatDay2',
-		        'III_ak_kat_N': 'acCatDay3',
-		        'I_ak_kat_E': 'acCatNight1',
-		        'II_ak_kat_E': 'acCatNight2',
-		        'III_ak_kat_E': 'acCatNight3',
-		        'R_Azonosító': 'reverseIdentifier',
-		        'R_I_km/h': 'reverseKmh1',
-		        'R_II_km/h': 'reverseKmh2',
-		        'R_III_km/h': 'reverseKmh3',
-		        'R_I_ak_kat_N': 'reverseAcCatDay1',
-		        'R_II_ak_kat_N': 'reverseAcCatDay2',
-		        'R_III_ak_kat_N': 'reverseAcCatDay3',
-		        'R_I_ak_kat_E': 'reverseAcCatNight1',
-		        'R_II_ak_kat_E': 'reverseAcCatNight2',
-		        'R_III_ak_kat_E': 'reverseAcCatNight3',
-		        'LAEq Nappal' : 'laeqDay'
+		        'I_km/h': 'speed1',
+		        'II_km/h': 'speed2',
+		        'III_km/h': 'speed3',
+		        'I_ak_kat_N': 'acousticCatDay1',
+		        'II_ak_kat_N': 'acousticCatDay2',
+		        'III_ak_kat_N': 'acousticCatDay3',
+		        'I_ak_kat_E': 'acousticCatNight1',
+		        'II_ak_kat_E': 'acousticCatNight2',
+		        'III_ak_kat_E': 'acousticCatNight3',
+		        'R_Azonosító': 'identifierR',
+		        'R_I_km/h': 'speed1R',
+		        'R_II_km/h': 'speed2R',
+		        'R_III_km/h': 'speed3R',
+		        'R_I_ak_kat_N': 'racousticCatDayR1',
+		        'R_II_ak_kat_N': 'acousticCatDayR2',
+		        'R_III_ak_kat_N': 'acousticCatDayR3',
+		        'R_I_ak_kat_E': 'acousticCatNightR1',
+		        'R_II_ak_kat_E': 'acousticCatNightR2',
+		        'R_III_ak_kat_E': 'acousticCatNightR2',
+		        'LAEq Nappal' : 'laeqDay',
+		        'LAeq Éjjel' : 'laeqNight',
+		        'LW Nappal' : 'lwDay',
+		        'LW Éjjel' : 'lwNight',
+		        'Hatásterület Nappal' : 'impactAreaDay',
+		        'Hatásterület Éjjel' : 'impactAreaNight',
+		        'Védőtávolság Nappal' : 'protectiveDistanceDay',
+		        'Védőtávolság Éjjel' : 'protectiveDistanceNight'
 		    };
-		    
-		    
+   
 		    let selectedValue = '';
 		    
 		    // listener for calculations div
@@ -46,6 +52,9 @@
 				            if (!response.ok) {
 				                throw new Error('Network response was not ok');
 				            }
+				            // Fetch the updated data and re-render the table
+            				fetchDataAndRenderTabs();
+
 				           
 				        })
 				        .catch(error => {

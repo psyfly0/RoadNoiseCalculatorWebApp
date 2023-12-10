@@ -33,6 +33,7 @@ public class ConstantParametersService {
 		param.setF1_category_I(3.92);
 		param.setF1_category_II(3.79);
 		param.setF1_category_III(2.53);
+		param.setAngleOfViewDefault(180);
 		param.setKdFactor(16.30);
 		param.setRefDistance(7.50);
 		param.setPressureToIntensity(12.70);

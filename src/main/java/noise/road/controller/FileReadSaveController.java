@@ -19,7 +19,7 @@ import noise.road.dto.MutableParametersDTO;
 import noise.road.dto.SaveDbfRequest;
 import noise.road.dto.ShapeDataDTO;
 import noise.road.service.ConstantParametersService;
-import noise.road.service.DbfDataService;
+import noise.road.service.SaveDisplayService;
 import noise.road.service.FileReadService;
 import noise.road.service.MutableParametersService;
 
@@ -35,7 +35,7 @@ public class FileReadSaveController {
 	private FileReadService fileReadService;
 	
 	@Autowired
-	private DbfDataService dbfDataService;
+	private SaveDisplayService saveDisplayService;
 	
 	@Autowired
 	private ConstantParametersService constantParametersService;
@@ -62,7 +62,7 @@ public class FileReadSaveController {
         
         log.info("requestBody: {}", requestBody);
         
-    	dbfDataService.saveDbfData(requestBody, fileName);
+        saveDisplayService.saveDbfData(requestBody, fileName);
     	
     	// fetch the length of data for mutable parameters
     	uploadedDataLength = requestBody.size();

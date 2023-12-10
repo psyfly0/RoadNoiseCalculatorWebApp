@@ -9,6 +9,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class MutableParametersDTO {
 
+	private Integer file_id;
 	private double lthDay;
 	private double lthNight;
 	private double roadSurfaceRoughness;
@@ -17,5 +18,7 @@ public class MutableParametersDTO {
 	private double angleOfView;
 	private String trafficType;
 	private double slopeElevation;
-
+	private double parameterP_cat1;
+	private double parameterP_cat2_3;
+// P PARAMETÉREKTE BERAKNI ÉS CSEKKOLNI HOGY JÓ E
 }

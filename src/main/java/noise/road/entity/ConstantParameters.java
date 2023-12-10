@@ -79,6 +79,9 @@ public class ConstantParameters {
 	@Column(name = "F1_CATEGORY_III")
 	private double f1_category_III;
 	
+	@Column(name = "ANGLE_OF_VIEW_DEFAULT")
+	private double angleOfViewDefault;
+	
 	@Column(name = "KD_FACTOR")
 	private double kdFactor;
 	

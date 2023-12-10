@@ -21,14 +21,7 @@ public class CalculationController {
 	
 	@PostMapping("/LAeq/{fileId}")
 	public ResponseEntity<String> calculateLAeq(@PathVariable int fileId) {
-		// call the service
-		
-
-		// display.html-t javítani: csak akkor küld fileId requestet, ha előtte klikkeltünk egy tabra
-		
-		
-		calculationsService.calculateLAeq(fileId);
-	
+		calculationsService.calculateLAeq(fileId);	
 		return ResponseEntity.ok("Calculation performer and database successfully modifed");
 	}
 	
