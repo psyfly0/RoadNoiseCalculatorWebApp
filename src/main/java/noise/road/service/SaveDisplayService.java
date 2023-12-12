@@ -1,6 +1,8 @@
 package noise.road.service;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -11,11 +13,11 @@ import org.springframework.stereotype.Service;
 
 import noise.road.dto.DbfDataDTO;
 import noise.road.dto.DbfDataPreprocessDTO;
-import noise.road.dto.DisplayDataDTO;
-import noise.road.entity.ConstantParameters;
+
 import noise.road.entity.DbfData;
-import noise.road.repository.ConstantParametersRepository;
+import noise.road.entity.Results;
 import noise.road.repository.DbfDataRepository;
+import noise.road.repository.ResultsRepository;
 
 @Service
 public class SaveDisplayService {
@@ -26,10 +28,16 @@ public class SaveDisplayService {
 	private DbfDataRepository dbfDataRepository;
 	
 	@Autowired
+	private ResultsRepository resultsRepository;
+	
+	@Autowired
 	private ModelMapper modelMapper;
 	
 	public void saveDbfData(List<DbfDataPreprocessDTO> dbfDataDTO, String fileName) {
+		
 		List<DbfData> dbfDataList = new ArrayList<>();
+		List<Results> resultsList = new ArrayList<>();
+		
 		String fName = removeExtensionFromName(fileName);
 		int file_unique_id = 1;
 		
@@ -41,9 +49,9 @@ public class SaveDisplayService {
 			dbfData.setFile_unique_id(file_unique_id);
 			
 			dbfData.setIdentifier(dto.getIdentifier());
-			dbfData.setSpeed1(dto.getKmh1());
-			dbfData.setSpeed2(speed2and3(dto.getKmh1()));
-			dbfData.setSpeed3(speed2and3(dto.getKmh1()));
+			dbfData.setSpeed1(speed1and2(dto.getKmh1()));
+			dbfData.setSpeed2(speed1and2(dto.getKmh1()));
+			dbfData.setSpeed3(speed3(dto.getKmh1()));
 			dbfData.setAcousticCatDay1(dto.getAcCatDay1());
 			dbfData.setAcousticCatDay2(dto.getAcCatDay2());
 			dbfData.setAcousticCatDay3(dto.getAcCatDay3());
@@ -53,9 +61,9 @@ public class SaveDisplayService {
 			
 			// reverse direction
 			dbfData.setIdentifierR(dto.getReverseIdentifier());
-			dbfData.setSpeed1R(dto.getReverseKmh1());
-			dbfData.setSpeed2R(speed2and3(dto.getReverseKmh1()));
-			dbfData.setSpeed3R(speed2and3(dto.getReverseKmh1()));
+			dbfData.setSpeed1R(speed1and2(dto.getReverseKmh1()));
+			dbfData.setSpeed2R(speed1and2(dto.getReverseKmh1()));
+			dbfData.setSpeed3R(speed3(dto.getReverseKmh1()));
 			dbfData.setAcousticCatDayR1(dto.getReverseAcCatDay1());
 			dbfData.setAcousticCatDayR2(dto.getReverseAcCatDay2());
 			dbfData.setAcousticCatDayR3(dto.getReverseAcCatDay3());
@@ -65,80 +73,76 @@ public class SaveDisplayService {
 			
 			dbfDataList.add(dbfData);
 			
+			// Create a new Results instance for each DbfData entry
+			Results results = new Results();
+			results.setDbfData(dbfData);
+			results.setFile_id(dbfData.getFile_id());
+		    results.setFile_unique_id(dbfData.getFile_unique_id());
+			
+			resultsList.add(results);
+			
 			file_unique_id++;
 		}
 		
 		dbfDataRepository.saveAll(dbfDataList);
+		resultsRepository.saveAll(resultsList);
 		
 		file_id++;
 	}
 	
+    public Map<Integer, List<DbfDataDTO>> getAll() {
+        List<DbfData> dbfDataList = dbfDataRepository.findAll();
+        List<Results> resultsList = resultsRepository.findAll();
 
-	
-	
-	public Map<Integer, List<DbfDataDTO>> getAll() {
-		List<DbfData> allFiles = dbfDataRepository.findAll();
-		List<DbfDataDTO> displayDataList = mapToDisplayDTO(allFiles);
-		return displayDataList.stream()
-	            .collect(Collectors.groupingBy(DbfDataDTO::getFile_id));
-	}
-	
-	public List<DbfDataDTO> getLatestSavedFile() {
-        List<DbfData> latestFiles = dbfDataRepository.findAllByLatestFileId();
-        List<DbfDataDTO> displayDataList = mapToDisplayDTO(latestFiles);
-        return displayDataList;
-    }
-	
-	private List<DbfDataDTO> mapToDisplayDTO(List<DbfData> dbfDataList) {
-        return dbfDataList.stream()
-                .map(this::mapToDisplayDTO)
-                .collect(Collectors.toList());
-    }
+        Map<Integer, List<Results>> resultsMapByFileId = resultsList.stream()
+                .collect(Collectors.groupingBy(Results::getFile_id));
 
-    private DbfDataDTO mapToDisplayDTO(DbfData dbfData) {
-        return modelMapper.map(dbfData, DbfDataDTO.class);
-    }
-	
-  /*  private List<DisplayDataDTO> mapToDisplayDTO(List<DbfData> dbfDataList) {
-        return dbfDataList.stream()
-                .map(this::mapToDisplayDTO)
-                .collect(Collectors.toList());
-    }
+        Map<Integer, List<DbfData>> dbfDataMapByFileId = dbfDataList.stream()
+                .collect(Collectors.groupingBy(DbfData::getFile_id));
 
-    private DisplayDataDTO mapToDisplayDTO(DbfData dbfData) {
-        DisplayDataDTO displayDataDTO = new DisplayDataDTO();
-        displayDataDTO.setFileName(dbfData.getFileName());
-        displayDataDTO.setFile_id(dbfData.getFile_id());
-        displayDataDTO.setIdentifier(dbfData.getIdentifier());
-        displayDataDTO.setKmh1(dbfData.getSpeed1());
-        displayDataDTO.setKmh2(dbfData.getSpeed2());
-        displayDataDTO.setKmh3(dbfData.getSpeed3());
-        displayDataDTO.setAcCatDay1(dbfData.getAcousticCatDay1());
-        displayDataDTO.setAcCatDay2(dbfData.getAcousticCatDay2());
-        displayDataDTO.setAcCatDay3(dbfData.getAcousticCatDay3());
-        displayDataDTO.setAcCatNight1(dbfData.getAcousticCatNight1());
-        displayDataDTO.setAcCatNight2(dbfData.getAcousticCatNight2());
-        displayDataDTO.setAcCatNight3(dbfData.getAcousticCatNight3());
-        
-        // reverse direction
-        displayDataDTO.setReverseIdentifier(dbfData.getIdentifierR());
-        displayDataDTO.setReverseKmh1(dbfData.getSpeed1R());
-        displayDataDTO.setReverseKmh2(dbfData.getSpeed2R());
-        displayDataDTO.setReverseKmh3(dbfData.getSpeed3R());
-        displayDataDTO.setReverseAcCatDay1(dbfData.getAcousticCatDayR1());
-        displayDataDTO.setReverseAcCatDay2(dbfData.getAcousticCatDayR2());
-        displayDataDTO.setReverseAcCatDay3(dbfData.getAcousticCatDayR3());
-        displayDataDTO.setReverseAcCatNight1(dbfData.getAcousticCatNightR1());
-        displayDataDTO.setReverseAcCatNight2(dbfData.getAcousticCatNightR2());
-        displayDataDTO.setReverseAcCatNight3(dbfData.getAcousticCatNightR3());
-        
-        return displayDataDTO;
-    }*/
+        Map<Integer, List<DbfDataDTO>> dtoMapByFileId = new HashMap<>();
+
+        for (Map.Entry<Integer, List<DbfData>> dbfDataEntry : dbfDataMapByFileId.entrySet()) {
+            List<DbfDataDTO> dtos = new ArrayList<>();
+
+            List<DbfData> dbfData = dbfDataEntry.getValue();
+            List<Results> results = resultsMapByFileId.getOrDefault(dbfDataEntry.getKey(), Collections.emptyList());
+
+            for (DbfData data : dbfData) {
+                DbfDataDTO dto = modelMapper.map(data, DbfDataDTO.class);
+
+                // Find corresponding results if available and map
+                Results matchingResult = results.stream()
+                        .filter(result -> result.getFile_unique_id().equals(data.getFile_unique_id()))
+                        .findFirst()
+                        .orElse(null);
+
+                if (matchingResult != null) {
+                    modelMapper.map(matchingResult, dto);
+                }
+
+                dtos.add(dto);
+            }
+
+            dtoMapByFileId.put(dbfDataEntry.getKey(), dtos);
+        }
+
+        return dtoMapByFileId;
+    }
     
-	private Integer speed2and3(Integer speed1) {
-		if (speed1 <= 70) {
-			return speed1;
-		} else if (speed1 > 70 && speed1 <= 90) {
+    private Integer speed1and2(Integer speed) {
+    	if (speed > 0 && speed < 30) {
+    		return 30;
+    	}
+    	return speed;
+    }
+
+	private Integer speed3(Integer speed) {
+		if (speed > 0 && speed < 30) {
+			return 30;
+		} else if (speed <= 70) {
+			return speed;
+		} else if (speed > 70 && speed <= 90) {
 			return 70;
 		} else {
 			return 80;

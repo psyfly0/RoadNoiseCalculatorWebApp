@@ -13,4 +13,5 @@ public class CalculationResults {
     private double[] lw;
     private double[] protectiveDistance;
     private double[] impactArea;
+    private double[] noiseAtGivenDistance;
 }

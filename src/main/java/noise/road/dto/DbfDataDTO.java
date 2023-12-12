@@ -40,5 +40,7 @@ public class DbfDataDTO {
 	private Double impactAreaNight;
 	private Double protectiveDistanceDay;
 	private Double protectiveDistanceNight;
+	private Double noiseAtGivenDistanceDay;
+	private Double noiseAtGivenDistanceNight;
 }
 

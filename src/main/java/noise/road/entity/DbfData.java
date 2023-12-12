@@ -1,5 +1,6 @@
 package noise.road.entity;
 
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -25,6 +26,9 @@ public class DbfData {
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	@Column(name = "ID")
 	private Integer id;
+	
+	@OneToOne(mappedBy = "dbfData", cascade = CascadeType.ALL)
+    private Results results;
 	
 	@Column(name = "FILE_ID")
 	private Integer file_id;
@@ -94,30 +98,5 @@ public class DbfData {
 	
 	@Column(name = "R_ACOUSTIC_CAT_NIGHT_3")
 	private Integer acousticCatNightR3;
-	
-	@Column(name = "LAEQ_DAY")
-	private Double laeqDay;
-	
-	@Column(name = "LAEQ_NIGHT")
-	private Double laeqNight;
-	
-	@Column(name = "LW_DAY")
-	private Double lwDay;
-	
-	@Column(name = "LW_NIGHT")
-	private Double lwNight;
-	
-	@Column(name = "IMPACT_AREA_DAY")
-	private Double impactAreaDay;
-	
-	@Column(name = "IMPACT_AREA_NIGHT")
-	private Double impactAreaNight;
-	
-	@Column(name = "PROTECTIVE_DISTANCE_DAY")
-	private Double protectiveDistanceDay;
-	
-	@Column(name = "PROTECTIVE_DISTANCE_NIGHT")
-	private Double protectiveDistanceNight;
-	
 	
 }

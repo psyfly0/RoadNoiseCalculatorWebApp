@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import lombok.extern.slf4j.Slf4j;
 import noise.road.dto.DbfDataDTO;
-import noise.road.dto.DisplayDataDTO;
+
 import noise.road.service.SaveDisplayService;
 
 @RestController
@@ -22,19 +22,17 @@ public class DisplayController {
 	
 	@Autowired
     private SaveDisplayService saveDisplayService;
-
-	@GetMapping("/displayLatestFile")
-    public List<DbfDataDTO> displayLatestFile() {
-		List<DbfDataDTO> a = saveDisplayService.getLatestSavedFile();
-		log.info("latest file: {}", a);
-        return saveDisplayService.getLatestSavedFile();
-    }
 	
 	@GetMapping("/displayData")
-	public Map<Integer, List<DbfDataDTO>> displayAll() {
+	public Map<Integer, List<DbfDataDTO>> displayAllData() {
 		Map<Integer, List<DbfDataDTO>> proba = saveDisplayService.getAll();
 		log.info("All files: {}", proba);
 		return saveDisplayService.getAll();
 	}
+	
+/*	@GetMapping("/displayResults")
+	public Map<Integer, List<ResultsDTO>> displayAllResults() {
+		return saveDisplayService.getAllResults();
+	}*/
 	
 }

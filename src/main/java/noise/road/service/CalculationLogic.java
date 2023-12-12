@@ -10,12 +10,14 @@ public class CalculationLogic {
 
 	public CalculationResults perfromCalculations(DbfDataDTO dbfDataDTO, 
 							MutableParametersDTO mutableParamDTO, 
-							ConstantParametersDTO constantParamDTO) {
+							ConstantParametersDTO constantParamDTO, Double distanceToCalculate) {
 		
 		log.info("dbfDataDTO: {}", dbfDataDTO);
 		log.info("mutableParamsDTO: {}", mutableParamDTO);
 		log.info("constantParamsDTO {}", constantParamDTO);
+		log.info("distanceToCalculate {}", distanceToCalculate);
 		
+		boolean isDistanceGiven = false;
 		// partial results
 		double[] vehicleSpeed = vehicleSpeed(dbfDataDTO);
 		double[] vehicleHours = vehicleHours(dbfDataDTO, constantParamDTO);
@@ -30,14 +32,45 @@ public class CalculationLogic {
 		double[] protectiveDistance = protectiveDistance(laeq, mutableParamDTO, constantParamDTO);
 		double[] impactArea = impactArea(laeq, mutableParamDTO, constantParamDTO);
 		
+		double[] noiseAtGivenDistance = null;
+		if (distanceToCalculate != null) {
+			noiseAtGivenDistance = noiseAtGivenDistance(distanceToCalculate, laeq, mutableParamDTO, constantParamDTO);
+			isDistanceGiven = true;
+		}
+		
 		CalculationResults results = new CalculationResults();
 		results.setLaeq(laeq);
 		results.setLw(lw);
 		results.setProtectiveDistance(protectiveDistance);
 		results.setImpactArea(impactArea);
 		
+		if (isDistanceGiven) {
+			results.setNoiseAtGivenDistance(noiseAtGivenDistance);
+		}
+		
 		return results;
 		
+	}
+	
+	private double[] noiseAtGivenDistance(Double distance, double[] laeq, 
+									MutableParametersDTO mutableParamDTO, 
+									ConstantParametersDTO constantParamDTO) {
+		
+		double[] noiseAtGivenDistance = new double[2];
+		
+		//day
+		noiseAtGivenDistance[0] = Math.round((laeq[0] + (mutableParamDTO.getSoundAbsorptionFactor() 
+				* Math.log10(constantParamDTO.getRefDistance() / distance)) +
+                (10 * Math.log10(mutableParamDTO.getAngleOfView() /
+        		constantParamDTO.getAngleOfViewDefault())) + mutableParamDTO.getReflection()) * 10) / 10.0;
+		
+		//night
+		noiseAtGivenDistance[1] = Math.round((laeq[1] + (mutableParamDTO.getSoundAbsorptionFactor() 
+				* Math.log10(constantParamDTO.getRefDistance() / distance)) +
+                (10 * Math.log10(mutableParamDTO.getAngleOfView() /
+        		constantParamDTO.getAngleOfViewDefault())) + mutableParamDTO.getReflection()) * 10) / 10.0;
+		
+		return noiseAtGivenDistance;
 	}
 	
 	private double[] impactArea(double[] laeq, 
@@ -50,13 +83,13 @@ public class CalculationLogic {
 		impactArea[0] = Math.round((constantParamDTO.getRefDistance() /
                 Math.pow(10, (((mutableParamDTO.getLthDay() - 10) - laeq[0] - 
                 (10 * Math.log10(mutableParamDTO.getAngleOfView() / constantParamDTO.getAngleOfViewDefault()))) 
-        		- mutableParamDTO.getReflection()) / mutableParamDTO.getSoundAbsorptionFactor())) * 10) / 10;
+        		- mutableParamDTO.getReflection()) / mutableParamDTO.getSoundAbsorptionFactor())) * 10) / 10.0;
 		
 		// night
 		impactArea[1] = Math.round((constantParamDTO.getRefDistance() /
                 Math.pow(10, (((mutableParamDTO.getLthNight() - 10) - laeq[1] - 
                 (10 * Math.log10(mutableParamDTO.getAngleOfView() / constantParamDTO.getAngleOfViewDefault()))) 
-        		- mutableParamDTO.getReflection()) / mutableParamDTO.getSoundAbsorptionFactor())) * 10) / 10;
+        		- mutableParamDTO.getReflection()) / mutableParamDTO.getSoundAbsorptionFactor())) * 10) / 10.0;
 		
 		return impactArea;
 		
@@ -72,13 +105,13 @@ public class CalculationLogic {
 		protectiveDistance[0] = Math.round((constantParamDTO.getRefDistance() /
                 Math.pow(10, ((mutableParamDTO.getLthDay() - laeq[0] - 
                 (10 * Math.log10(mutableParamDTO.getAngleOfView() / constantParamDTO.getAngleOfViewDefault())))
-        		- mutableParamDTO.getReflection()) / mutableParamDTO.getSoundAbsorptionFactor())) * 10) / 10;
+        		- mutableParamDTO.getReflection()) / mutableParamDTO.getSoundAbsorptionFactor())) * 10) / 10.0;
 		
 		// night
 		protectiveDistance[1] = Math.round((constantParamDTO.getRefDistance() /
                 Math.pow(10, ((mutableParamDTO.getLthNight() - laeq[1] - 
                 (10 * Math.log10(mutableParamDTO.getAngleOfView() / constantParamDTO.getAngleOfViewDefault())))
-        		- mutableParamDTO.getReflection()) / mutableParamDTO.getSoundAbsorptionFactor())) * 10) / 10;
+        		- mutableParamDTO.getReflection()) / mutableParamDTO.getSoundAbsorptionFactor())) * 10) / 10.0;
 		
 		return protectiveDistance;
 	}
@@ -87,10 +120,10 @@ public class CalculationLogic {
 		double[] lw = new double[2];
 		
 		// day
-		lw[0] = laeq[0] + constantParamDTO.getPressureToIntensity();
+		lw[0] = Math.round((laeq[0] + constantParamDTO.getPressureToIntensity()) * 10) / 10.0;
 		
 		// night
-		lw[1] = laeq[1] + constantParamDTO.getPressureToIntensity();
+		lw[1] = Math.round((laeq[1] + constantParamDTO.getPressureToIntensity()) * 10) / 10.0;
 		
 		return lw;
 	}
@@ -112,7 +145,7 @@ public class CalculationLogic {
 			laeqDay += Math.pow(10,  0.1 * (ktFactor[2] + kdFactor[2]));
 		}
 		
-		laeq[0] = laeqDay != 0 ? (Math.round((10 * Math.log10(laeqDay)) * 10) / 10) : 0.0;
+		laeq[0] = laeqDay != 0 ? (Math.round((10 * Math.log10(laeqDay)) * 10) / 10.0) : 0.0;
 		
 		// night
 		double laeqNight = 0.0;
@@ -128,7 +161,7 @@ public class CalculationLogic {
 			laeqNight += Math.pow(10,  0.1 * (ktFactor[2] + kdFactor[5]));
 		}
 		
-		laeq[1] = laeqNight != 0 ? (Math.round((10 * Math.log10(laeqNight)) * 10) / 10) : 0.0;
+		laeq[1] = laeqNight != 0 ? (Math.round((10 * Math.log10(laeqNight)) * 10) / 10.0) : 0.0;
 		
 		return laeq;
 	}

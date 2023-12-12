@@ -1,12 +1,7 @@
 package noise.road.service;
 
-import java.time.Duration;
-import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
-
-import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -14,12 +9,8 @@ import lombok.extern.slf4j.Slf4j;
 import noise.road.dto.ConstantParametersDTO;
 import noise.road.dto.DbfDataDTO;
 import noise.road.dto.MutableParametersDTO;
-import noise.road.entity.ConstantParameters;
-import noise.road.entity.DbfData;
-import noise.road.entity.MutableParameters;
-import noise.road.repository.ConstantParametersRepository;
-import noise.road.repository.DbfDataRepository;
-import noise.road.repository.MutableParametersRepository;
+import noise.road.entity.Results;
+import noise.road.repository.ResultsRepository;
 
 @Service
 @Slf4j
@@ -29,12 +20,13 @@ public class CalculationsService {
 	private DataService dataService;
 	
 	@Autowired
-	private DbfDataRepository dbfDataRepository;
+	private ResultsRepository resultsRepository;
 	
 	private List<DbfDataDTO> dbfDataDTOList;
     private ConstantParametersDTO constantParameters;
     private List<MutableParametersDTO> mutableParameters;
     private List<CalculationResults> resultsList;
+    private Double distanceToCalculate;
 	
     public void fetchData(int fileId) {
     	boolean isFetchedDbf = false;
@@ -61,7 +53,7 @@ public class CalculationsService {
     		log.info("mutableParameters: {}", mutableParameters);
     	}
     	
-    	if (isFetchedDbf || isFetchedConstant || isFetchedMutable) {
+    	if (isFetchedDbf || isFetchedConstant || isFetchedMutable || distanceToCalculate != null) {
     		resultsList = getAllResults(fileId);
     		log.info("resultsList: {}", resultsList);
     	}
@@ -70,110 +62,141 @@ public class CalculationsService {
     public void calculateAll(int fileId) {
     	fetchData(fileId);
     	
-    	List<DbfData> dbfDataList = new ArrayList<>();
+    	List<Results> resultsEntitiesToUpdate = resultsRepository.findByFileId(fileId);
+    	List<Results> resultEntitiesList = new ArrayList<>();
     	
-    	for (CalculationResults results : resultsList) {
-    		double[] laeqResult = results.getLaeq();
-            double[] lwResult = results.getLw();
-            double[] protectiveDistanceResult = results.getProtectiveDistance();
-            double[] impactAreaResult = results.getImpactArea();
-        	
-        	DbfData dbfData = new DbfData();
-        	dbfData.setLaeqDay(laeqResult[0]);
-        	dbfData.setLaeqNight(laeqResult[1]);
-        	dbfData.setLwDay(lwResult[0]);
-        	dbfData.setLwNight(lwResult[1]);
-        	dbfData.setProtectiveDistanceDay(protectiveDistanceResult[0]);
-        	dbfData.setProtectiveDistanceNight(protectiveDistanceResult[1]);
-        	dbfData.setImpactAreaDay(impactAreaResult[0]);
-        	dbfData.setImpactAreaNight(impactAreaResult[1]);
+    	for (int i = 0; i < resultsList.size() && i < resultsEntitiesToUpdate.size(); i++) {
+			double[] laeqResult = resultsList.get(i).getLaeq();
+			double[] lwResult = resultsList.get(i).getLw();
+			double[] protectiveDistanceResult = resultsList.get(i).getProtectiveDistance();
+			double[] impactAreaResult = resultsList.get(i).getImpactArea();
 			
-			dbfDataList.add(dbfData);
+			Results results = resultsEntitiesToUpdate.get(i);
+			
+			results.setLaeqDay(laeqResult[0]);
+			results.setLaeqNight(laeqResult[1]);
+			results.setLwDay(lwResult[0]);
+			results.setLwNight(lwResult[1]);
+			results.setProtectiveDistanceDay(protectiveDistanceResult[0]);
+			results.setProtectiveDistanceNight(protectiveDistanceResult[1]);
+			results.setImpactAreaDay(impactAreaResult[0]);
+			results.setImpactAreaNight(impactAreaResult[1]);
+			
+			resultEntitiesList.add(results);
 		}
-    	log.info("All calculations dbfDataList: {}", dbfDataList);
-    	dbfDataRepository.saveAll(dbfDataList);	
+    	log.info("All calculations dbfDataList: {}", resultEntitiesList);
+    	resultsRepository.saveAll(resultEntitiesList);	
     	
     }
     
-	public void calculateLAeq(int fileId) {
+    public void calculateLAeq(int fileId) {
 		fetchData(fileId);
-		Instant start = Instant.now();
-		 List<DbfData> dbfDataEntitiesToUpdate = dbfDataRepository.findByFileId(fileId);
-		 List<DbfData> dbfDataList = new ArrayList<>();
 
-		for (int i = 0; i < resultsList.size() && i < dbfDataEntitiesToUpdate.size(); i++) {
+		List<Results> resultsEntitiesToUpdate = resultsRepository.findByFileId(fileId);
+    	List<Results> resultEntitiesList = new ArrayList<>();
+
+		for (int i = 0; i < resultsList.size() && i < resultsEntitiesToUpdate.size(); i++) {
 			double[] laeqResult = resultsList.get(i).getLaeq();
-			//DbfData dbfData = new DbfData();
 			
-			DbfData dbfData = dbfDataEntitiesToUpdate.get(i);
+			Results results = resultsEntitiesToUpdate.get(i);
 			
-			dbfData.setLaeqDay(laeqResult[0]);
-			dbfData.setLaeqNight(laeqResult[1]);
+			results.setLaeqDay(laeqResult[0]);
+			results.setLaeqNight(laeqResult[1]);
 			
-			dbfDataList.add(dbfData);
+			resultEntitiesList.add(results);
 		}
-		log.info("LAeq dbfDataList: {}", dbfDataList);
-		dbfDataRepository.saveAll(dbfDataList);	
-		Instant end = Instant.now();
-		Duration duration = Duration.between(start, end);
-		log.info("Duration time of mapping dto to entites and save it to db: {}", duration);
+		log.info("LAeq dbfDataList: {}", resultEntitiesList);
+		resultsRepository.saveAll(resultEntitiesList);		
 	}
-	
-	public void calculateLw(int fileId) {
+    
+    public void calculateLw(int fileId) {
 		fetchData(fileId);
 		
-		List<DbfData> dbfDataList = new ArrayList<>();
-
-		for (CalculationResults results : resultsList) {
-			double[] lwResult = results.getLw();
-			DbfData dbfData = new DbfData();
+		List<Results> resultsEntitiesToUpdate = resultsRepository.findByFileId(fileId);
+    	List<Results> resultEntitiesList = new ArrayList<>();
+		 
+    	for (int i = 0; i < resultsList.size() && i < resultsEntitiesToUpdate.size(); i++) {
+			double[] lwResult = resultsList.get(i).getLw();
 			
-			dbfData.setLwDay(lwResult[0]);
-			dbfData.setLwNight(lwResult[1]);
+			Results results = resultsEntitiesToUpdate.get(i);
 			
-			dbfDataList.add(dbfData);
+			results.setLwDay(lwResult[0]);
+			results.setLwNight(lwResult[1]);
+			
+			resultEntitiesList.add(results);
 		}
-		log.info("LWeq dbfDataList: {}", dbfDataList);
-		dbfDataRepository.saveAll(dbfDataList);		
+		log.info("LWeq dbfDataList: {}", resultEntitiesList);
+		resultsRepository.saveAll(resultEntitiesList);		
 	}
-	
-	public void calculateProtectiveDistance(int fileId) {
+    
+    public void calculateProtectiveDistance(int fileId) {
 		fetchData(fileId);
 		
-		List<DbfData> dbfDataList = new ArrayList<>();
+		List<Results> resultsEntitiesToUpdate = resultsRepository.findByFileId(fileId);
+    	List<Results> resultEntitiesList = new ArrayList<>();
 
-		for (CalculationResults results : resultsList) {
-			double[] protectiveDistanceResult = results.getProtectiveDistance();
-			DbfData dbfData = new DbfData();
+    	for (int i = 0; i < resultsList.size() && i < resultsEntitiesToUpdate.size(); i++) {
+			double[] protectiveDistanceResult = resultsList.get(i).getProtectiveDistance();
 			
-			dbfData.setProtectiveDistanceDay(protectiveDistanceResult[0]);
-        	dbfData.setProtectiveDistanceNight(protectiveDistanceResult[1]);
+			Results results = resultsEntitiesToUpdate.get(i);
 			
-			dbfDataList.add(dbfData);
+			results.setProtectiveDistanceDay(protectiveDistanceResult[0]);
+			results.setProtectiveDistanceNight(protectiveDistanceResult[1]);
+			
+			resultEntitiesList.add(results);
 		}
-		log.info("ProtectiveDistance dbfDataList: {}", dbfDataList);
-		dbfDataRepository.saveAll(dbfDataList);		
+		log.info("ProtectiveDistance dbfDataList: {}", resultEntitiesList);
+		resultsRepository.saveAll(resultEntitiesList);	
 	}
-	
-	public void calculateImpactArea(int fileId) {
+    
+    public void calculateImpactArea(int fileId) {
 		fetchData(fileId);
 		
-		List<DbfData> dbfDataList = new ArrayList<>();
+		List<Results> resultsEntitiesToUpdate = resultsRepository.findByFileId(fileId);
+    	List<Results> resultEntitiesList = new ArrayList<>();
 
-		for (CalculationResults results : resultsList) {
-			double[] impactAreaResult = results.getImpactArea();
-			DbfData dbfData = new DbfData();
+    	for (int i = 0; i < resultsList.size() && i < resultsEntitiesToUpdate.size(); i++) {
+			double[] impactAreaResult = resultsList.get(i).getImpactArea();
 			
-			dbfData.setImpactAreaDay(impactAreaResult[0]);
-        	dbfData.setImpactAreaNight(impactAreaResult[1]);
+			Results results = resultsEntitiesToUpdate.get(i);
 			
-			dbfDataList.add(dbfData);
+			results.setImpactAreaDay(impactAreaResult[0]);
+			results.setImpactAreaNight(impactAreaResult[1]);
+			
+			resultEntitiesList.add(results);
 		}
-		log.info("ImpactArea dbfDataList: {}", dbfDataList);
-		dbfDataRepository.saveAll(dbfDataList);		
+		log.info("ImpactArea dbfDataList: {}", resultEntitiesList);
+		resultsRepository.saveAll(resultEntitiesList);		
 	}
-	
-	private List<CalculationResults> getAllResults(int fileId) {
+    
+    public void calculateNoiseAtGivenDistance(int fileId, double distance) {
+		this.distanceToCalculate = distance;
+		fetchData(fileId);
+		
+		List<Results> resultsEntitiesToUpdate = resultsRepository.findByFileId(fileId);
+    	List<Results> resultEntitiesList = new ArrayList<>();
+		
+    	for (int i = 0; i < resultsList.size() && i < resultsEntitiesToUpdate.size(); i++) {
+			double[] noiseAtGivenDistanceResult = resultsList.get(i).getNoiseAtGivenDistance();
+
+			Results results = resultsEntitiesToUpdate.get(i);
+			
+			results.setNoiseAtGivenDistanceDay(noiseAtGivenDistanceResult[0]);
+			results.setNoiseAtGivenDistanceNight(noiseAtGivenDistanceResult[1]);
+			
+			resultEntitiesList.add(results);
+		}
+		log.info("NoiseAtGivenDistance dbfDataList: {}", resultEntitiesList);
+		resultsRepository.saveAll(resultEntitiesList);
+	}
+    
+    public void resetFetchedData() {
+        dbfDataDTOList = null;
+        constantParameters = null;
+        mutableParameters = null;
+    }
+    
+    private List<CalculationResults> getAllResults(int fileId) {
     	
 		resultsList = new ArrayList<>();
 		
@@ -185,21 +208,14 @@ public class CalculationsService {
         	ConstantParametersDTO constantParam = constantParameters;
         	
         	CalculationLogic calculationLogic = new CalculationLogic();
-        	CalculationResults results = calculationLogic.perfromCalculations(dbfDataDTO, mutableParam, constantParam);
+        	CalculationResults results = calculationLogic.perfromCalculations(dbfDataDTO, mutableParam, constantParam, distanceToCalculate);
         	
         	resultsList.add(results);
         }
+        distanceToCalculate = null;
         
-            return resultsList;
+        return resultsList;
             
 	}
-	
-	
-	
-	public void resetFetchedData() {
-        dbfDataDTOList = null;
-        constantParameters = null;
-        mutableParameters = null;
-    }
 
 }

@@ -17,17 +17,22 @@
 		    <label for="calculations">Számítások:</label>
 		    <select id="calculations" onchange="handleCalculationChange()">
 		        <option value="">Számítási műveletek</option>
-		        <option value="/backend/endpoint1">Minden érték számítása</option>
-		        <option value="/calculations/LAeq">Egyenértékű A-hangnyomásszint számítása</option>
-		        <option value="/backend/endpoint3">Hangteljesítményszint számítása</option>
-		        <option value="/backend/endpoint4">Védőtávolság számítása</option>
-		        <option value="/backend/endpoint5">Hatásterület számítása</option>
-		        <option value="/backend/endpoint6">Adott távolságon adódó zajterhelés számítása</option>
+		        <option value="/calculations/all">Minden érték számítása</option>
+		        <option value="/calculations/laeq">Egyenértékű A-hangnyomásszint számítása</option>
+		        <option value="/calculations/lw">Hangteljesítményszint számítása</option>
+		        <option value="/calculations/protectiveDistance">Védőtávolság számítása</option>
+		        <option value="/calculations/impactArea">Hatásterület számítása</option>
+		        <option value="/calculations/givenDistance">Adott távolságon adódó zajterhelés számítása</option>
 		    </select>
+		    <div id="text-field-container" style="display: none;">
+	            <label for="userInput">Enter a number:</label>
+	            <input type="number" id="userInput" step="any">
+        	</div>
 		    <button onclick="handleSubmit()">Submit</button> 
 		</div>
 		
 		<div id="root"></div>
+		<div id="table-container"></div>
 		<script type="text/babel" src="/displayJS/display.js">
 			
 	  </script>

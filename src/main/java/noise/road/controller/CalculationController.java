@@ -19,10 +19,43 @@ public class CalculationController {
 	@Autowired
 	private CalculationsService calculationsService;
 	
-	@PostMapping("/LAeq/{fileId}")
+	@PostMapping("/all/{fileId}")
+	public ResponseEntity<String> calculateAll(@PathVariable int fileId) {
+		calculationsService.calculateAll(fileId);
+		return ResponseEntity.ok("ALL-Calculations performed and database successfully modifed");
+	}
+	
+	@PostMapping("/laeq/{fileId}")
 	public ResponseEntity<String> calculateLAeq(@PathVariable int fileId) {
+		log.info("fileId: {}", fileId);
 		calculationsService.calculateLAeq(fileId);	
-		return ResponseEntity.ok("Calculation performer and database successfully modifed");
+		return ResponseEntity.ok("LAeq-Calculation performed and database successfully modifed");
+	}
+	
+	@PostMapping("/lw/{fileId}")
+	public ResponseEntity<String> calculateLW(@PathVariable int fileId) {
+		calculationsService.calculateLw(fileId);
+		return ResponseEntity.ok("LW-Calculation performed and database successfully modifed");
+	}
+	
+	@PostMapping("/protectiveDistance/{fileId}")
+	public ResponseEntity<String> calculateProtectiveDistance(@PathVariable int fileId) {
+		calculationsService.calculateProtectiveDistance(fileId);
+		return ResponseEntity.ok("ProtectiveDistance-Calculation performed and database successfully modifed");
+	}
+	
+	@PostMapping("/impactArea/{fileId}")
+	public ResponseEntity<String> calculateImpactArea(@PathVariable int fileId) {
+		calculationsService.calculateImpactArea(fileId);
+		return ResponseEntity.ok("ImpactArea-Calculation performed and database successfully modifed");
+	}
+	
+	@PostMapping("givenDistance/{fileId}/{userInput}")
+	public ResponseEntity<String> calculateNoiseAtGivenDistance(@PathVariable int fileId, @PathVariable double userInput) {
+		log.info("fileId: {}", fileId);
+		log.info("userInput: {}", userInput);
+		calculationsService.calculateNoiseAtGivenDistance(fileId, userInput);
+		return ResponseEntity.ok("NoiseAtGivenDistance-Calculation performed and database successfully modifed");
 	}
 	
 
