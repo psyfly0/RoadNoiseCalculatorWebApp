@@ -64,4 +64,22 @@ public class Results {
 	@Column(name = "NOISE_AT_GIVEN_DISTANCE_NIGHT")
 	private Double noiseAtGivenDistanceNight;
 	
+	@Column(name = "DIFFERENCE_DAY0")
+	private Double differenceDay0;
+	
+	@Column(name = "DIFFERENCE_NIGHT0")
+	private Double differenceNight0;
+	
+	@Column(name = "DIFFERENCE_DAY1")
+	private Double differenceDay1;
+	
+	@Column(name = "DIFFERENCE_NIGHT1")
+	private Double differenceNight1;
+	
+	@Column(name = "DIFFERENCE_DAY2")
+	private Double differenceDay2;
+	
+	@Column(name = "DIFFERENCE_NIGHT2")
+	private Double differenceNight2;
+	
 }

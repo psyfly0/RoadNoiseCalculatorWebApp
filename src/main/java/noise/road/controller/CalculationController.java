@@ -1,5 +1,7 @@
 package noise.road.controller;
 
+import java.util.Map;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -10,6 +12,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import lombok.extern.slf4j.Slf4j;
 import noise.road.service.CalculationsService;
+import noise.road.service.DifferenceCalculatorService;
 
 @RestController
 @RequestMapping("/calculations")
@@ -18,6 +21,9 @@ public class CalculationController {
 	
 	@Autowired
 	private CalculationsService calculationsService;
+	
+	@Autowired
+	private DifferenceCalculatorService differenceCalcService;
 	
 	@PostMapping("/all/{fileId}")
 	public ResponseEntity<String> calculateAll(@PathVariable int fileId) {
@@ -56,6 +62,18 @@ public class CalculationController {
 		log.info("userInput: {}", userInput);
 		calculationsService.calculateNoiseAtGivenDistance(fileId, userInput);
 		return ResponseEntity.ok("NoiseAtGivenDistance-Calculation performed and database successfully modifed");
+	}
+	
+	@PostMapping("differences/{fileId1}/{fileId2}")
+	public ResponseEntity<String> calculateDifferences(@PathVariable int fileId1, @PathVariable int fileId2, @RequestBody Map<String, Object> requestBody) {
+		log.info("fileId1: {}", fileId1);
+		log.info("fileId2: {}", fileId2);
+		
+		int differenceColumnToUpdate = (int) requestBody.get("differenceColumnToUpdate");
+	    log.info("differenceColumnToUpdate: {}", differenceColumnToUpdate);
+	    
+		differenceCalcService.calculateDifferences(fileId1, fileId2, differenceColumnToUpdate);
+		return ResponseEntity.ok("Difference-Calculation performer and database successfully modifed");
 	}
 	
 

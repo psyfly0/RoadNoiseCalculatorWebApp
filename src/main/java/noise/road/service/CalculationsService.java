@@ -84,7 +84,7 @@ public class CalculationsService {
 			
 			resultEntitiesList.add(results);
 		}
-    	log.info("All calculations dbfDataList: {}", resultEntitiesList);
+    	log.info("All calculations resultEntitiesList: {}", resultEntitiesList);
     	resultsRepository.saveAll(resultEntitiesList);	
     	
     }
@@ -105,7 +105,7 @@ public class CalculationsService {
 			
 			resultEntitiesList.add(results);
 		}
-		log.info("LAeq dbfDataList: {}", resultEntitiesList);
+		log.info("LAeq resultEntitiesList: {}", resultEntitiesList);
 		resultsRepository.saveAll(resultEntitiesList);		
 	}
     
@@ -125,7 +125,7 @@ public class CalculationsService {
 			
 			resultEntitiesList.add(results);
 		}
-		log.info("LWeq dbfDataList: {}", resultEntitiesList);
+		log.info("LWeq resultEntitiesList: {}", resultEntitiesList);
 		resultsRepository.saveAll(resultEntitiesList);		
 	}
     
@@ -145,7 +145,7 @@ public class CalculationsService {
 			
 			resultEntitiesList.add(results);
 		}
-		log.info("ProtectiveDistance dbfDataList: {}", resultEntitiesList);
+		log.info("ProtectiveDistance resultEntitiesList: {}", resultEntitiesList);
 		resultsRepository.saveAll(resultEntitiesList);	
 	}
     
@@ -165,7 +165,7 @@ public class CalculationsService {
 			
 			resultEntitiesList.add(results);
 		}
-		log.info("ImpactArea dbfDataList: {}", resultEntitiesList);
+		log.info("ImpactArea resultEntitiesList: {}", resultEntitiesList);
 		resultsRepository.saveAll(resultEntitiesList);		
 	}
     
@@ -186,7 +186,7 @@ public class CalculationsService {
 			
 			resultEntitiesList.add(results);
 		}
-		log.info("NoiseAtGivenDistance dbfDataList: {}", resultEntitiesList);
+		log.info("NoiseAtGivenDistance resultEntitiesList: {}", resultEntitiesList);
 		resultsRepository.saveAll(resultEntitiesList);
 	}
     

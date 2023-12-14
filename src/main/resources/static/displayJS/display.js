@@ -20,7 +20,7 @@
 		        'R_I_ak_kat_E': 'acousticCatNightR1',
 		        'R_II_ak_kat_E': 'acousticCatNightR2',
 		        'R_III_ak_kat_E': 'acousticCatNightR3',
-		        'LAEq Nappal' : 'laeqDay',
+		        'LAeq Nappal' : 'laeqDay',
 		        'LAeq Éjjel' : 'laeqNight',
 		        'LW Nappal' : 'lwDay',
 		        'LW Éjjel' : 'lwNight',
@@ -29,9 +29,211 @@
 		        'Hatásterület Nappal' : 'impactAreaDay',
 		        'Hatásterület Éjjel' : 'impactAreaNight',
 		        'Zajterhelés x távolságon Nappal' : 'noiseAtGivenDistanceDay',
-		        'Zajterhelés x távolságon Éjjel' : 'noiseAtGivenDistanceNight'
-		        
+		        'Zajterhelés x távolságon Éjjel' : 'noiseAtGivenDistanceNight',
 		    };
+		    
+		    let differenceColumnDefault = [0, 1, 2];
+		    let differenceColumnTemp = [];
+		    let differenceColumnToUpdate = 0;
+		    
+		    let previousDifferenceColumnToUpdate;
+			let previousDifferenceColumnTemp;
+			let previousDifferenceColumnDefault;
+
+			// handle difference request
+			function handleDifferenceSubmit() {
+				console.log('groupedData in difference:', groupedData);
+			    const files = Object.keys(groupedData); // Assuming groupedData contains uploaded file names
+			
+			    // Only proceed if at least 2 files are available
+			    if (files.length >= 2) {
+			        const container = document.getElementById('difference-container');
+			
+			        // Create dropdown elements
+			        const dropdown1 = document.createElement('select');
+			        const dropdown2 = document.createElement('select');
+			
+			        // Fill dropdowns with file names
+			        files.forEach(fileId => {
+					    const fileName = groupedData[fileId][0].fileName; // Get the fileName based on the fileId
+
+					    const option2 = document.createElement('option');
+					
+					    // Use fileName for display and fileId for value
+					    option2.text = fileName;
+					    option2.value = fileId;
+					
+					   // dropdown1.appendChild(option1);
+					    dropdown2.appendChild(option2);
+					});
+					
+					// Get the active file's fileName using activeFileId
+			        const activeFileName = groupedData[activeFileId][0].fileName;
+			
+			        // Create an unchangeable dropdown 1 for the active file's fileName
+			        const option1 = document.createElement('option');
+			        option1.text = activeFileName;
+			        option1.value = activeFileId;
+			        option1.disabled = true;
+			        option1.selected = true;
+			
+			        dropdown1.appendChild(option1);
+			
+			        // Create OK button
+			        const okButton = document.createElement('button');
+			        okButton.textContent = 'OK';
+			        okButton.onclick = () => {
+			            const fileId1 = dropdown1.value; // Get the selected fileId from the dropdown
+    					const fileId2 = dropdown2.value; 
+			            
+			            const file1 = groupedData[fileId1];
+					    const file2 = groupedData[fileId2];
+					
+					    // Function to check if laeqDay and laeqNight are null
+					    const checkLaeqNull = (file) => {
+					        return file.some(entry => entry.laeqDay === null || entry.laeqNight === null);
+					    };
+					
+					    // Check if laeqDay or laeqNight are null in either file
+					    if (checkLaeqNull(file1) || checkLaeqNull(file2)) {
+					        console.log('Error: laeqDay or laeqNight is null in one of the selected files.');
+					        return; // Prevent sending data if any null value is found
+					    }
+						// create new columns for the values
+						createNewColumnsForDifferences(fileId1, fileId2);
+         
+			            // Remove the dropdownDiv when 'OK' is clicked
+		                if (dropdownDiv && dropdownDiv.parentNode) {
+		                    dropdownDiv.parentNode.removeChild(dropdownDiv);
+		                    dropdownDiv = null; // Reset dropdownDiv
+		                }
+			        };
+			
+			        // Create a div to hold dropdowns and the OK button
+			        let dropdownDiv = document.createElement('div');
+			        dropdownDiv.appendChild(dropdown1);
+			        dropdownDiv.appendChild(document.createTextNode(' és '));
+			        dropdownDiv.appendChild(dropdown2);
+			        dropdownDiv.appendChild(document.createTextNode('különbsége'));
+			        dropdownDiv.appendChild(okButton);
+			
+			        // Append the div to the container
+			        container.appendChild(dropdownDiv);
+			    } else {
+			        console.log('At least two files are required for comparison.');
+			    }
+			}
+			
+			function createNewColumnsForDifferences(fileId1, fileId2) {
+				let fileName1 = groupedData[fileId1][0].fileName;
+				let fileName2 = groupedData[fileId2][0].fileName;
+				
+				if (differenceColumnTemp.length < 3) {
+					let newKeyDay = `${fileName1} - ${fileName2} különbsége Nappal`;
+					let newKeyNight = `${fileName1} - ${fileName2} különbsége Éjjel`;
+					
+					updateDifferenceColumns();
+					
+					switch (differenceColumnToUpdate) {
+			            case 0:
+			                columnMapping[newKeyDay] = 'differenceDay0';
+			                columnMapping[newKeyNight] = 'differenceNight0';
+			                console.log('Updated column mapping after difference:', columnMapping);		                
+			                 sendFilesToBackend(fileId1, fileId2);
+			                break;
+			            case 1:
+			                columnMapping[newKeyDay] = 'differenceDay1';
+			                columnMapping[newKeyNight] = 'differenceNight1';
+			                console.log('Updated column mapping after difference:', columnMapping);
+			                 sendFilesToBackend(fileId1, fileId2);
+			                break;
+			            case 2:
+			                columnMapping[newKeyDay] = 'differenceDay2';
+			                columnMapping[newKeyNight] = 'differenceNight2';
+			                console.log('Updated column mapping after difference:', columnMapping);
+			                 sendFilesToBackend(fileId1, fileId2);
+			                break;
+			            default:
+			                alert('Invalid difference column update.');
+			                break;
+			        }
+					
+				} else {
+					alert('Maxmimum 3 különbségszámítást lehet végezni! Törölj meglévőt, ha újat szeretnél.');
+				}
+			}
+			
+			function updateDifferenceColumns() {
+				// Store the previous state before modifying arrays
+			    previousDifferenceColumnToUpdate = differenceColumnToUpdate;
+			    previousDifferenceColumnTemp = [...differenceColumnTemp];
+			    previousDifferenceColumnDefault = [...differenceColumnDefault];
+			    
+			    if (differenceColumnDefault.length > 0) {
+			        // Sort the default column array
+			        differenceColumnDefault.sort((a, b) => a - b);
+			        
+			        // Move the smallest element from default to temp
+			        const smallestElement = differenceColumnDefault.shift();
+			        differenceColumnTemp.push(smallestElement);
+			        
+			        // Set the value for updating columns and send to backend
+			        differenceColumnToUpdate = smallestElement;
+
+					console.log('differenceColumnToUpdate:', differenceColumnToUpdate);
+					console.log('differenceCOlumnDefault', differenceColumnDefault);
+					console.log('differenceColumnTemp', differenceColumnTemp);
+			    }
+			}
+			
+			function deletePredefinedColumns(fileId1, fileId2) {
+			    const fileName1 = groupedData[fileId1][0].fileName;
+			    const fileName2 = groupedData[fileId2][0].fileName;
+			
+			    const newKeyDay = fileName1 + ' - ' + fileName2 + ' különbsége Nappal';
+			    const newKeyNight = fileName1 + ' - ' + fileName2 + ' különbsége Éjjel';
+			
+			    // Check if the columns exist in columnMapping and delete them
+			    if (columnMapping[newKeyDay]) {
+			        delete columnMapping[newKeyDay];
+			    }
+			    if (columnMapping[newKeyNight]) {
+			        delete columnMapping[newKeyNight];
+			    }
+			}
+			
+			function handleBadResponse() {
+			    differenceColumnToUpdate = previousDifferenceColumnToUpdate;
+			    differenceColumnTemp = previousDifferenceColumnTemp;
+			    differenceColumnDefault = previousDifferenceColumnDefault;
+			}
+			
+			function sendFilesToBackend(fileId1, fileId2) {
+				console.log('compare files id to backend:', fileId1, fileId2);
+			    fetch(`/calculations/differences/${fileId1}/${fileId2}`, {
+			        method: 'POST',
+			        headers: {
+			            'Content-Type': 'application/json'
+			        },
+					body: JSON.stringify({ differenceColumnToUpdate })
+			    })
+			    .then(response => {
+			        if (!response.ok) {
+						// Handle deletion of predefined columns
+        				deletePredefinedColumns(fileId1, fileId2);
+        				handleBadResponse()
+			            throw new Error('Network response was not ok');
+			        }
+			        			        
+			        fetchDataAndRenderTabs();
+			    })
+			    .catch(error => {
+			        console.error('There was a problem with the fetch operation:', error);
+			    });
+			}
+
+
+
 
 		    let selectedValue = '';
 		    
@@ -40,7 +242,6 @@
 			    const selectElement = document.getElementById('calculations');
 			    const textFieldContainer = document.getElementById('text-field-container');
 			    selectedValue = selectElement.value;
-			    const fileId = activeFileId;
 			    
 			    // Show the text field if the last option is selected, hide otherwise
 	            if (selectedValue === '/calculations/givenDistance') {
@@ -114,7 +315,7 @@
 					}
 				}
 			}
-			
+			let groupedData;
 			// Function to fetch data, group by file_id, and render tabs and tables
 			const fetchDataAndRenderTabs = () => {
 			    fetch('/console/displayData')
@@ -126,6 +327,7 @@
 			        })
 			        .then(data => {
 			            console.log('Fetched Data:', data);
+			            groupedData = data
 			            renderTabsAndTables(data);
 			        })
 			        .catch(error => {
@@ -135,6 +337,8 @@
 
 			
 			let activeFileId;
+			
+			
 			// Function to render tabs and tables using grouped data
 			const renderTabsAndTables = (groupedData) => {
 			    console.log('Grouped Data:', groupedData);
