@@ -20,5 +20,8 @@ public interface ResultsRepository extends JpaRepository<Results, Integer> {
 			"AND r.dbfData.id = d.id")
 	List<Object[]> findLaeqAndIdentifierById(@Param("fileId") int fileId);
 	
+	@Query("SELECT r FROM Results r JOIN r.dbfData d WHERE d.file_id = :fileId ORDER BY r.laeqNight DESC")
+    List<Results> findAllByFileIdOrderByLaeqNightDesc(@Param("fileId") int fileId);
+	
 	List<Results> findAll();
 }

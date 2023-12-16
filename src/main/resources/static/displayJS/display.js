@@ -40,6 +40,31 @@
 			let previousDifferenceColumnTemp;
 			let previousDifferenceColumnDefault;
 
+			// handle sorting request
+			function handleSorting() {
+				console.log('groupedData in sorting:', groupedData);
+				if (groupedData[activeFileId][0].laeqDay !== null && groupedData[activeFileId][0].laeqNight !== null) {
+					fetch(`/sortAndDifferences/sortByLaeq/${activeFileId}`, {
+				        headers: {
+				            'Content-Type': 'application/json'
+				        },
+				    })
+				    .then(response => {
+						if (!response.ok) {
+							throw new Error('Network response was not ok');
+						}
+						return response.json();
+					})
+				    .then(data => {
+				        console.log('Fetched Data after Sorting:', data);
+				        renderTable(data);
+				    })
+				    .catch(error => {
+				        console.error('There was a problem with the fetch operation:', error);
+				    });
+				}
+			}
+
 			// handle difference request
 			function handleDifferenceSubmit() {
 				console.log('groupedData in difference:', groupedData);
@@ -210,7 +235,7 @@
 			
 			function sendFilesToBackend(fileId1, fileId2) {
 				console.log('compare files id to backend:', fileId1, fileId2);
-			    fetch(`/calculations/differences/${fileId1}/${fileId2}`, {
+			    fetch(`/sortAndDifferences/differences/${fileId1}/${fileId2}`, {
 			        method: 'POST',
 			        headers: {
 			            'Content-Type': 'application/json'
@@ -344,7 +369,7 @@
 			    console.log('Grouped Data:', groupedData);
 			        const tabs = Object.keys(groupedData).map(fileId => {
 			        const fileName = groupedData[fileId][0].fileName;
-			
+					
 			        return (
 			            <span key={fileId}>
 			                <button onClick={() => {
@@ -356,11 +381,10 @@
 			            </span>
 			        );
 			    });
-			    
 			    // Set activeFileId for the lowest file_id by default
 			    const lowestFileId = Math.min(...Object.keys(groupedData));
 			    activeFileId = lowestFileId;
-			
+
 			    ReactDOM.render(
 			        <div>
 			            {tabs}
@@ -368,10 +392,10 @@
 			        </div>,
 			        document.getElementById('root')
 			    );
-			
+			console.log('activeFileId in renderTabsAndTables:', activeFileId);
 			    // Display the table for the lowest file_id by default
 			  //  const lowestFileId = Math.min(...Object.keys(groupedData));
-			    renderTable(groupedData[lowestFileId]);
+			    renderTable(groupedData[activeFileId]);
 			};
 			
 			// Function to render a specific table for a file
