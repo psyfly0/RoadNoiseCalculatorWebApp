@@ -33,30 +33,30 @@ public class CalculationsService {
     	boolean isFetchedConstant = false;
     	boolean isFetchedMutable = false;
     	
-    	if (dbfDataDTOList == null || dbfDataDTOList.stream().noneMatch(data -> data.getFile_id() == fileId)) {
+    	//if (dbfDataDTOList == null || dbfDataDTOList.stream().noneMatch(data -> data.getFile_id() == fileId)) {
     		dbfDataDTOList = new ArrayList<>();
     		dbfDataDTOList = dataService.fetchDbfData(fileId);
     		isFetchedDbf = true;
     		log.info("dbfDataDTOList: {}", dbfDataDTOList);
-    	}
+    //	}
     	
-    	if (constantParameters == null) {
+    //	if (constantParameters == null) {
             constantParameters = dataService.fetchConstantParameters();
             isFetchedConstant = true;
             log.info("constantParameters: {}", constantParameters);
-        }
+      //  }
     	
-    	if (mutableParameters == null || mutableParameters.stream().noneMatch(data -> data.getFile_id() == fileId)) {
+    //	if (mutableParameters == null || mutableParameters.stream().noneMatch(data -> data.getFile_id() == fileId)) {
     		mutableParameters = new ArrayList<>();
     		mutableParameters = dataService.fetchMutableParameters(fileId);
     		isFetchedMutable = true;
     		log.info("mutableParameters: {}", mutableParameters);
-    	}
+    //	}
     	
-    	if (isFetchedDbf || isFetchedConstant || isFetchedMutable || distanceToCalculate != null) {
+    //	if (isFetchedDbf || isFetchedConstant || isFetchedMutable || distanceToCalculate != null) {
     		resultsList = getAllResults(fileId);
     		log.info("resultsList: {}", resultsList);
-    	}
+    //	}
     }
     
     public void calculateAll(int fileId) {

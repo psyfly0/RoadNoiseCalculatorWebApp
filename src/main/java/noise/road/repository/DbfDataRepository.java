@@ -16,5 +16,8 @@ public interface DbfDataRepository extends JpaRepository<DbfData, Integer> {
 	@Query(value = "SELECT * FROM DBF_DATA WHERE FILE_ID = :fileId", nativeQuery = true)
 	List<DbfData> findByFileId(@Param("fileId") int fileId);
 	
+	@Query(value = "SELECT * FROM DBF_DATA WHERE FILE_ID = :fileId AND FILE_UNIQUE_ID = :row", nativeQuery = true)
+	DbfData findRow(@Param("fileId") int fileId, @Param("row") int row);
+	
 	List<DbfData> findAll();
 }

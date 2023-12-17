@@ -32,6 +32,29 @@
 		        'Zajterhelés x távolságon Éjjel' : 'noiseAtGivenDistanceNight',
 		    };
 		    
+		    const editableColumns = [
+		        'identifier',
+		        'speed1',
+		        'speed2',
+		        'speed3',
+		        'acousticCatDay1',
+		        'acousticCatDay2',
+		        'acousticCatDay3',
+		        'acousticCatNight1',
+		        'acousticCatNight2',
+		        'acousticCatNight3',
+		        'identifierR',
+		        'speed1R',
+		        'speed2R',
+		        'speed3R',
+		        'acousticCatDayR1',
+		        'acousticCatDayR2',
+		        'acousticCatDayR3',
+		        'acousticCatNightR1',
+		        'acousticCatNightR2',
+		        'acousticCatNightR3',
+	        ];
+		    
 		    let differenceColumnDefault = [0, 1, 2];
 		    let differenceColumnTemp = [];
 		    let differenceColumnToUpdate = 0;
@@ -39,6 +62,124 @@
 		    let previousDifferenceColumnToUpdate;
 			let previousDifferenceColumnTemp;
 			let previousDifferenceColumnDefault;
+			
+			// after modifications let the calculations run again
+			let isModificationHappened = false;
+
+			// handle data modifications
+			let isCellEditing = false;		
+					
+			const handleCellClick = (e) => {
+			    const cell = e.target.closest('td');
+			    if (!cell) {
+			        return;
+			    }
+			    
+			    if (isCellEditing) {
+			        return; // Prevents re-triggering when the cell is already in edit mode
+			    }
+			
+			    isCellEditing = true;
+			
+			    const activeData = groupedData[activeFileId];
+			    const row = cell.parentNode.rowIndex -1;
+			    const column = cell.cellIndex;
+			
+			    const columnNames = Object.values(columnMapping);
+			    const columnName = columnNames[column];
+			    const cellValue = activeData[row][columnName];
+			
+				console.log('activeData', activeData);
+				console.log('row', row);
+				console.log('columnName', columnName);
+			    console.log('cellValue in data-modification:', cellValue);
+			
+			    if (editableColumns.includes(columnName)) {			
+			        const input = document.createElement('input');
+			        input.value = cellValue;
+			        
+	        		input.addEventListener('input', (event) => {
+					    const newValue = event.target.value.trim();
+					    if (newValue === '') {
+					        // If the new value is empty, revert to the original value
+					        input.value = cellValue; // Revert the input value
+					    } else if (/^\d*$/.test(newValue)) {
+					        // Only allow integer values
+					        input.value = newValue; // Update input value
+					    } else {
+					        // Prevent non-integer values from being entered
+					        input.value = ''; // Reset input value
+					        // You might also show an error message or handle the validation in another way
+					    }
+					});
+			        
+			        cell.innerHTML = '';
+			        cell.appendChild(input);
+			        
+			        input.focus(); 
+			        input.select(); 
+			
+			        input.addEventListener('blur', () => {
+					    const updatedValue = input.value;
+					    
+					    console.log('Updated Value:', updatedValue);
+					    console.log('Cell Value:', cellValue);
+					    console.log('Are they different?', String(updatedValue) !== String(cellValue));
+					
+					    // Check if the value has changed
+					    if (String(updatedValue) !== String(cellValue)) {
+					        activeData[row][columnName] = updatedValue;
+					        cell.innerHTML = updatedValue;
+					
+					        console.log('activeFileId, row, columnName, value', activeFileId, row, columnName, updatedValue);
+					        console.log('activeData in data-modification:', activeData);
+					
+					        saveCellDataToBackend(activeFileId, row, columnName, updatedValue);
+					    } else {
+					        // Revert the cell content to the original value when unchanged
+					        cell.innerHTML = cellValue;
+					    }
+					
+					    isCellEditing = false; // Reset the editing flag
+					});
+			        
+			        input.addEventListener('keydown', (event) => {
+			            if (event.key === 'Enter') {
+			                input.blur();
+			            }
+			        });
+			    } else {
+			        console.log('Cell not editable');
+			        isCellEditing = false; 
+			    }
+			};
+			
+			// Function to send updated data to the backend
+			const saveCellDataToBackend = (activeFileId, row, columnName, updatedCellValue) => {
+			    // Make a POST request to the backend API to save the updated data
+			    fetch(`/modification/cellValue/${activeFileId}/${row}/${columnName}/${updatedCellValue}`, {
+			        method: 'PUT',
+			        headers: {
+			            'Content-Type': 'application/json',
+			        },
+			     //   body: JSON.stringify({ updatedData }),
+			    })
+			    .then(response => {
+			        if (!response.ok) {
+			            throw new Error('Failed to save data to the backend');
+			        }
+			        const activeData = groupedData[activeFileId];
+			        console.log('activeData in saveCellDataToBackend, RESPONSE OK', activeData);
+			        isModificationHappened = true;
+			        //renderTable(activeData);
+			     //   return response.json();
+			    })
+			    .catch(error => {
+			        console.error('Error while updating data:', error);
+			        // Handle error or display error message
+			    });
+			};
+
 
 			// handle sorting request
 			function handleSorting() {
@@ -340,6 +481,7 @@
 					}
 				}
 			}
+			
 			let groupedData;
 			// Function to fetch data, group by file_id, and render tabs and tables
 			const fetchDataAndRenderTabs = () => {
@@ -362,7 +504,8 @@
 
 			
 			let activeFileId;
-			
+			let tbody;
+			let tables;
 			
 			// Function to render tabs and tables using grouped data
 			const renderTabsAndTables = (groupedData) => {
@@ -436,7 +579,7 @@
 			    const table = (
 					<div>
 						{tableName}
-				        <table>
+				        <table id='dataTable'>
 				            <thead>
 				                <tr>
 				                    {tableHeaders}
@@ -448,9 +591,18 @@
 				        </table>
 			        </div>
 			    );
+
 			    console.log('Rendering Table:', table);
 			    ReactDOM.render(table, document.getElementById('table-container'));
+			    
+			    tbody = document.querySelector('#dataTable tbody');
+				console.log('tbody', tbody);
+					
+				tbody.addEventListener('click', handleCellClick);
+
 			};
 			
 			// Call the function to fetch data and render tabs on page load
 			fetchDataAndRenderTabs();
+			
+			
