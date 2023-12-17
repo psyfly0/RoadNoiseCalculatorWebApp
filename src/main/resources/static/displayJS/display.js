@@ -109,7 +109,6 @@
 					    } else {
 					        // Prevent non-integer values from being entered
 					        input.value = ''; // Reset input value
-					        // You might also show an error message or handle the validation in another way
 					    }
 					});
 			        
@@ -162,7 +161,6 @@
 			        headers: {
 			            'Content-Type': 'application/json',
 			        },
-			     //   body: JSON.stringify({ updatedData }),
 			    })
 			    .then(response => {
 			        if (!response.ok) {
@@ -171,8 +169,6 @@
 			        const activeData = groupedData[activeFileId];
 			        console.log('activeData in saveCellDataToBackend, RESPONSE OK', activeData);
 			        isModificationHappened = true;
-			        //renderTable(activeData);
-			     //   return response.json();
 			    })
 			    .catch(error => {
 			        console.error('Error while updating data:', error);
