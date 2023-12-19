@@ -54,7 +54,7 @@ public class MutableParametersService {
 		file_id++;
 	}
 	
-	private double calculateCategoryIparameterP(double slopeElevation, String trafficType) {
+	public double calculateCategoryIparameterP(double slopeElevation, String trafficType) {
 		if (slopeElevation == 0 && trafficType.equals(STEADY)) {
             return 0;
         } else {
@@ -71,7 +71,7 @@ public class MutableParametersService {
         }
 	}
 	
-	private double calculateCategoryIIandIIIparameterP(double slopeElevation, String trafficType) {
+	public double calculateCategoryIIandIIIparameterP(double slopeElevation, String trafficType) {
 		if (slopeElevation == 0 && trafficType.equals(STEADY)) {
             return 0;
         } else if (slopeElevation > 0) {

@@ -13,5 +13,8 @@ public interface MutableParametersRepository extends JpaRepository<MutableParame
 	@Query(value = "SELECT * FROM MUTABLE_PARAMETERS WHERE FILE_ID = :fileId", nativeQuery = true)
 	List<MutableParameters> findByFileId(@Param("fileId") int fileId);
 	
+	@Query(value = "SELECT * FROM MUTABLE_PARAMETERS WHERE FILE_ID = :fileId AND FILE_UNIQUE_ID = :row", nativeQuery = true)
+	MutableParameters findRow(@Param("fileId") int fileId, @Param("row") int row);
+	
 
 }

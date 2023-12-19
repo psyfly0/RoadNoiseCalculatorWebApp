@@ -54,7 +54,33 @@
 		        'acousticCatNightR2',
 		        'acousticCatNightR3',
 	        ];
-		    
+	        
+        	const parameterMapping = {
+			    'lthDay': 'Határérték Nappal',
+			    'lthNight': 'Határérték Éjjel',
+			    'roadSurfaceRoughness': 'K (útburkolati érdesség)',
+			    'reflection': 'Kr (reflexió)',
+			    'soundAbsorptionFactor': 'C (hangelnyelési tényező)',
+			    'angleOfView': 'Látószög',
+			    'trafficType': 'Forgalom típusa',
+			    'slopeElevation': 'Lejtés/emelkedés (%-ban)',
+			};
+			
+			const selectableValues = {
+			    'lthDay': [50.0, 55.0, 60.0, 65.0],
+			    'lthNight': [40.0, 45.0, 50.0, 55.0],
+			    'roadSurfaceRoughness': [0.0, 0.29, 0.49, 0.67, 0.78],
+			    'reflection': [0.5, 1.0, 1.5, 2.0, 2.5, 3.5],
+			    'soundAbsorptionFactor': [12.5, 15.0],
+			    'trafficType' : ['egyenletes', 'lassuló', 'gyorsuló']
+			};
+			
+
+		    				const userInputValues = {
+					'angleOfView' : true,
+					'slopeElevation' : true
+				};
+	
 		    let differenceColumnDefault = [0, 1, 2];
 		    let differenceColumnTemp = [];
 		    let differenceColumnToUpdate = 0;
@@ -68,9 +94,133 @@
 
 			// handle data modifications
 			let isCellEditing = false;		
+			let singleClickTimer;
 					
-			const handleCellClick = (e) => {
-			    const cell = e.target.closest('td');
+	const handleCellDoubleClick = async (cell) => {
+	    const activeData = groupedData[activeFileId];
+	    const row = cell.parentNode.rowIndex;
+	    
+		console.log('double clicked on cell');
+		console.log('row', row);
+		console.log('isCellEditing', isCellEditing);
+		
+	    // Fetch data for the form
+	    const response = await fetch(`/modification/getMutableParameters/${activeFileId}/${row}`);
+	    const data = await response.json();
+	    
+		console.log('data from getMutableParamaters', data);
+		
+	    // Create a form with fetched data
+	    const form = document.createElement('form');
+	    form.classList.add('form');
+	
+	    // Iterate over the parameterMapping keys and create form fields
+	    Object.keys(parameterMapping).forEach((key) => {
+	        const label = document.createElement('label');
+	        label.textContent = parameterMapping[key];
+	        
+			console.log('label - parametermapping', label);
+			
+	        if (userInputValues[key]) {
+	            // Create input fields for userInputValues
+	            const input = document.createElement('input');
+	            input.name = key;
+	            console.log('input - userinputvalue', input);
+	            input.type = 'text';
+	            // Set the input value based on the fetched data
+	            input.value = data[key] || '';
+	
+	            // Append the input field to the form
+	            label.appendChild(input);
+	        } else {
+	            // Create select dropdowns for selectableValues
+	            const select = document.createElement('select');
+	            select.name = key;
+	            // Populate options for select dropdown based on selectableValues
+	            selectableValues[key].forEach((value) => {
+	                const option = document.createElement('option');
+	                option.value = value;
+	                option.textContent = value;
+	                // Set the selected value based on the fetched data
+	                if (data[key] === value) {
+	                    option.selected = true;
+	                }
+	                select.appendChild(option);
+	            });
+	
+	            // Append the select dropdown to the form
+	            label.appendChild(select);
+	        }
+	
+	        // Append the label with input/select to the form
+	        form.appendChild(label);
+	
+	    });
+	
+	    // Create buttons for submit and cancel
+	    const submitButton = document.createElement('button');
+	    submitButton.textContent = 'Submit';
+	    submitButton.addEventListener('click', () => {
+			
+	        console.log('before submit');
+	        
+	        handleSubmit();
+	        isCellEditing = false;
+	        form.remove();
+	    });
+	    
+	    const handleSubmit = () => {
+	    const formData = {};
+	
+	    // Iterate through all form elements
+	    const formElements = form.elements;
+	    for (let i = 0; i < formElements.length; i++) {
+	        const element = formElements[i];
+	        if (element.tagName === 'INPUT' || element.tagName === 'SELECT') {
+	            formData[element.name] = element.value;
+	        }
+	    }
+		console.log('during submit, activeFileId, rowNumber, formData:', activeFileId, row, formData);
+
+	    fetch(`/modification/setMutableParameters/${activeFileId}/${row}`, {
+	        method: 'PUT',
+	        headers: {
+	            'Content-Type': 'application/json'
+	        },
+	        body: JSON.stringify(formData)
+		    }).then((response) => {
+		        console.log('Mutable Parameters modified for the row.', response);
+		    }).catch((error) => {
+		        console.error('There was a problem with the fetch operation:', error);
+		    });
+		};
+
+	    const cancelButton = document.createElement('button');
+	    cancelButton.textContent = 'Cancel';
+	    cancelButton.addEventListener('click', () => {
+	        // Handle cancel action - simply remove the form from the DOM
+	        isCellEditing = false;
+	        form.remove();
+	    });
+
+	    // Append buttons to the form
+	    form.appendChild(submitButton);
+	    form.appendChild(cancelButton);  
+	   
+       // Display the form under the clicked row in the table
+	    const tableContainer = document.getElementById('table-container');
+	    const dataTable = tableContainer.querySelector('#dataTable');
+	    const clickedRow = cell.parentNode;
+	
+	    // Create a new row and cell to hold the form
+	    const formRow = dataTable.insertRow(clickedRow.rowIndex + 1); // Insert new row after the clicked row
+	    const formCell = formRow.insertCell(0); // Create a cell in the new row
+	
+	    // Append the form to the cell
+	    formCell.appendChild(form);
+	};
+					
+			const handleCellClick = (cell) => {
 			    if (!cell) {
 			        return;
 			    }
@@ -109,7 +259,6 @@
 					    } else {
 					        // Prevent non-integer values from being entered
 					        input.value = ''; // Reset input value
-					        // You might also show an error message or handle the validation in another way
 					    }
 					});
 			        
@@ -156,13 +305,11 @@
 			
 			// Function to send updated data to the backend
 			const saveCellDataToBackend = (activeFileId, row, columnName, updatedCellValue) => {
-			    // Make a POST request to the backend API to save the updated data
 			    fetch(`/modification/cellValue/${activeFileId}/${row}/${columnName}/${updatedCellValue}`, {
 			        method: 'PUT',
 			        headers: {
 			            'Content-Type': 'application/json',
 			        },
-			     //   body: JSON.stringify({ updatedData }),
 			    })
 			    .then(response => {
 			        if (!response.ok) {
@@ -171,12 +318,9 @@
 			        const activeData = groupedData[activeFileId];
 			        console.log('activeData in saveCellDataToBackend, RESPONSE OK', activeData);
 			        isModificationHappened = true;
-			        //renderTable(activeData);
-			     //   return response.json();
 			    })
 			    .catch(error => {
 			        console.error('Error while updating data:', error);
-			        // Handle error or display error message
 			    });
 			};
 
@@ -598,7 +742,27 @@
 			    tbody = document.querySelector('#dataTable tbody');
 				console.log('tbody', tbody);
 					
-				tbody.addEventListener('click', handleCellClick);
+				// Event listener for table cell clicks
+				tbody.addEventListener('click', (e) => {
+				    if (!isCellEditing) {
+				        // Check for double click within a timeframe (300ms in this example)
+				        clearTimeout(singleClickTimer);
+				        singleClickTimer = setTimeout(() => {
+				            handleCellClick(e.target.closest('td'));
+				        }, 300); // Adjust the delay here (in milliseconds)
+				    }
+				});
+				
+				// Event listener for table cell double-clicks
+				tbody.addEventListener('dblclick', (e) => {
+				    clearTimeout(singleClickTimer);
+				    if (!isCellEditing) {
+				        isCellEditing = true; // Set the flag to true to prevent subsequent single-clicks
+				        handleCellDoubleClick(e.target.closest('td'));
+				        setTimeout(() => {
+				        }, 500);
+				    }
+				});
 
 			};
 			
