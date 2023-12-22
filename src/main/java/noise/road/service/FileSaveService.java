@@ -60,11 +60,7 @@ public class FileSaveService {
 		List<DbfData> dbfDataList = dbfDataRepository.findByFileId(activeFileId);
 		List<ShapeGeometry> shpGeometry = shapeGeometryRepsotiory.findByFileId(activeFileId);
 		List<Results> resultsList = resultsRepository.findByFileId(activeFileId);
-		
-		
-		// PARSE OLNI A GEOMETRYT
-		
-		
+
 		SimpleFeatureTypeBuilder typeBuilder = new SimpleFeatureTypeBuilder();
 		typeBuilder.setName("Shapefile");
 		// Setting the Coordinate Reference System (CRS)
@@ -241,6 +237,132 @@ public class FileSaveService {
            }
 
            return generatedZipFile;
+	}
+	
+	public File saveProtectiveDistance(int activeFileId, String fileName) {
+		List<ShapeGeometry> shpGeometry = shapeGeometryRepsotiory.findByFileId(activeFileId);
+		List<Results> resultsList = resultsRepository.findByFileId(activeFileId);
+		
+		List<Geometry> newGeometries = FileSaveLogic.createNewGeometry(shpGeometry, resultsList);
+		
+		
+		// Create the feature type
+		SimpleFeatureTypeBuilder typeBuilder = new SimpleFeatureTypeBuilder();
+		typeBuilder.setName("Shapefile");
+		// Setting the Coordinate Reference System (CRS)
+		CoordinateReferenceSystem crs = null;
+		try {
+			crs = CRS.parseWKT(FileSaveLogic.stringWKT_EOV());
+		} catch (FactoryException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		 typeBuilder.setCRS(crs);
+		 typeBuilder.add("geometry", MultiLineString.class); // Geometry attribute
+		 typeBuilder.add("Vedotav", String.class);
+		 
+		 SimpleFeatureType featureType = typeBuilder.buildFeatureType();
+		 
+		 ShapefileDataStore dataStore = null;
+	     // Create the temporary directory
+	     Path tempDir = null;
+	     try {
+	         tempDir = Files.createTempDirectory("shapefileSavePROTECTIVETempDir");
+	
+	       //  File tempFolder = tempDir.toFile();
+	         File shpFile = new File(tempDir.toFile(), fileName + "_vedotav" + ".shp");
+	
+	         // Create the shapefile data store
+	         ShapefileDataStoreFactory dataStoreFactory = new ShapefileDataStoreFactory();
+	         dataStore = (ShapefileDataStore) dataStoreFactory.createDataStore(shpFile.toURI().toURL());
+	
+	         // Set the charset for shapefile attribute encoding
+	         Charset charset = Charset.forName("UTF-8");
+	         dataStore.setCharset(charset);	
+	     } catch (IOException e) {
+	         e.printStackTrace();
+	         // Handle or throw the exception as needed
+	     }
+	     
+	     // Create the feature collection
+        DefaultFeatureCollection featureCollection = new DefaultFeatureCollection();
+        SimpleFeatureBuilder featureBuilder = new SimpleFeatureBuilder(featureType);
+        
+        for (int i = 0; i < newGeometries.size(); i++) {
+            Geometry geometry = newGeometries.get(i);
+            String attributeValue = i == 0 ? "nappal" : "ejjel"; // Set the attribute value based on the index
+
+            featureBuilder.add(geometry);
+            featureBuilder.add(attributeValue); // Add the attribute value
+            SimpleFeature feature = featureBuilder.buildFeature(null);
+            featureCollection.add(feature);
+        }
+        
+        // Write the features to the shapefile
+        String typeName = "";
+        try {
+			dataStore.createSchema(featureType);
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+        
+		try {
+			typeName = dataStore.getTypeNames()[0];
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+        Transaction transaction = new DefaultTransaction();
+        try (FeatureWriter<SimpleFeatureType, SimpleFeature> writer = dataStore.getFeatureWriterAppend(typeName, transaction);
+             FeatureIterator<SimpleFeature> featureIterator = featureCollection.features()) {
+            while (featureIterator.hasNext()) {
+                SimpleFeature feature = featureIterator.next();
+                SimpleFeature newFeature = writer.next();
+                newFeature.setAttributes(feature.getAttributes());
+                writer.write();
+            }
+
+            featureIterator.close();
+            writer.close();
+            transaction.commit();
+        } catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} finally {
+            try {
+				transaction.close();
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+        }
+        dataStore.dispose();
+        
+        // Logic to zip the shapefile folder
+        File generatedZipFile = null;
+        try {
+     	   Path zipFilePath = Files.createTempFile(fileName + "_vedotav", ".zip");
+
+            try (FileOutputStream fos = new FileOutputStream(zipFilePath.toFile());
+                 ZipOutputStream zipOut = new ZipOutputStream(fos)) {
+
+                // Zip the contents of the shapefile directory
+                File[] filesToZip = tempDir.toFile().listFiles();
+                if (filesToZip != null) {
+                    for (File file : filesToZip) {
+                        FileSaveLogic.addToZipFile(file, file.getName(), zipOut);
+                    }
+                }
+
+                generatedZipFile = zipFilePath.toFile();
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+            // Handle or throw the exception as needed
+        }
+
+        return generatedZipFile;
 	}
 	
 

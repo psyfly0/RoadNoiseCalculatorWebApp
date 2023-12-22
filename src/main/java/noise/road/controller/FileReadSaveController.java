@@ -119,5 +119,26 @@ public class FileReadSaveController {
                 .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + fileName + ".zip\"")
                 .body(resource);
     }
+    
+    @PostMapping("/saveProtectiveDistance/{activeFileId}/{fileName}")
+    public ResponseEntity<Resource> saveProtectiveDistance(@PathVariable int activeFileId, @PathVariable String fileName) {
+    	
+    	File generatedZipFile = fileSaveService.saveProtectiveDistance(activeFileId, fileName);
+    	
+    	// Provide the generated .zip file for download
+        Path path = Paths.get(generatedZipFile.getAbsolutePath());
+        ByteArrayResource resource = null;
+
+        try {
+			resource = new ByteArrayResource(Files.readAllBytes(path));
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+
+        return ResponseEntity.ok()
+                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + fileName + "_vedotav" + ".zip\"")
+                .body(resource);
+    }
 
 }

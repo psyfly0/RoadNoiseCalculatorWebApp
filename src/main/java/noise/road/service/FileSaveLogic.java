@@ -14,6 +14,12 @@ import org.geotools.feature.simple.SimpleFeatureBuilder;
 import org.locationtech.jts.geom.Coordinate;
 import org.locationtech.jts.geom.Geometry;
 import org.locationtech.jts.geom.GeometryFactory;
+import org.locationtech.jts.io.ParseException;
+import org.locationtech.jts.io.WKTReader;
+import org.locationtech.jts.operation.buffer.BufferParameters;
+
+import noise.road.entity.Results;
+import noise.road.entity.ShapeGeometry;
 
 public class FileSaveLogic {
 
@@ -166,6 +172,82 @@ public class FileSaveLogic {
 	            zipOut.write(bytes, 0, length);
 	        }
 	    }
+	}
+	
+	public static List<Geometry> createNewGeometry(List<ShapeGeometry> shpGeometryList, List<Results> resultsList) {
+		List<Geometry> newGeometries = new ArrayList<>();
+		
+		BufferParameters bufferParameters = new BufferParameters();
+	    bufferParameters.setEndCapStyle(BufferParameters.CAP_ROUND);
+	    bufferParameters.setJoinStyle(BufferParameters.JOIN_ROUND);
+	    int quadrantSegments = 8;
+	    
+	    // day
+	    Geometry bufferDay = null;
+	    for (int i = 0; i < shpGeometryList.size(); i++) {
+	    	ShapeGeometry shapeGeometry = shpGeometryList.get(i);
+	    	String geometryWKT = shapeGeometry.getGeometryWKT();
+		
+	    	// Create a WKT reader
+	    	WKTReader wktReader = new WKTReader();
+	 
+	    		// Parse the WKT string to a Geometry object
+	    		Geometry geometry = null;
+				try {
+					geometry = wktReader.read(geometryWKT);
+				} catch (ParseException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+				
+			Results results = resultsList.get(i);
+	    	double distanceDay = results.getProtectiveDistanceDay();
+				
+	    	Geometry bufferGeomDay = geometry.buffer(distanceDay, quadrantSegments, bufferParameters.getEndCapStyle());
+	    	
+	    	if (bufferDay == null) {
+	    		bufferDay = bufferGeomDay;
+	    	} else {
+	    		bufferDay = bufferDay.union(bufferGeomDay);
+	    	}
+	    }
+	    bufferDay = bufferDay.getBoundary(); // Convert to a LineString
+        newGeometries.add(bufferDay);
+        
+        // night
+        Geometry bufferNight = null;
+        for (int i = 0; i < shpGeometryList.size(); i++) {
+	    	ShapeGeometry shapeGeometry = shpGeometryList.get(i);
+	    	String geometryWKT = shapeGeometry.getGeometryWKT();
+		
+	    	// Create a WKT reader
+	    	WKTReader wktReader = new WKTReader();
+	 
+    		// Parse the WKT string to a Geometry object
+    		Geometry geometry = null;
+			try {
+				geometry = wktReader.read(geometryWKT);
+			} catch (ParseException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+    	
+	    	Results results = resultsList.get(i);
+	    	double distanceNight = results.getProtectiveDistanceNight();
+	    	
+	    	Geometry bufferGeomNight = geometry.buffer(distanceNight, quadrantSegments, bufferParameters.getEndCapStyle());
+	    	
+	    	if (bufferNight == null) {
+	    		bufferNight = bufferGeomNight;
+	    	} else {
+	    		bufferNight = bufferNight.union(bufferGeomNight);
+	    	}
+        }
+        bufferNight = bufferNight.getBoundary(); // Convert to a LineString
+        newGeometries.add(bufferNight);
+        
+        return newGeometries;
+		
 	}
 	
 	

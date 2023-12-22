@@ -105,6 +105,48 @@
 	let previousDifferenceColumnTemp;
 	let previousDifferenceColumnDefault;
 			
+	// handle ProtectiveDistance Save
+	function handleProtectiveDistanceSave() {
+		if (groupedData[activeFileId] === null) {
+			return;
+		}
+		if (groupedData[activeFileId][0].protectiveDistanceDay === null) {
+			alert('Védőtávolság Nappal mező nincs kiszámolva!');
+			return;
+		}
+		if (groupedData[activeFileId][0].protectiveDistanceNight === null) {
+			alert('Védőtávolság Éjjel mező nincs számolva!');
+			return;
+		}
+		
+		const fileName = groupedData[activeFileId][0].fileName;
+		
+		fetch(`/console/saveProtectiveDistance/${activeFileId}/${fileName}`,{
+			method: 'POST',
+			headers: {
+				'Content-type': 'application/json'
+			},
+		})
+		.then(async (response) => {
+			if (response.ok) {
+	            const blob = await response.blob();
+	            const url = window.URL.createObjectURL(blob);
+	
+	            // Create an anchor element
+	            const a = document.createElement('a');
+	            a.href = url;
+	            a.download = `${fileName}_vedotav.zip`; 
+	            document.body.appendChild(a);
+	            a.click();
+	            a.remove();
+	            window.URL.revokeObjectURL(url);
+        	}
+		})
+		.catch((error) => {
+			console.error('Error in saving the file:', error);
+		});
+	}
+			
 	// handle File Save
 	function handleFileSave() {
 		console.log('groupedData[activeFileId]', groupedData[activeFileId]);
@@ -147,7 +189,7 @@
 	            // Create an anchor element
 	            const a = document.createElement('a');
 	            a.href = url;
-	            a.download = `${fileName}.zip`; // Set desired file name here
+	            a.download = `${fileName}.zip`;
 	            document.body.appendChild(a);
 	            a.click();
 	            a.remove();
