@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import org.locationtech.jts.geom.Geometry;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -16,8 +17,10 @@ import noise.road.dto.DbfDataPreprocessDTO;
 
 import noise.road.entity.DbfData;
 import noise.road.entity.Results;
+import noise.road.entity.ShapeGeometry;
 import noise.road.repository.DbfDataRepository;
 import noise.road.repository.ResultsRepository;
+import noise.road.repository.ShapeGeometryRepository;
 
 @Service
 public class SaveDisplayService {
@@ -31,15 +34,21 @@ public class SaveDisplayService {
 	private ResultsRepository resultsRepository;
 	
 	@Autowired
+	private ShapeGeometryRepository shapeGeometryRepository;
+	
+	@Autowired
 	private ModelMapper modelMapper;
 	
-	public void saveDbfData(List<DbfDataPreprocessDTO> dbfDataDTO, String fileName) {
+	public void saveData(List<DbfDataPreprocessDTO> dbfDataDTO, String fileName, List<Geometry> geometries) {
 		
 		List<DbfData> dbfDataList = new ArrayList<>();
 		List<Results> resultsList = new ArrayList<>();
+		List<ShapeGeometry> shapeGeometries = new ArrayList<>();
 		
 		String fName = removeExtensionFromName(fileName);
 		int file_unique_id = 1;
+		
+		// ATTRIBUTES
 		
 		for (DbfDataPreprocessDTO dto : dbfDataDTO) {
 			DbfData dbfData = new DbfData();
@@ -84,8 +93,25 @@ public class SaveDisplayService {
 			file_unique_id++;
 		}
 		
+		// GEOMETRIES
+		for (int i = 0; i < geometries.size(); i++) {
+	        Geometry geometry = geometries.get(i);
+	        
+	        ShapeGeometry shapeGeometry = new ShapeGeometry();
+	        
+	        shapeGeometry.setDbfData(dbfDataList.get(i)); 
+	        shapeGeometry.setFile_id(file_id);
+	        shapeGeometry.setFile_unique_id(i + 1);
+	        
+	        String geometryWKT = geometry.toText();
+	        shapeGeometry.setGeometryWKT(geometryWKT);
+
+	        shapeGeometries.add(shapeGeometry);
+		}
+		
 		dbfDataRepository.saveAll(dbfDataList);
 		resultsRepository.saveAll(resultsList);
+		shapeGeometryRepository.saveAll(shapeGeometries);
 		
 		file_id++;
 	}

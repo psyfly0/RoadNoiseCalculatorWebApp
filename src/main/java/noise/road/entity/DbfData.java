@@ -30,6 +30,9 @@ public class DbfData {
 	@OneToOne(mappedBy = "dbfData", cascade = CascadeType.ALL)
     private Results results;
 	
+	@OneToOne(mappedBy = "dbfData", cascade = CascadeType.ALL)
+    private ShapeGeometry shapeGeometry;
+	
 	@Column(name = "FILE_ID")
 	private Integer file_id;
 	

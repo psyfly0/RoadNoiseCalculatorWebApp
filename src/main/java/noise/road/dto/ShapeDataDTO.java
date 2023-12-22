@@ -8,9 +8,11 @@ import org.opengis.feature.simple.SimpleFeatureType;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 @Data
 @AllArgsConstructor
+@NoArgsConstructor
 public class ShapeDataDTO {
 
 	private List<Geometry> geometries;	

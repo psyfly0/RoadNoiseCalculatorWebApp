@@ -1,94 +1,165 @@
- // Define mapping of user-friendly column names to actual column names
-		    let columnMapping = {
-		        'Azonosító': 'identifier',
-		        'I_km/h': 'speed1',
-		        'II_km/h': 'speed2',
-		        'III_km/h': 'speed3',
-		        'I_ak_kat_N': 'acousticCatDay1',
-		        'II_ak_kat_N': 'acousticCatDay2',
-		        'III_ak_kat_N': 'acousticCatDay3',
-		        'I_ak_kat_E': 'acousticCatNight1',
-		        'II_ak_kat_E': 'acousticCatNight2',
-		        'III_ak_kat_E': 'acousticCatNight3',
-		        'R_Azonosító': 'identifierR',
-		        'R_I_km/h': 'speed1R',
-		        'R_II_km/h': 'speed2R',
-		        'R_III_km/h': 'speed3R',
-		        'R_I_ak_kat_N': 'acousticCatDayR1',
-		        'R_II_ak_kat_N': 'acousticCatDayR2',
-		        'R_III_ak_kat_N': 'acousticCatDayR3',
-		        'R_I_ak_kat_E': 'acousticCatNightR1',
-		        'R_II_ak_kat_E': 'acousticCatNightR2',
-		        'R_III_ak_kat_E': 'acousticCatNightR3',
-		        'LAeq Nappal' : 'laeqDay',
-		        'LAeq Éjjel' : 'laeqNight',
-		        'LW Nappal' : 'lwDay',
-		        'LW Éjjel' : 'lwNight',
-		        'Védőtávolság Nappal' : 'protectiveDistanceDay',
-		        'Védőtávolság Éjjel' : 'protectiveDistanceNight',
-		        'Hatásterület Nappal' : 'impactAreaDay',
-		        'Hatásterület Éjjel' : 'impactAreaNight',
-		        'Zajterhelés x távolságon Nappal' : 'noiseAtGivenDistanceDay',
-		        'Zajterhelés x távolságon Éjjel' : 'noiseAtGivenDistanceNight',
-		    };
-		    
-		    const editableColumns = [
-		        'identifier',
-		        'speed1',
-		        'speed2',
-		        'speed3',
-		        'acousticCatDay1',
-		        'acousticCatDay2',
-		        'acousticCatDay3',
-		        'acousticCatNight1',
-		        'acousticCatNight2',
-		        'acousticCatNight3',
-		        'identifierR',
-		        'speed1R',
-		        'speed2R',
-		        'speed3R',
-		        'acousticCatDayR1',
-		        'acousticCatDayR2',
-		        'acousticCatDayR3',
-		        'acousticCatNightR1',
-		        'acousticCatNightR2',
-		        'acousticCatNightR3',
-	        ];
-	        
-        	const parameterMapping = {
-			    'lthDay': 'Határérték Nappal',
-			    'lthNight': 'Határérték Éjjel',
-			    'roadSurfaceRoughness': 'K (útburkolati érdesség)',
-			    'reflection': 'Kr (reflexió)',
-			    'soundAbsorptionFactor': 'C (hangelnyelési tényező)',
-			    'angleOfView': 'Látószög',
-			    'trafficType': 'Forgalom típusa',
-			    'slopeElevation': 'Lejtés/emelkedés (%-ban)',
-			};
-			
-			const selectableValues = {
-			    'lthDay': [50.0, 55.0, 60.0, 65.0],
-			    'lthNight': [40.0, 45.0, 50.0, 55.0],
-			    'roadSurfaceRoughness': [0.0, 0.29, 0.49, 0.67, 0.78],
-			    'reflection': [0.5, 1.0, 1.5, 2.0, 2.5, 3.5],
-			    'soundAbsorptionFactor': [12.5, 15.0],
-			    'trafficType' : ['egyenletes', 'lassuló', 'gyorsuló']
-			};
-			
 
-		    				const userInputValues = {
-					'angleOfView' : true,
-					'slopeElevation' : true
-				};
+ let columnMapping = {};
+ 
+	 // Function to get column mappings for a specific file
+	function getColumnMapping(fileId) {
+	  const data = JSON.parse(sessionStorage.getItem(`columnMappings_${fileId}`));
+	  console.log('GET fileId', `columnMappings_${fileId}`);
+	  console.log('columnMap in GET:', data);
+	  return data ? data : getDefaultMapping();
+	}
 	
-		    let differenceColumnDefault = [0, 1, 2];
-		    let differenceColumnTemp = [];
-		    let differenceColumnToUpdate = 0;
+	// Function to save column mappings for a specific file
+	function saveColumnMapping(fileId, mappings) {
+	  sessionStorage.setItem(`columnMappings_${fileId}`, JSON.stringify(mappings));
+	}
+ 
+	function getDefaultMapping() {
+	    return {
+				'Azonosító': 'identifier',
+			    'I_km/h': 'speed1',
+			    'II_km/h': 'speed2',
+			    'III_km/h': 'speed3',
+			    'I_ak_kat_N': 'acousticCatDay1',
+			    'II_ak_kat_N': 'acousticCatDay2',
+			    'III_ak_kat_N': 'acousticCatDay3',
+			    'I_ak_kat_E': 'acousticCatNight1',
+			    'II_ak_kat_E': 'acousticCatNight2',
+			    'III_ak_kat_E': 'acousticCatNight3',
+			    'R_Azonosító': 'identifierR',
+			    'R_I_km/h': 'speed1R',
+			    'R_II_km/h': 'speed2R',
+			    'R_III_km/h': 'speed3R',
+			    'R_I_ak_kat_N': 'acousticCatDayR1',
+			    'R_II_ak_kat_N': 'acousticCatDayR2',
+			    'R_III_ak_kat_N': 'acousticCatDayR3',
+			    'R_I_ak_kat_E': 'acousticCatNightR1',
+			    'R_II_ak_kat_E': 'acousticCatNightR2',
+			    'R_III_ak_kat_E': 'acousticCatNightR3',
+			    'LAeq Nappal' : 'laeqDay',
+			    'LAeq Éjjel' : 'laeqNight',
+			    'LW Nappal' : 'lwDay',
+			    'LW Éjjel' : 'lwNight',
+			    'Védőtávolság Nappal' : 'protectiveDistanceDay',
+			    'Védőtávolság Éjjel' : 'protectiveDistanceNight',
+			    'Hatásterület Nappal' : 'impactAreaDay',
+			    'Hatásterület Éjjel' : 'impactAreaNight',
+			};
+		}
+    
 		    
-		    let previousDifferenceColumnToUpdate;
-			let previousDifferenceColumnTemp;
-			let previousDifferenceColumnDefault;
+	const editableColumns = [
+        'identifier',
+        'speed1',
+        'speed2',
+        'speed3',
+        'acousticCatDay1',
+        'acousticCatDay2',
+        'acousticCatDay3',
+        'acousticCatNight1',
+        'acousticCatNight2',
+        'acousticCatNight3',
+        'identifierR',
+        'speed1R',
+        'speed2R',
+        'speed3R',
+        'acousticCatDayR1',
+        'acousticCatDayR2',
+        'acousticCatDayR3',
+        'acousticCatNightR1',
+        'acousticCatNightR2',
+        'acousticCatNightR3',
+    ];
+	        
+	const parameterMapping = {
+	    'lthDay': 'Határérték Nappal',
+	    'lthNight': 'Határérték Éjjel',
+	    'roadSurfaceRoughness': 'K (útburkolati érdesség)',
+	    'reflection': 'Kr (reflexió)',
+	    'soundAbsorptionFactor': 'C (hangelnyelési tényező)',
+	    'angleOfView': 'Látószög',
+	    'trafficType': 'Forgalom típusa',
+	    'slopeElevation': 'Lejtés/emelkedés (%-ban)',
+	};
+	
+	const selectableValues = {
+	    'lthDay': [50.0, 55.0, 60.0, 65.0],
+	    'lthNight': [40.0, 45.0, 50.0, 55.0],
+	    'roadSurfaceRoughness': [0.0, 0.29, 0.49, 0.67, 0.78],
+	    'reflection': [0.5, 1.0, 1.5, 2.0, 2.5, 3.5],
+	    'soundAbsorptionFactor': [12.5, 15.0],
+	    'trafficType' : ['egyenletes', 'lassuló', 'gyorsuló']
+	};
+	
+
+	const userInputValues = {
+		'angleOfView' : true,
+		'slopeElevation' : true
+	};
+
+    let differenceColumnDefault = [0, 1, 2];
+    let differenceColumnTemp = [];
+    let differenceColumnToUpdate = 0;
+    
+    let previousDifferenceColumnToUpdate;
+	let previousDifferenceColumnTemp;
+	let previousDifferenceColumnDefault;
 			
+	// handle File Save
+	function handleFileSave() {
+		console.log('groupedData[activeFileId]', groupedData[activeFileId]);
+		console.log('groupedData[activeFileId][0]', groupedData[activeFileId][0]);
+		if (groupedData[activeFileId] === null) {
+			return;
+		}
+		if (groupedData[activeFileId][0].lwDay === null) {
+			alert('LW Nappal mező nincs kiszámolva!');
+			return;
+		}
+		if (groupedData[activeFileId][0].lwNight === null) {
+			alert('LW Éjjel mező nincs számolva!');
+			return;
+		}
+		
+		const activeFileData = groupedData[activeFileId][0];
+
+	    const columnNames = Object.keys(columnMapping).filter(key => {
+		    const dataKey = columnMapping[key];
+		    return activeFileData[dataKey] !== null && activeFileData[dataKey] !== undefined;
+		});
+		
+		const fileName = groupedData[activeFileId][0].fileName;
+	    
+	    console.log('columnNames', columnNames);
+		
+		fetch(`/console/saveFile/${activeFileId}/${fileName}`,{
+			method: 'POST',
+			headers: {
+				'Content-type': 'application/json'
+			},
+			body: JSON.stringify(columnNames)
+		})
+		.then(async (response) => {
+			if (response.ok) {
+	            const blob = await response.blob();
+	            const url = window.URL.createObjectURL(blob);
+	
+	            // Create an anchor element
+	            const a = document.createElement('a');
+	            a.href = url;
+	            a.download = `${fileName}.zip`; // Set desired file name here
+	            document.body.appendChild(a);
+	            a.click();
+	            a.remove();
+	            window.URL.revokeObjectURL(url);
+        	}
+		})
+		.catch((error) => {
+			console.error('Error in saving the file:', error);
+		});
+		
+	}
+				
 			// after modifications let the calculations run again
 			let isModificationHappened = false;
 
@@ -429,11 +500,12 @@
 			
 			        // Append the div to the container
 			        container.appendChild(dropdownDiv);
+
 			    } else {
 			        console.log('At least two files are required for comparison.');
 			    }
 			}
-			
+
 			function createNewColumnsForDifferences(fileId1, fileId2) {
 				let fileName1 = groupedData[fileId1][0].fileName;
 				let fileName2 = groupedData[fileId2][0].fileName;
@@ -448,18 +520,21 @@
 			            case 0:
 			                columnMapping[newKeyDay] = 'differenceDay0';
 			                columnMapping[newKeyNight] = 'differenceNight0';
+			                saveColumnMapping(activeFileId, columnMapping);
 			                console.log('Updated column mapping after difference:', columnMapping);		                
 			                 sendFilesToBackend(fileId1, fileId2);
 			                break;
 			            case 1:
 			                columnMapping[newKeyDay] = 'differenceDay1';
 			                columnMapping[newKeyNight] = 'differenceNight1';
+			                saveColumnMapping(activeFileId, columnMapping);
 			                console.log('Updated column mapping after difference:', columnMapping);
 			                 sendFilesToBackend(fileId1, fileId2);
 			                break;
 			            case 2:
 			                columnMapping[newKeyDay] = 'differenceDay2';
 			                columnMapping[newKeyNight] = 'differenceNight2';
+			                saveColumnMapping(activeFileId, columnMapping);
 			                console.log('Updated column mapping after difference:', columnMapping);
 			                 sendFilesToBackend(fileId1, fileId2);
 			                break;
@@ -563,26 +638,70 @@
 			 function handleSubmit() {
 				if (selectedValue === '/calculations/givenDistance') {
 					const userInput = document.getElementById('userInput').value;
-					
-					if (userInput !== '') {	
-						// update the columnmapping with the distance (user input)
-						const keys = Object.keys(columnMapping);
-						const newKeys = keys.slice(0, -2);
+					console.log('userInput for noiseAtGivenDistance:', userInput);
+					if (userInput !== '') {					
+						// Check and delete the columns if they exist in columnMapping
+						function valueExists(mapping, value) {
+						    return Object.values(mapping).includes(value);
+						}
+						
+						if (valueExists(columnMapping, 'noiseAtGivenDistanceDay')) {
+							console.log('deletion triggerend in columnmapping');
+						    deleteMappingByValue(columnMapping, 'noiseAtGivenDistanceDay');
+						    console.log('columnMapping after deletion:', columnMapping);
+						}
+						
+						if (valueExists(columnMapping, 'noiseAtGivenDistanceNight')) {
+						    deleteMappingByValue(columnMapping, 'noiseAtGivenDistanceNight');
+						}
+						console.log('columnMapping after check of previous existence', columnMapping);
+						// Add the updated columns
+						
+						
+						
+						function deleteMappingByValue(mapping, valueToDelete) {
+						    const keysToDelete = Object.keys(mapping).filter(key => mapping[key] === valueToDelete);
+						
+						    keysToDelete.forEach(key => {
+						        delete mapping[key];
+						    });
+						}						
+			            // other mappings
+			            const existingKeys = Object.keys(columnMapping);
+						const indexOfImpactAreaNight = existingKeys.indexOf('Hatásterület Éjjel');
+						
+						const keysBeforeImpactArea = existingKeys.slice(0, indexOfImpactAreaNight + 1);
+						const keysAfterImpactArea = existingKeys.slice(indexOfImpactAreaNight + 1);
+						console.log('keysBeforeImpactArea', keysBeforeImpactArea);
+						console.log('keysAfterImpactArea', keysAfterImpactArea);
+						
+						
+						// Create a new mapping with the original keys before 'Hatásterület Éjjel'
 						const updatedColumnMapping = {};
-						newKeys.forEach(key => {
-						  updatedColumnMapping[key] = columnMapping[key];
-						});		
 						
-						columnMapping = updatedColumnMapping;
-						
+						keysBeforeImpactArea.forEach((key) => {
+						    updatedColumnMapping[key] = columnMapping[key];
+						    console.log('updatedColumnMapping loop:', updatedColumnMapping);
+						});
+						console.log('updatedColumnMapping before check:', updatedColumnMapping);
+						console.log('columnMapping before check of previous existence', columnMapping);
+	
+						// Create the new mapping for the two columns to add
 						const newKeyDay = `Zajterhelés ${userInput} m távolságon Nappal`;
 						const newKeyNight = `Zajterhelés ${userInput} m távolságon Éjjel`;
-
+						updatedColumnMapping[newKeyDay] = 'noiseAtGivenDistanceDay';
+						updatedColumnMapping[newKeyNight] = 'noiseAtGivenDistanceNight';
 						
-						columnMapping[newKeyDay] = 'noiseAtGivenDistanceDay';
-						columnMapping[newKeyNight] = 'noiseAtGivenDistanceNight';
-
-						console.log('Updated column mapping:', columnMapping);		
+						console.log('updatedColumnMapping before remaining map:', updatedColumnMapping);
+						
+						// Add the remaining columns after the new ones
+						keysAfterImpactArea.forEach((key) => {
+						    updatedColumnMapping[key] = columnMapping[key];
+						});
+						
+						console.log('updatedColumnMapping before assigning to columnMapping:', updatedColumnMapping);
+			            columnMapping = updatedColumnMapping;
+			            saveColumnMapping(activeFileId, columnMapping);
 													
 						// for givenDistance endpoint
 						console.log('userInput:', userInput);
@@ -650,18 +769,21 @@
 			let activeFileId;
 			let tbody;
 			let tables;
-			
+			let file_id;
 			// Function to render tabs and tables using grouped data
 			const renderTabsAndTables = (groupedData) => {
 			    console.log('Grouped Data:', groupedData);
+			    
 			        const tabs = Object.keys(groupedData).map(fileId => {
+					file_id = fileId;
 			        const fileName = groupedData[fileId][0].fileName;
 					
 			        return (
 			            <span key={fileId}>
 			                <button onClick={() => {
-			                    renderTable(groupedData[fileId]);
-			                    activeFileId = fileId; // Set the active file_id
+								activeFileId = fileId; // Set the active file_id
+								console.log('activeFileId on tabClick', activeFileId);
+			                    renderTable(groupedData[fileId]);		                    
 			                }}>
 			                    {fileName}
 			                </button>
@@ -671,6 +793,7 @@
 			    // Set activeFileId for the lowest file_id by default
 			    const lowestFileId = Math.min(...Object.keys(groupedData));
 			    activeFileId = lowestFileId;
+			
 
 			    ReactDOM.render(
 			        <div>
@@ -687,15 +810,17 @@
 			
 			// Function to render a specific table for a file
 			const renderTable = (data) => {
+				columnMapping = getColumnMapping(activeFileId);
+
 			    console.log('Data for Table:', data);
-			    
+			    console.log('columnMapping before rendering', columnMapping);
 			    // Extracting the fileName from the data
     			const fileName = data.length > 0 ? data[0].fileName : '';
     			
     			// Displaying the table name (fileName) above the table
 				const tableName = <h2>{fileName}</h2>;
-			    
-			     // Filter out fields that have null values based on columnMapping
+				
+ 				// Filter out fields that have null values based on columnMapping
 			    const nonNullColumns = Object.entries(columnMapping)
 			        .filter(([displayName, columnKey]) => {
 			            // Check if the column exists in the data and if its value is not null
