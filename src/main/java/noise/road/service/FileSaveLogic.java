@@ -18,9 +18,11 @@ import org.locationtech.jts.io.ParseException;
 import org.locationtech.jts.io.WKTReader;
 import org.locationtech.jts.operation.buffer.BufferParameters;
 
+import lombok.extern.slf4j.Slf4j;
 import noise.road.entity.Results;
 import noise.road.entity.ShapeGeometry;
 
+@Slf4j
 public class FileSaveLogic {
 
 	public static String stringWKT_EOV() {
@@ -174,22 +176,24 @@ public class FileSaveLogic {
 	    }
 	}
 	
-	public static List<Geometry> createNewGeometry(List<ShapeGeometry> shpGeometryList, List<Results> resultsList) {
+	public static List<Geometry> createNewGeometry(List<ShapeGeometry> shpGeometryList, List<Results> resultsList, String saveName) {
+		long startTime = System.nanoTime();
 		List<Geometry> newGeometries = new ArrayList<>();
 		
 		BufferParameters bufferParameters = new BufferParameters();
 	    bufferParameters.setEndCapStyle(BufferParameters.CAP_ROUND);
 	    bufferParameters.setJoinStyle(BufferParameters.JOIN_ROUND);
 	    int quadrantSegments = 8;
-	    
+	    // Create a WKT reader
+    	WKTReader wktReader = new WKTReader();
+    	
 	    // day
 	    Geometry bufferDay = null;
 	    for (int i = 0; i < shpGeometryList.size(); i++) {
 	    	ShapeGeometry shapeGeometry = shpGeometryList.get(i);
 	    	String geometryWKT = shapeGeometry.getGeometryWKT();
 		
-	    	// Create a WKT reader
-	    	WKTReader wktReader = new WKTReader();
+	    	
 	 
 	    		// Parse the WKT string to a Geometry object
 	    		Geometry geometry = null;
@@ -201,7 +205,7 @@ public class FileSaveLogic {
 				}
 				
 			Results results = resultsList.get(i);
-	    	double distanceDay = results.getProtectiveDistanceDay();
+	    	double distanceDay = saveName.equals("vedotav") ? results.getProtectiveDistanceDay() : results.getImpactAreaDay();
 				
 	    	Geometry bufferGeomDay = geometry.buffer(distanceDay, quadrantSegments, bufferParameters.getEndCapStyle());
 	    	
@@ -219,10 +223,7 @@ public class FileSaveLogic {
         for (int i = 0; i < shpGeometryList.size(); i++) {
 	    	ShapeGeometry shapeGeometry = shpGeometryList.get(i);
 	    	String geometryWKT = shapeGeometry.getGeometryWKT();
-		
-	    	// Create a WKT reader
-	    	WKTReader wktReader = new WKTReader();
-	 
+
     		// Parse the WKT string to a Geometry object
     		Geometry geometry = null;
 			try {
@@ -233,7 +234,7 @@ public class FileSaveLogic {
 			}
     	
 	    	Results results = resultsList.get(i);
-	    	double distanceNight = results.getProtectiveDistanceNight();
+	    	double distanceNight = saveName.equals("vedotav") ? results.getProtectiveDistanceNight(): results.getImpactAreaNight();
 	    	
 	    	Geometry bufferGeomNight = geometry.buffer(distanceNight, quadrantSegments, bufferParameters.getEndCapStyle());
 	    	
@@ -246,6 +247,10 @@ public class FileSaveLogic {
         bufferNight = bufferNight.getBoundary(); // Convert to a LineString
         newGeometries.add(bufferNight);
         
+        long endTime = System.nanoTime();
+        long durationInNano = endTime - startTime;
+        double durationInSeconds = durationInNano / 1_000_000_000.0;
+        log.info("createNewGeometry duration in sec: {}", durationInSeconds);
         return newGeometries;
 		
 	}

@@ -122,8 +122,10 @@ public class FileReadSaveController {
     
     @PostMapping("/saveProtectiveDistance/{activeFileId}/{fileName}")
     public ResponseEntity<Resource> saveProtectiveDistance(@PathVariable int activeFileId, @PathVariable String fileName) {
+    	String saveName = "vedotav";
+    	String saveFolderName = "PROTECTIVE";
     	
-    	File generatedZipFile = fileSaveService.saveProtectiveDistance(activeFileId, fileName);
+    	File generatedZipFile = fileSaveService.saveProtectiveAndImpactAreaDistance(activeFileId, fileName, saveName, saveFolderName);
     	
     	// Provide the generated .zip file for download
         Path path = Paths.get(generatedZipFile.getAbsolutePath());
@@ -137,7 +139,30 @@ public class FileReadSaveController {
 		}
 
         return ResponseEntity.ok()
-                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + fileName + "_vedotav" + ".zip\"")
+                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + fileName + "_" + saveName  + ".zip\"")
+                .body(resource);
+    }
+    
+    @PostMapping("/saveImpactAreaDistance/{activeFileId}/{fileName}")
+    public ResponseEntity<Resource> saveImpactAreaDistance(@PathVariable int activeFileId, @PathVariable String fileName) {
+    	String saveName = "hatasTer";
+    	String saveFolderName = "IMPACTAREA";
+    	
+    	File generatedZipFile = fileSaveService.saveProtectiveAndImpactAreaDistance(activeFileId, fileName, saveName, saveFolderName);
+    	
+    	// Provide the generated .zip file for download
+        Path path = Paths.get(generatedZipFile.getAbsolutePath());
+        ByteArrayResource resource = null;
+
+        try {
+			resource = new ByteArrayResource(Files.readAllBytes(path));
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+
+        return ResponseEntity.ok()
+                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + fileName + "_" + saveName  + ".zip\"")
                 .body(resource);
     }
 

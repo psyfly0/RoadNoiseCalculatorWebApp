@@ -105,6 +105,49 @@
 	let previousDifferenceColumnTemp;
 	let previousDifferenceColumnDefault;
 			
+			
+	// handle ImpactArea Save
+	function handleImpactAreaSave() {
+		if (groupedData[activeFileId] === null) {
+			return;
+		}
+		if (groupedData[activeFileId][0].impactAreaDay === null) {
+			alert('Hatásterület Nappal mező nincs kiszámolva!');
+			return;
+		}
+		if (groupedData[activeFileId][0].impactAreaNight === null) {
+			alert('Hatásterület Éjjel mező nincs számolva!');
+			return;
+		}
+		
+		const fileName = groupedData[activeFileId][0].fileName;
+		
+		fetch(`/console/saveImpactAreaDistance/${activeFileId}/${fileName}`,{
+			method: 'POST',
+			headers: {
+				'Content-type': 'application/json'
+			},
+		})
+		.then(async (response) => {
+			if (response.ok) {
+	            const blob = await response.blob();
+	            const url = window.URL.createObjectURL(blob);
+	
+	            // Create an anchor element
+	            const a = document.createElement('a');
+	            a.href = url;
+	            a.download = `${fileName}_hatasterulet.zip`; 
+	            document.body.appendChild(a);
+	            a.click();
+	            a.remove();
+	            window.URL.revokeObjectURL(url);
+        	}
+		})
+		.catch((error) => {
+			console.error('Error in saving the file:', error);
+		});		
+	}	
+	
 	// handle ProtectiveDistance Save
 	function handleProtectiveDistanceSave() {
 		if (groupedData[activeFileId] === null) {

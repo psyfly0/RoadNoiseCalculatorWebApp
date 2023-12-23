@@ -35,6 +35,7 @@ import org.opengis.referencing.crs.CoordinateReferenceSystem;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import lombok.extern.slf4j.Slf4j;
 import noise.road.dto.DbfDataDTO;
 import noise.road.entity.DbfData;
 import noise.road.entity.Results;
@@ -44,6 +45,7 @@ import noise.road.repository.ResultsRepository;
 import noise.road.repository.ShapeGeometryRepository;
 
 @Service
+@Slf4j
 public class FileSaveService {
 	
 	@Autowired
@@ -56,7 +58,7 @@ public class FileSaveService {
 	private ResultsRepository resultsRepository;
 
 	public File saveShpFile(int activeFileId, String fileName, List<String> columnNames) {
-		
+		long startTime = System.nanoTime();
 		List<DbfData> dbfDataList = dbfDataRepository.findByFileId(activeFileId);
 		List<ShapeGeometry> shpGeometry = shapeGeometryRepsotiory.findByFileId(activeFileId);
 		List<Results> resultsList = resultsRepository.findByFileId(activeFileId);
@@ -68,7 +70,6 @@ public class FileSaveService {
 		try {
 			crs = CRS.parseWKT(FileSaveLogic.stringWKT_EOV());
 		} catch (FactoryException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
         typeBuilder.setCRS(crs);
@@ -100,12 +101,13 @@ public class FileSaveService {
 	         dataStore.setCharset(charset);	
 	     } catch (IOException e) {
 	         e.printStackTrace();
-	         // Handle or throw the exception as needed
 	     }
 	     
 	     // Create the feature collection
         DefaultFeatureCollection featureCollection = new DefaultFeatureCollection();
         SimpleFeatureBuilder featureBuilder = new SimpleFeatureBuilder(featureType);
+        // Create a WKT reader
+        WKTReader wktReader = new WKTReader();
         
         for (int i = 0; i < dbfDataList.size(); i++) {
         	DbfData dbfData = dbfDataList.get(i);
@@ -113,9 +115,7 @@ public class FileSaveService {
             
             ShapeGeometry shapeGeometry = shpGeometry.get(i);
             String geometryWKT = shapeGeometry.getGeometryWKT();
-
-            // Create a WKT reader
-            WKTReader wktReader = new WKTReader();
+          
             try {
                 // Parse the WKT string to a Geometry object
                 Geometry geometry = wktReader.read(geometryWKT);
@@ -164,7 +164,6 @@ public class FileSaveService {
                 featureCollection.add(feature);
             } catch (ParseException e) {
                 e.printStackTrace();
-                // Handle or throw the exception as needed
             }
 
         }
@@ -175,11 +174,8 @@ public class FileSaveService {
 			dataStore.createSchema(featureType);
 			typeName = dataStore.getTypeNames()[0];
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-      //  dataStore.forceSchemaCRS(shapeData.getCoordinateReferenceSystem());
-       // dataStore.createSchema(featureType);
 
         Transaction transaction = new DefaultTransaction();
         
@@ -200,13 +196,11 @@ public class FileSaveService {
            featureIterator.close();
            transaction.commit();
            } catch (IOException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 			} finally {
                try {
 					transaction.close();
 				} catch (IOException e) {
-					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
            }
@@ -233,17 +227,20 @@ public class FileSaveService {
                }
            } catch (IOException e) {
                e.printStackTrace();
-               // Handle or throw the exception as needed
            }
-
+           long endTime = System.nanoTime();
+           long durationInNano = endTime - startTime;
+           double durationInSeconds = durationInNano / 1_000_000_000.0;
+           log.info("Save File duration in sec: {}", durationInSeconds);
            return generatedZipFile;
 	}
 	
-	public File saveProtectiveDistance(int activeFileId, String fileName) {
+	public File saveProtectiveAndImpactAreaDistance(int activeFileId, String fileName, String saveName, String saveFolderName) {
+		long startTime = System.nanoTime();
 		List<ShapeGeometry> shpGeometry = shapeGeometryRepsotiory.findByFileId(activeFileId);
 		List<Results> resultsList = resultsRepository.findByFileId(activeFileId);
 		
-		List<Geometry> newGeometries = FileSaveLogic.createNewGeometry(shpGeometry, resultsList);
+		List<Geometry> newGeometries = FileSaveLogic.createNewGeometry(shpGeometry, resultsList, saveName);
 		
 		
 		// Create the feature type
@@ -254,12 +251,11 @@ public class FileSaveService {
 		try {
 			crs = CRS.parseWKT(FileSaveLogic.stringWKT_EOV());
 		} catch (FactoryException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		 typeBuilder.setCRS(crs);
 		 typeBuilder.add("geometry", MultiLineString.class); // Geometry attribute
-		 typeBuilder.add("Vedotav", String.class);
+		 typeBuilder.add(saveName, String.class);
 		 
 		 SimpleFeatureType featureType = typeBuilder.buildFeatureType();
 		 
@@ -267,10 +263,9 @@ public class FileSaveService {
 	     // Create the temporary directory
 	     Path tempDir = null;
 	     try {
-	         tempDir = Files.createTempDirectory("shapefileSavePROTECTIVETempDir");
+	         tempDir = Files.createTempDirectory("shapefileSave" + saveFolderName + "TempDir");
 	
-	       //  File tempFolder = tempDir.toFile();
-	         File shpFile = new File(tempDir.toFile(), fileName + "_vedotav" + ".shp");
+	         File shpFile = new File(tempDir.toFile(), fileName + "_" + saveName + ".shp");
 	
 	         // Create the shapefile data store
 	         ShapefileDataStoreFactory dataStoreFactory = new ShapefileDataStoreFactory();
@@ -281,7 +276,6 @@ public class FileSaveService {
 	         dataStore.setCharset(charset);	
 	     } catch (IOException e) {
 	         e.printStackTrace();
-	         // Handle or throw the exception as needed
 	     }
 	     
 	     // Create the feature collection
@@ -303,14 +297,12 @@ public class FileSaveService {
         try {
 			dataStore.createSchema(featureType);
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
         
 		try {
 			typeName = dataStore.getTypeNames()[0];
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
         Transaction transaction = new DefaultTransaction();
@@ -327,13 +319,11 @@ public class FileSaveService {
             writer.close();
             transaction.commit();
         } catch (IOException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		} finally {
             try {
 				transaction.close();
 			} catch (IOException e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
         }
@@ -342,7 +332,7 @@ public class FileSaveService {
         // Logic to zip the shapefile folder
         File generatedZipFile = null;
         try {
-     	   Path zipFilePath = Files.createTempFile(fileName + "_vedotav", ".zip");
+     	   Path zipFilePath = Files.createTempFile(fileName + "_" + saveName, ".zip");
 
             try (FileOutputStream fos = new FileOutputStream(zipFilePath.toFile());
                  ZipOutputStream zipOut = new ZipOutputStream(fos)) {
@@ -359,9 +349,11 @@ public class FileSaveService {
             }
         } catch (IOException e) {
             e.printStackTrace();
-            // Handle or throw the exception as needed
         }
-
+        long endTime = System.nanoTime();
+        long durationInNano = endTime - startTime;
+        double durationInSeconds = durationInNano / 1_000_000_000.0;
+        log.info("Save Protective/Impact duration in sec: {}", durationInSeconds);
         return generatedZipFile;
 	}
 	
