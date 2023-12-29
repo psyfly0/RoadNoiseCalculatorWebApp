@@ -30,12 +30,12 @@
 			    'R_I_km/h': 'speed1R',
 			    'R_II_km/h': 'speed2R',
 			    'R_III_km/h': 'speed3R',
-			    'R_I_ak_kat_N': 'acousticCatDayR1',
-			    'R_II_ak_kat_N': 'acousticCatDayR2',
-			    'R_III_ak_kat_N': 'acousticCatDayR3',
-			    'R_I_ak_kat_E': 'acousticCatNightR1',
-			    'R_II_ak_kat_E': 'acousticCatNightR2',
-			    'R_III_ak_kat_E': 'acousticCatNightR3',
+			    'R_I_ak_kat_N': 'acousticCatDay1R',
+			    'R_II_ak_kat_N': 'acousticCatDay2R',
+			    'R_III_ak_kat_N': 'acousticCatDay3R',
+			    'R_I_ak_kat_E': 'acousticCatNight1R',
+			    'R_II_ak_kat_E': 'acousticCatNight2R',
+			    'R_III_ak_kat_E': 'acousticCatNight3R',
 			    'LAeq Nappal' : 'laeqDay',
 			    'LAeq Éjjel' : 'laeqNight',
 			    'LW Nappal' : 'lwDay',
@@ -63,12 +63,12 @@
         'speed1R',
         'speed2R',
         'speed3R',
-        'acousticCatDayR1',
-        'acousticCatDayR2',
-        'acousticCatDayR3',
-        'acousticCatNightR1',
-        'acousticCatNightR2',
-        'acousticCatNightR3',
+        'acousticCatDay1R',
+        'acousticCatDay2R',
+        'acousticCatDay3R',
+        'acousticCatNight1R',
+        'acousticCatNight2R',
+        'acousticCatNight3R',
     ];
 	        
 	const parameterMapping = {
@@ -96,6 +96,7 @@
 		'angleOfView' : true,
 		'slopeElevation' : true
 	};
+	
 
     let differenceColumnDefault = [0, 1, 2];
     let differenceColumnTemp = [];
@@ -105,6 +106,189 @@
 	let previousDifferenceColumnTemp;
 	let previousDifferenceColumnDefault;
 			
+	let deleteMode = false;
+	let selectedRows = new Set();
+	let selectedColumns = new Set();
+			
+	// handle Delete Rows and Columns
+	function handleDeleteRowsColumns() {
+		const deleteButtonConfirmation = document.getElementById('deleteButtonConfirmation');
+		const deleteButton = document.getElementById('deleteButton');
+	    const deleteButtonContainer = document.getElementById('deleteRowsColumns');
+	    if (deleteMode) {
+	        deleteMode = false;
+	        deleteButtonContainer.classList.remove('delete-mode-on');
+	        deleteButtonContainer.classList.add('delete-mode-off');
+	        enableOtherButtons();
+	        if (deleteButton) {
+	            deleteButton.remove();
+	        }
+	    } else {
+	        deleteMode = true;
+	        deleteButtonContainer.classList.add('delete-mode-on');
+	        disableOtherButtons();
+	        if (!deleteButton) {
+				const newDeleteButton = document.createElement('button');
+				newDeleteButton.id = 'deleteButton';
+            	newDeleteButton.textContent = 'Törlés!';
+            	newDeleteButton.addEventListener('click', deleteSelected);
+            	deleteButtonConfirmation.appendChild(newDeleteButton);
+			}
+	    }
+	}
+	
+	function disableOtherButtons() {
+	    const otherButtons = document.querySelectorAll('#calculations, #submitButton button, #differenceButton button, #text-field-container, #difference-container button, #sorting-container button, #saveFile button, .tabs');
+	    otherButtons.forEach(button => {
+	        button.disabled = true;
+	    });
+	}
+	
+	function enableOtherButtons() {
+	    const otherButtons = document.querySelectorAll('#calculations, #submitButton button, #differenceButton button, #text-field-container, #difference-container button, #sorting-container button, #saveFile button, .tabs');
+	    otherButtons.forEach(button => {
+	        button.disabled = false;
+	        const table = document.getElementById('dataTable');
+	        clearAllCellBackgrounds(table);
+	        selectedRows.clear();
+	        selectedColumns.clear();
+	        
+	    });
+	}
+	
+	// Function to delete selected rows and columns
+	function deleteSelected() {
+        const selectedRowNumbers = Array.from(selectedRows); // Get an array of selected row numbers
+        const incrementedRowNumbers = selectedRowNumbers.map(rowNumber => rowNumber + 1);
+	    // Ensure selectedColumns contains keys from columnMapping
+	    console.log('selectedColumns', selectedColumns);
+
+	    // Convert Set to Array and extract values from columnMapping based on selected column indices
+	    const selectedColumnNames = Array.from(selectedColumns).map(columnIndex => {
+    		// Retrieve the keys (column names) from columnMapping
+		    const keys = Object.keys(columnMapping);
+		console.log('keys', keys);
+		    // Get the column name using the index from selectedColumns
+		    return columnMapping[keys[columnIndex]];
+		});
+	    
+	    // Prepare data to send to the backend
+	    const data = {
+	        selectedRows: incrementedRowNumbers,
+	        selectedColumns: selectedColumnNames,
+	    };
+	    console.log('incrementedRowNumbers:', incrementedRowNumbers);
+	    console.log('deletion-selectedRowNumbers', selectedRowNumbers);
+	    console.log('deletion-selectedColumnNames', selectedColumnNames);
+	    console.log('deletion-data for backend', data);
+	
+	    // Send data to the backend using fetch or axios
+	    fetch(`/modification/deleteRowsColumns/${activeFileId}`, {
+	        method: 'POST',
+	        headers: {
+	            'Content-Type': 'application/json',
+	            // Add any necessary headers here
+	        },
+	        body: JSON.stringify(data),
+	    })
+	    .then(response => {
+	        if (response.ok) {
+				deleteColumns(selectedColumnNames);
+				handleDeleteRowsColumns();
+				renderTable(groupedData[activeFileId]);
+			}
+	    })
+	    .catch(error => {
+	        // Handle any errors that occur during the fetch
+	        console.error('Error:', error);
+	    });
+	}
+	
+	function deleteColumns(selectedColumnNames) {
+		for (const key in columnMapping) {
+			if (Object.prototype.hasOwnProperty.call(columnMapping, key)) {
+				const value = columnMapping[key];
+				if (selectedColumnNames.includes(value)) {
+					delete columnMapping[key];
+				}
+			}
+		}
+		console.log('columnMapping after column deletion:', columnMapping);
+		saveColumnMapping(activeFileId, columnMapping);
+	}
+	
+	const handleRowSelection = (e) => {
+		if (deleteMode) {
+			const table = document.getElementById('dataTable');
+			const clickedCell = e.target.closest('td');
+			const rowElement = clickedCell.closest('tr');
+        	//const row = Array.from(rowElement.parentNode.children).indexOf(rowElement);
+        	
+			const isRowData = clickedCell && clickedCell.cellIndex === 0 && e.target.tagName === 'TD';
+			console.log('clickedCell in rowSelection', clickedCell);
+			if (isRowData) {
+				const rowIndex = Array.from(rowElement.parentNode.children).indexOf(rowElement);
+	            console.log('rowIndex', rowIndex);
+	            if (selectedRows.has(rowIndex)) {
+	                selectedRows.delete(rowIndex);
+	            } else {
+	                selectedRows.add(rowIndex);
+	            }
+			}
+			updateVisuals(table, selectedRows, selectedColumns);
+		}
+	}
+	
+	const handleColumnSelection = (e) => {
+		if (deleteMode) {
+			const table = document.getElementById('dataTable');
+			const clickedCell = e.target.closest('th');
+			const isColumnHeader = clickedCell && e.target.tagName === 'TH';
+			console.log('clickedCell in columnSelection', clickedCell);
+		    if (isColumnHeader) {
+		        const cellIndex = e.target.cellIndex;
+		        if (selectedColumns.has(cellIndex)) {
+		            selectedColumns.delete(cellIndex);
+		        } else {
+		            selectedColumns.add(cellIndex);
+		        }
+	        }
+	        updateVisuals(table, selectedRows, selectedColumns);
+        }
+	}
+	
+	// Function to update visuals for both rows and columns
+	const updateVisuals = (table, selectedRows, selectedColumns) => {
+	    clearAllCellBackgrounds(table);
+	    
+	    // Update column visuals
+	    selectedColumns.forEach(columnIndex => {
+	        const cellsInColumn = Array.from(table.querySelectorAll(`th:nth-child(${columnIndex + 1}), td:nth-child(${columnIndex + 1})`));
+	        cellsInColumn.forEach(cell => {
+	            cell.style.backgroundColor = 'lightblue';
+	        });
+	    });
+	    
+	    // Update row visuals
+	    const tableBody = table.querySelector('tbody'); 
+	    const rows = Array.from(tableBody.children);
+	
+	    selectedRows.forEach(rowIndex => {
+	        const row = rows[rowIndex]; // Access the rows in the <tbody> directly
+	        const cellsInRow = Array.from(row.cells);
+	        cellsInRow.forEach(cell => {
+	            cell.style.backgroundColor = 'lightblue';
+	        });
+	    });
+	};
+
+	// Function to clear all cell background colors
+	const clearAllCellBackgrounds = (table) => {
+	    const allCells = Array.from(table.querySelectorAll('td, th'));
+	    allCells.forEach(cell => {
+	        cell.style.backgroundColor = '';
+	    });
+	};
 			
 	// handle ImpactArea Save
 	function handleImpactAreaSave() {
@@ -253,211 +437,220 @@
 			let singleClickTimer;
 					
 	const handleCellDoubleClick = async (cell) => {
-	    const activeData = groupedData[activeFileId];
-	    const row = cell.parentNode.rowIndex;
-	    
-		console.log('double clicked on cell');
-		console.log('row', row);
-		console.log('isCellEditing', isCellEditing);
-		
-	    // Fetch data for the form
-	    const response = await fetch(`/modification/getMutableParameters/${activeFileId}/${row}`);
-	    const data = await response.json();
-	    
-		console.log('data from getMutableParamaters', data);
-		
-	    // Create a form with fetched data
-	    const form = document.createElement('form');
-	    form.classList.add('form');
-	
-	    // Iterate over the parameterMapping keys and create form fields
-	    Object.keys(parameterMapping).forEach((key) => {
-	        const label = document.createElement('label');
-	        label.textContent = parameterMapping[key];
-	        
-			console.log('label - parametermapping', label);
+		if (!deleteMode) {
+		    const activeData = groupedData[activeFileId];
+		    const rowElement = cell.closest('tr');
+        	const row = Array.from(rowElement.parentNode.children).indexOf(rowElement);
+		    
+			console.log('double clicked on cell');
+			console.log('row', row);
+			console.log('isCellEditing', isCellEditing);
 			
-	        if (userInputValues[key]) {
-	            // Create input fields for userInputValues
-	            const input = document.createElement('input');
-	            input.name = key;
-	            console.log('input - userinputvalue', input);
-	            input.type = 'text';
-	            // Set the input value based on the fetched data
-	            input.value = data[key] || '';
-	
-	            // Append the input field to the form
-	            label.appendChild(input);
-	        } else {
-	            // Create select dropdowns for selectableValues
-	            const select = document.createElement('select');
-	            select.name = key;
-	            // Populate options for select dropdown based on selectableValues
-	            selectableValues[key].forEach((value) => {
-	                const option = document.createElement('option');
-	                option.value = value;
-	                option.textContent = value;
-	                // Set the selected value based on the fetched data
-	                if (data[key] === value) {
-	                    option.selected = true;
-	                }
-	                select.appendChild(option);
-	            });
-	
-	            // Append the select dropdown to the form
-	            label.appendChild(select);
-	        }
-	
-	        // Append the label with input/select to the form
-	        form.appendChild(label);
-	
-	    });
-	
-	    // Create buttons for submit and cancel
-	    const submitButton = document.createElement('button');
-	    submitButton.textContent = 'Submit';
-	    submitButton.addEventListener('click', () => {
+		    // Fetch data for the form
+		    const response = await fetch(`/modification/getMutableParameters/${activeFileId}/${row}`);
+		    const data = await response.json();
+		    
+			console.log('data from getMutableParamaters', data);
 			
-	        console.log('before submit');
-	        
-	        handleSubmit();
-	        isCellEditing = false;
-	        form.remove();
-	    });
-	    
-	    const handleSubmit = () => {
-	    const formData = {};
-	
-	    // Iterate through all form elements
-	    const formElements = form.elements;
-	    for (let i = 0; i < formElements.length; i++) {
-	        const element = formElements[i];
-	        if (element.tagName === 'INPUT' || element.tagName === 'SELECT') {
-	            formData[element.name] = element.value;
-	        }
-	    }
-		console.log('during submit, activeFileId, rowNumber, formData:', activeFileId, row, formData);
-
-	    fetch(`/modification/setMutableParameters/${activeFileId}/${row}`, {
-	        method: 'PUT',
-	        headers: {
-	            'Content-Type': 'application/json'
-	        },
-	        body: JSON.stringify(formData)
-		    }).then((response) => {
-		        console.log('Mutable Parameters modified for the row.', response);
-		    }).catch((error) => {
-		        console.error('There was a problem with the fetch operation:', error);
+		    // Create a form with fetched data
+		    const form = document.createElement('form');
+		    form.classList.add('form');
+		
+		    // Iterate over the parameterMapping keys and create form fields
+		    Object.keys(parameterMapping).forEach((key) => {
+		        const label = document.createElement('label');
+		        label.textContent = parameterMapping[key];
+		        
+				console.log('label - parametermapping', label);
+				
+		        if (userInputValues[key]) {
+		            // Create input fields for userInputValues
+		            const input = document.createElement('input');
+		            input.name = key;
+		            console.log('input - userinputvalue', input);
+		            input.type = 'text';
+		            // Set the input value based on the fetched data
+		            input.value = data[key] || '';
+		
+		            // Append the input field to the form
+		            label.appendChild(input);
+		        } else {
+		            // Create select dropdowns for selectableValues
+		            const select = document.createElement('select');
+		            select.name = key;
+		            // Populate options for select dropdown based on selectableValues
+		            selectableValues[key].forEach((value) => {
+		                const option = document.createElement('option');
+		                option.value = value;
+		                option.textContent = value;
+		                // Set the selected value based on the fetched data
+		                if (data[key] === value) {
+		                    option.selected = true;
+		                }
+		                select.appendChild(option);
+		            });
+		
+		            // Append the select dropdown to the form
+		            label.appendChild(select);
+		        }
+		
+		        // Append the label with input/select to the form
+		        form.appendChild(label);
+		
 		    });
-		};
-
-	    const cancelButton = document.createElement('button');
-	    cancelButton.textContent = 'Cancel';
-	    cancelButton.addEventListener('click', () => {
-	        // Handle cancel action - simply remove the form from the DOM
-	        isCellEditing = false;
-	        form.remove();
-	    });
-
-	    // Append buttons to the form
-	    form.appendChild(submitButton);
-	    form.appendChild(cancelButton);  
-	   
-       // Display the form under the clicked row in the table
-	    const tableContainer = document.getElementById('table-container');
-	    const dataTable = tableContainer.querySelector('#dataTable');
-	    const clickedRow = cell.parentNode;
+		
+		    // Create buttons for submit and cancel
+		    const submitButton = document.createElement('button');
+		    submitButton.textContent = 'Submit';
+		    submitButton.addEventListener('click', () => {
+				
+		        console.log('before submit');
+		        
+		        handleSubmit();
+		        isCellEditing = false;
+		        form.remove();
+		        formRow.remove();
+		    });
+		    
+		    const handleSubmit = () => {
+			    const formData = {};
+			
+			    // Iterate through all form elements
+			    const formElements = form.elements;
+			    for (let i = 0; i < formElements.length; i++) {
+			        const element = formElements[i];
+			        if (element.tagName === 'INPUT' || element.tagName === 'SELECT') {
+			            formData[element.name] = element.value;
+			        }
+			    }
+				console.log('during submit, activeFileId, rowNumber, formData:', activeFileId, row, formData);
+		
+			    fetch(`/modification/setMutableParameters/${activeFileId}/${row}`, {
+			        method: 'PUT',
+			        headers: {
+			            'Content-Type': 'application/json'
+			        },
+			        body: JSON.stringify(formData)
+				    }).then((response) => {
+				        console.log('Mutable Parameters modified for the row.', response);
+				    }).catch((error) => {
+				        console.error('There was a problem with the fetch operation:', error);
+				    });
+			};
 	
-	    // Create a new row and cell to hold the form
-	    const formRow = dataTable.insertRow(clickedRow.rowIndex + 1); // Insert new row after the clicked row
-	    const formCell = formRow.insertCell(0); // Create a cell in the new row
+		    const cancelButton = document.createElement('button');
+		    cancelButton.textContent = 'Cancel';
+		    cancelButton.addEventListener('click', () => {
+		        // Handle cancel action - simply remove the form from the DOM
+		        isCellEditing = false;
+		        form.remove();
+		        formRow.remove();
+		    });
 	
-	    // Append the form to the cell
-	    formCell.appendChild(form);
+		    // Append buttons to the form
+		    form.appendChild(submitButton);
+		    form.appendChild(cancelButton);  
+		   
+	       // Display the form under the clicked row in the table
+		    const tableContainer = document.getElementById('table-container');
+		    const dataTable = tableContainer.querySelector('#dataTable');
+		    const clickedRow = cell.parentNode;
+		
+		    // Create a new row and cell to hold the form
+		    const formRow = dataTable.insertRow(clickedRow.rowIndex + 1); // Insert new row after the clicked row
+		    const formCell = formRow.insertCell(0); // Create a cell in the new row
+		
+		    // Append the form to the cell
+		    formCell.appendChild(form);
+	    }
 	};
 					
-			const handleCellClick = (cell) => {
-			    if (!cell) {
-			        return;
-			    }
-			    
-			    if (isCellEditing) {
-			        return; // Prevents re-triggering when the cell is already in edit mode
-			    }
-			
-			    isCellEditing = true;
-			
-			    const activeData = groupedData[activeFileId];
-			    const row = cell.parentNode.rowIndex -1;
-			    const column = cell.cellIndex;
-			
-			    const columnNames = Object.values(columnMapping);
-			    const columnName = columnNames[column];
-			    const cellValue = activeData[row][columnName];
-			
-				console.log('activeData', activeData);
-				console.log('row', row);
-				console.log('columnName', columnName);
-			    console.log('cellValue in data-modification:', cellValue);
-			
-			    if (editableColumns.includes(columnName)) {			
-			        const input = document.createElement('input');
-			        input.value = cellValue;
-			        
-	        		input.addEventListener('input', (event) => {
-					    const newValue = event.target.value.trim();
-					    if (newValue === '') {
-					        // If the new value is empty, revert to the original value
-					        input.value = cellValue; // Revert the input value
-					    } else if (/^\d*$/.test(newValue)) {
-					        // Only allow integer values
-					        input.value = newValue; // Update input value
-					    } else {
-					        // Prevent non-integer values from being entered
-					        input.value = ''; // Reset input value
-					    }
-					});
-			        
-			        cell.innerHTML = '';
-			        cell.appendChild(input);
-			        
-			        input.focus(); 
-			        input.select(); 
-			
-			        input.addEventListener('blur', () => {
-					    const updatedValue = input.value;
-					    
-					    console.log('Updated Value:', updatedValue);
-					    console.log('Cell Value:', cellValue);
-					    console.log('Are they different?', String(updatedValue) !== String(cellValue));
-					
-					    // Check if the value has changed
-					    if (String(updatedValue) !== String(cellValue)) {
-					        activeData[row][columnName] = updatedValue;
-					        cell.innerHTML = updatedValue;
-					
-					        console.log('activeFileId, row, columnName, value', activeFileId, row, columnName, updatedValue);
-					        console.log('activeData in data-modification:', activeData);
-					
-					        saveCellDataToBackend(activeFileId, row, columnName, updatedValue);
-					    } else {
-					        // Revert the cell content to the original value when unchanged
-					        cell.innerHTML = cellValue;
-					    }
-					
-					    isCellEditing = false; // Reset the editing flag
-					});
-			        
-			        input.addEventListener('keydown', (event) => {
-			            if (event.key === 'Enter') {
-			                input.blur();
-			            }
-			        });
-			    } else {
-			        console.log('Cell not editable');
-			        isCellEditing = false; 
-			    }
-			};
+	const handleCellClick = (cell) => {
+		if (!deleteMode) {
+		    if (!cell) {
+		        return;
+		    }
+		    
+		    if (isCellEditing) {
+		        return; // Prevents re-triggering when the cell is already in edit mode
+		    }
+		
+		    isCellEditing = true;
+		
+		    const activeData = groupedData[activeFileId];
+		   // const row = cell.parentNode.rowIndex;
+		   	const rowElement = cell.closest('tr');
+        	const row = Array.from(rowElement.parentNode.children).indexOf(rowElement);
+		    const column = cell.cellIndex;
+		
+		    const columnNames = Object.values(columnMapping);
+		    const columnName = columnNames[column];
+		    const cellValue = activeData[row][columnName];
+		
+			console.log('activeData', activeData);
+			console.log('row', row);
+			console.log('columnName', columnName);
+		    console.log('cellValue in data-modification:', cellValue);
+		
+		    if (editableColumns.includes(columnName)) {			
+		        const input = document.createElement('input');
+		        input.value = cellValue;
+		        
+        		input.addEventListener('input', (event) => {
+				    const newValue = event.target.value.trim();
+				    if (newValue === '') {
+				        // If the new value is empty, revert to the original value
+				        input.value = cellValue; // Revert the input value
+				    } else if (/^\d*$/.test(newValue)) {
+				        // Only allow integer values
+				        input.value = newValue; // Update input value
+				    } else {
+				        // Prevent non-integer values from being entered
+				        input.value = ''; // Reset input value
+				    }
+				});
+		        
+		        cell.innerHTML = '';
+		        cell.appendChild(input);
+		        
+		        input.focus(); 
+		        input.select(); 
+		
+		        input.addEventListener('blur', () => {
+				    const updatedValue = input.value;
+				    
+				    console.log('Updated Value:', updatedValue);
+				    console.log('Cell Value:', cellValue);
+				    console.log('Are they different?', String(updatedValue) !== String(cellValue));
+				
+				    // Check if the value has changed
+				    if (String(updatedValue) !== String(cellValue)) {
+				        activeData[row][columnName] = updatedValue;
+				        cell.innerHTML = updatedValue;
+				
+				        console.log('activeFileId, row, columnName, value', activeFileId, row, columnName, updatedValue);
+				        console.log('activeData in data-modification:', activeData);
+				
+				        saveCellDataToBackend(activeFileId, row, columnName, updatedValue);
+				    } else {
+				        // Revert the cell content to the original value when unchanged
+				        cell.innerHTML = cellValue;
+				    }
+				
+				    isCellEditing = false; // Reset the editing flag
+				});
+		        
+		        input.addEventListener('keydown', (event) => {
+		            if (event.key === 'Enter') {
+		                input.blur();
+		            }
+		        });
+		    } else {
+		        console.log('Cell not editable');
+		        isCellEditing = false; 
+		    }
+	    }
+	};
 			
 			// Function to send updated data to the backend
 			const saveCellDataToBackend = (activeFileId, row, columnName, updatedCellValue) => {
@@ -853,6 +1046,8 @@
 			
 			let activeFileId;
 			let tbody;
+			let thead;
+			let tableHeadersBody;
 			let tables;
 			let file_id;
 			// Function to render tabs and tables using grouped data
@@ -865,7 +1060,7 @@
 					
 			        return (
 			            <span key={fileId}>
-			                <button onClick={() => {
+			                <button className="tabs" onClick={() => {
 								activeFileId = fileId; // Set the active file_id
 								console.log('activeFileId on tabClick', activeFileId);
 			                    renderTable(groupedData[fileId]);		                    
@@ -951,6 +1146,17 @@
 			    
 			    tbody = document.querySelector('#dataTable tbody');
 				console.log('tbody', tbody);
+				
+				tableHeadersBody = document.querySelector('#dataTable');
+				console.log('tableHeadersBody', tableHeadersBody);
+				
+				thead = document.querySelector('#dataTable thead');
+				
+				tbody.addEventListener('click', handleRowSelection);
+				thead.addEventListener('click', handleColumnSelection);
+				
+				// Add event listener for cell selection (mousedown)
+    		//	tableHeadersBody.addEventListener('mousedown', handleCellSelection);
 					
 				// Event listener for table cell clicks
 				tbody.addEventListener('click', (e) => {

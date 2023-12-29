@@ -249,19 +249,19 @@ public class CalculationLogic {
 		
 		// day sum
 		vehicleHours[0] = Math.ceil((double) dbfDataDTO.getAcousticCatDay1() / constantParamDTO.getDayHours() +
-                (double) dbfDataDTO.getAcousticCatDayR1() / constantParamDTO.getDayHours());
+                (double) dbfDataDTO.getAcousticCatDay1R() / constantParamDTO.getDayHours());
 		vehicleHours[1] = Math.ceil((double) dbfDataDTO.getAcousticCatDay2() / constantParamDTO.getDayHours() +
-                (double) dbfDataDTO.getAcousticCatDayR2() / constantParamDTO.getDayHours());
+                (double) dbfDataDTO.getAcousticCatDay2R() / constantParamDTO.getDayHours());
 		vehicleHours[2] = Math.ceil((double) dbfDataDTO.getAcousticCatDay3() / constantParamDTO.getDayHours() +
-                (double) dbfDataDTO.getAcousticCatDayR3() / constantParamDTO.getDayHours());
+                (double) dbfDataDTO.getAcousticCatDay3R() / constantParamDTO.getDayHours());
 		
 		// night sum
 		vehicleHours[3] = Math.ceil((double) dbfDataDTO.getAcousticCatNight1() / constantParamDTO.getNightHours() +
-                (double) dbfDataDTO.getAcousticCatNightR1() / constantParamDTO.getNightHours());
+                (double) dbfDataDTO.getAcousticCatNight1R() / constantParamDTO.getNightHours());
 		vehicleHours[4] = Math.ceil((double) dbfDataDTO.getAcousticCatNight2() / constantParamDTO.getNightHours() +
-                (double) dbfDataDTO.getAcousticCatNightR2() / constantParamDTO.getNightHours());
+                (double) dbfDataDTO.getAcousticCatNight2R() / constantParamDTO.getNightHours());
 		vehicleHours[5] = Math.ceil((double) dbfDataDTO.getAcousticCatNight3() / constantParamDTO.getNightHours() +
-                (double) dbfDataDTO.getAcousticCatNightR3() / constantParamDTO.getNightHours());
+                (double) dbfDataDTO.getAcousticCatNight3R() / constantParamDTO.getNightHours());
 		
 		return vehicleHours;
 	}

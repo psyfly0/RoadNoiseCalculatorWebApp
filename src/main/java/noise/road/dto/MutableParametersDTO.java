@@ -20,5 +20,4 @@ public class MutableParametersDTO {
 	private double slopeElevation;
 	private double parameterP_cat1;
 	private double parameterP_cat2_3;
-// P PARAMETÉREKTE BERAKNI ÉS CSEKKOLNI HOGY JÓ E
 }

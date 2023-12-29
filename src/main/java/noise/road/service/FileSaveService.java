@@ -13,6 +13,7 @@ import java.util.Map;
 import java.util.zip.ZipOutputStream;
 
 import org.geotools.data.shapefile.ShapefileDataStore;
+import org.apache.commons.io.FileUtils;
 import org.geotools.data.DefaultTransaction;
 import org.geotools.data.FeatureWriter;
 import org.geotools.data.Transaction;
@@ -86,9 +87,10 @@ public class FileSaveService {
         ShapefileDataStore dataStore = null;
 	     // Create the temporary directory
 	     Path tempDir = null;
+	     File tempFolder = null;
 	     try {
 	         tempDir = Files.createTempDirectory("shapefileSAVETempDir");
-	
+	         tempFolder = tempDir.toFile();
 	       //  File tempFolder = tempDir.toFile();
 	         File shpFile = new File(tempDir.toFile(), fileName + ".shp");
 	
@@ -136,12 +138,12 @@ public class FileSaveService {
             	FileSaveLogic.addNonNullAttribute(featureBuilder, dbfData.getSpeed1R());
             	FileSaveLogic.addNonNullAttribute(featureBuilder, dbfData.getSpeed2R());
             	FileSaveLogic.addNonNullAttribute(featureBuilder, dbfData.getSpeed3R());
-            	FileSaveLogic.addNonNullAttribute(featureBuilder, dbfData.getAcousticCatDayR1());
-            	FileSaveLogic.addNonNullAttribute(featureBuilder, dbfData.getAcousticCatDayR2());
-            	FileSaveLogic.addNonNullAttribute(featureBuilder, dbfData.getAcousticCatDayR3());
-            	FileSaveLogic.addNonNullAttribute(featureBuilder, dbfData.getAcousticCatNightR1());
-            	FileSaveLogic.addNonNullAttribute(featureBuilder, dbfData.getAcousticCatNightR2());
-            	FileSaveLogic.addNonNullAttribute(featureBuilder, dbfData.getAcousticCatNightR3());
+            	FileSaveLogic.addNonNullAttribute(featureBuilder, dbfData.getAcousticCatDay1R());
+            	FileSaveLogic.addNonNullAttribute(featureBuilder, dbfData.getAcousticCatDay2R());
+            	FileSaveLogic.addNonNullAttribute(featureBuilder, dbfData.getAcousticCatDay3R());
+            	FileSaveLogic.addNonNullAttribute(featureBuilder, dbfData.getAcousticCatNight1R());
+            	FileSaveLogic.addNonNullAttribute(featureBuilder, dbfData.getAcousticCatNight2R());
+            	FileSaveLogic.addNonNullAttribute(featureBuilder, dbfData.getAcousticCatNight3R());
             	
             	FileSaveLogic.addNonNullAttribute(featureBuilder, results.getLaeqDay());
             	FileSaveLogic.addNonNullAttribute(featureBuilder, results.getLaeqNight());
@@ -228,6 +230,14 @@ public class FileSaveService {
            } catch (IOException e) {
                e.printStackTrace();
            }
+           
+           try {
+			FileUtils.deleteDirectory(tempFolder);
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} 
+           
            long endTime = System.nanoTime();
            long durationInNano = endTime - startTime;
            double durationInSeconds = durationInNano / 1_000_000_000.0;
@@ -262,8 +272,10 @@ public class FileSaveService {
 		 ShapefileDataStore dataStore = null;
 	     // Create the temporary directory
 	     Path tempDir = null;
+	     File tempFolder = null;
 	     try {
 	         tempDir = Files.createTempDirectory("shapefileSave" + saveFolderName + "TempDir");
+	         tempFolder = tempDir.toFile();
 	
 	         File shpFile = new File(tempDir.toFile(), fileName + "_" + saveName + ".shp");
 	
@@ -354,6 +366,14 @@ public class FileSaveService {
         long durationInNano = endTime - startTime;
         double durationInSeconds = durationInNano / 1_000_000_000.0;
         log.info("Save Protective/Impact duration in sec: {}", durationInSeconds);
+        
+        try {
+			FileUtils.deleteDirectory(tempFolder);
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} 
+        
         return generatedZipFile;
 	}
 	

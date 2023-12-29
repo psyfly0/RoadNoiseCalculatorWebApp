@@ -2,23 +2,41 @@ package noise.road.service;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
+import jakarta.persistence.Query;
+import lombok.extern.slf4j.Slf4j;
 import noise.road.dto.MutableParametersDTO;
 import noise.road.entity.DbfData;
 import noise.road.entity.MutableParameters;
+import noise.road.entity.Results;
+import noise.road.entity.ShapeGeometry;
 import noise.road.repository.DbfDataRepository;
 import noise.road.repository.MutableParametersRepository;
+import noise.road.repository.ResultsRepository;
+import noise.road.repository.ShapeGeometryRepository;
 
 @Service
+@Slf4j
 public class ModificationService {
 
 	@Autowired
 	private DbfDataRepository dbfDataRepository;
+	
+	@Autowired
+	private ResultsRepository resultsRepository;
+	
+	@Autowired
+	private ShapeGeometryRepository shapeGeometryRepository;
 	
 	@Autowired
 	private MutableParametersRepository mutableParamRepository;
@@ -29,11 +47,14 @@ public class ModificationService {
 	@Autowired
     private ModelMapper modelMapper;
 	
-	public void modifyCellValue(int activeFileId, int row, String columnName, Integer updatedCellValue) {
+	@PersistenceContext
+    private EntityManager entityManager;
+	
+	public void modifyCellValue(int activeFileId, int rowNumber, String columnName, Integer updatedCellValue) {
 
-		int rowAdjusted = row + 1;
+		int rowAdjusted = rowNumber + 1;
 		DbfData dbfData = dbfDataRepository.findRow(activeFileId, rowAdjusted);
-		
+	
 		 try {
 	            // Capitalize the columnName to match the setter method convention
 	            String capitalizedColumnName = columnName.substring(0, 1).toUpperCase() + columnName.substring(1);
@@ -54,7 +75,7 @@ public class ModificationService {
 	
 	public MutableParametersDTO getMutableParametersForRow(int activeFileId, int rowNumber) {
 		
-		int rowAdjusted = rowNumber;		
+		int rowAdjusted = rowNumber + 1;		
 		MutableParameters mutableParam = mutableParamRepository.findRow(activeFileId, rowAdjusted);
 		
 		MutableParametersDTO mutableParamDTO = modelMapper.map(mutableParam, MutableParametersDTO.class);
@@ -63,8 +84,9 @@ public class ModificationService {
 	}
 	
 	public void setMutableParametersForRow(int activeFileId, int rowNumber, MutableParametersDTO mutableParamsDTO) {
+		int rowAdjusted = rowNumber + 1;
 		
-		MutableParameters mutableParam = mutableParamRepository.findRow(activeFileId, rowNumber);
+		MutableParameters mutableParam = mutableParamRepository.findRow(activeFileId, rowAdjusted);
 		
 		mutableParam.setLthDay(mutableParamsDTO.getLthDay());
 		mutableParam.setLthNight(mutableParamsDTO.getLthNight());
@@ -80,4 +102,71 @@ public class ModificationService {
 		mutableParamRepository.save(mutableParam);
 		
 	}
+	
+	@Transactional
+	public void deleteRowsColumns(int activeFileId, List<Integer> rowNumbers, List<String> columnNames) {
+		log.info("activeFileId: {}", activeFileId);
+		log.info("rowNumber: {}", rowNumbers);
+		log.info("columnNames: {}", columnNames);
+		
+		if (rowNumbers != null && !rowNumbers.isEmpty()) {			
+			shapeGeometryRepository.deleteRowsByFileIdAndRowNumbers(activeFileId, rowNumbers);
+			resultsRepository.deleteRowsByFileIdAndRowNumbers(activeFileId, rowNumbers);
+			dbfDataRepository.deleteRowsByFileIdAndRowNumbers(activeFileId, rowNumbers);
+        }
+
+        if (columnNames != null && !columnNames.isEmpty()) {
+        	if (columnNames != null && !columnNames.isEmpty()) {
+                for (String columnName : columnNames) {
+                    updateColumnAsDeleted(activeFileId, columnName);
+                }
+            }
+        }
+	}
+
+	private void updateColumnAsDeleted(int activeFileId, String columnName) {
+		String snakeCaseColumnName = camelToSnakeCase(columnName);
+		String tableName = determineTable(columnName);
+		
+        String sql = "UPDATE " + tableName + " SET " + snakeCaseColumnName + " = null WHERE FILE_ID = :fileId";
+        Query query = entityManager.createNativeQuery(sql);
+        query.setParameter("fileId", activeFileId);
+        query.executeUpdate();
+    }
+	
+	private String camelToSnakeCase(String columnName) {
+	    String[] parts = columnName.split("(?=[A-Z\\d])");
+	    return String.join("_", parts).toUpperCase();
+	}
+	
+	private String determineTable(String columnName) {
+		List<String> dbfDataTableColumns = new ArrayList<>(Arrays.asList(
+				"identifier", "speed1", "speed2", "speed3", "acousticCatDay1", "acousticCatDay2", 
+				"acousticCatDay3", "acousticCatNight1", "acousticCatNight2", "acousticCatNight3",
+				"identifierR", "speed1R", "speed2R", "speed3R", "acousticCatDay1R", "acousticCatDay2R", 
+				"acousticCatDay3R", "acousticCatNight1R", "acousticCatNight2R", "acousticCatNight3R"));
+		
+		List<String> resultsTableColumns = new ArrayList<>(Arrays.asList(
+				"laeqDay", "laeqNight", "lwDay", "lwNight", "impactAreaDay", "impactAreaNight",
+				"protectiveDistanceDay", "protectiveDistanceNight", "noiseAtGivenDistanceDay", 
+				"noiseAtGivenDistanceNight", "differenceDay0", "differenceNight0", "differenceDay1", 
+				"differenceNight1", "differenceDay2", "differenceNight2"));
+		
+		if (dbfDataTableColumns.contains(columnName)) {
+			return "DBF_DATA";
+		} else if (resultsTableColumns.contains(columnName)) {
+			return "RESULTS";
+		} else {
+			return null;
+		}
+	}
+	
+	
+
+
+
+	
+	
+	
+	
 }

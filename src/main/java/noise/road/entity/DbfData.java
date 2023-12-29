@@ -27,10 +27,10 @@ public class DbfData {
 	@Column(name = "ID")
 	private Integer id;
 	
-	@OneToOne(mappedBy = "dbfData", cascade = CascadeType.ALL)
+	@OneToOne(mappedBy = "dbfData", cascade = CascadeType.ALL, orphanRemoval = true)
     private Results results;
 	
-	@OneToOne(mappedBy = "dbfData", cascade = CascadeType.ALL)
+	@OneToOne(mappedBy = "dbfData", cascade = CascadeType.ALL, orphanRemoval = true)
     private ShapeGeometry shapeGeometry;
 	
 	@Column(name = "FILE_ID")
@@ -72,34 +72,34 @@ public class DbfData {
 	@Column(name = "ACOUSTIC_CAT_NIGHT_3")
 	private Integer acousticCatNight3;
 	
-	@Column(name = "R_IDENTIFIER")
+	@Column(name = "IDENTIFIER_R")
 	private Integer identifierR;
 	
-	@Column(name = "R_SPEED_1")
+	@Column(name = "SPEED_1_R")
 	private Integer speed1R;
 	
-	@Column(name = "R_SPEED_2")
+	@Column(name = "SPEED_2_R")
 	private Integer speed2R;
 	
-	@Column(name = "R_SPEED_3")
+	@Column(name = "SPEED_3_R")
 	private Integer speed3R;
 	
-	@Column(name = "R_ACOUSTIC_CAT_DAY_1")
-	private Integer acousticCatDayR1;
+	@Column(name = "ACOUSTIC_CAT_DAY_1_R")
+	private Integer acousticCatDay1R;
 	
-	@Column(name = "R_ACOUSTIC_CAT_DAY_2")
-	private Integer acousticCatDayR2;
+	@Column(name = "ACOUSTIC_CAT_DAY_2_R")
+	private Integer acousticCatDay2R;
 	
-	@Column(name = "R_ACOUSTIC_CAT_DAY_3")
-	private Integer acousticCatDayR3;
+	@Column(name = "ACOUSTIC_CAT_DAY_3_R")
+	private Integer acousticCatDay3R;
 	
-	@Column(name = "R_ACOUSTIC_CAT_NIGHT_1")
-	private Integer acousticCatNightR1;
+	@Column(name = "ACOUSTIC_CAT_NIGHT_1_R")
+	private Integer acousticCatNight1R;
 	
-	@Column(name = "R_ACOUSTIC_CAT_NIGHT_2")
-	private Integer acousticCatNightR2;
+	@Column(name = "ACOUSTIC_CAT_NIGHT_2_R")
+	private Integer acousticCatNight2R;
 	
-	@Column(name = "R_ACOUSTIC_CAT_NIGHT_3")
-	private Integer acousticCatNightR3;
+	@Column(name = "ACOUSTIC_CAT_NIGHT_3_R")
+	private Integer acousticCatNight3R;
 	
 }

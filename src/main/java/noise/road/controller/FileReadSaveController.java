@@ -8,6 +8,7 @@ import java.nio.file.Paths;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.io.FileUtils;
 import org.locationtech.jts.geom.Geometry;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.ByteArrayResource;
@@ -114,6 +115,10 @@ public class FileReadSaveController {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+		
+
+		generatedZipFile.delete();
+
 
         return ResponseEntity.ok()
                 .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + fileName + ".zip\"")
@@ -137,6 +142,8 @@ public class FileReadSaveController {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+        
+        generatedZipFile.delete();
 
         return ResponseEntity.ok()
                 .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + fileName + "_" + saveName  + ".zip\"")
@@ -160,6 +167,8 @@ public class FileReadSaveController {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+        
+        generatedZipFile.delete();
 
         return ResponseEntity.ok()
                 .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + fileName + "_" + saveName  + ".zip\"")

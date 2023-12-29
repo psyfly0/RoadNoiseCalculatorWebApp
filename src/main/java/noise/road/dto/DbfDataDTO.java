@@ -26,12 +26,12 @@ public class DbfDataDTO {
 	private Integer speed1R;
 	private Integer speed2R;
 	private Integer speed3R;
-	private Integer acousticCatDayR1;
-	private Integer acousticCatDayR2;
-	private Integer acousticCatDayR3;
-	private Integer acousticCatNightR1;
-	private Integer acousticCatNightR2;
-	private Integer acousticCatNightR3;
+	private Integer acousticCatDay1R;
+	private Integer acousticCatDay2R;
+	private Integer acousticCatDay3R;
+	private Integer acousticCatNight1R;
+	private Integer acousticCatNight2R;
+	private Integer acousticCatNight3R;
 	private Double laeqDay;
 	private Double laeqNight;
 	private Double lwDay;

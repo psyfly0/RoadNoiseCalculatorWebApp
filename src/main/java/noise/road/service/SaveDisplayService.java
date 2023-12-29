@@ -73,12 +73,12 @@ public class SaveDisplayService {
 			dbfData.setSpeed1R(speed1and2(dto.getReverseKmh1()));
 			dbfData.setSpeed2R(speed1and2(dto.getReverseKmh1()));
 			dbfData.setSpeed3R(speed3(dto.getReverseKmh1()));
-			dbfData.setAcousticCatDayR1(dto.getReverseAcCatDay1());
-			dbfData.setAcousticCatDayR2(dto.getReverseAcCatDay2());
-			dbfData.setAcousticCatDayR3(dto.getReverseAcCatDay3());
-			dbfData.setAcousticCatNightR1(dto.getReverseAcCatNight1());
-			dbfData.setAcousticCatNightR2(dto.getReverseAcCatNight2());
-			dbfData.setAcousticCatNightR3(dto.getReverseAcCatNight3());
+			dbfData.setAcousticCatDay1R(dto.getReverseAcCatDay1());
+			dbfData.setAcousticCatDay2R(dto.getReverseAcCatDay2());
+			dbfData.setAcousticCatDay3R(dto.getReverseAcCatDay3());
+			dbfData.setAcousticCatNight1R(dto.getReverseAcCatNight1());
+			dbfData.setAcousticCatNight2R(dto.getReverseAcCatNight2());
+			dbfData.setAcousticCatNight3R(dto.getReverseAcCatNight3());
 			
 			dbfDataList.add(dbfData);
 			

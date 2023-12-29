@@ -26,6 +26,7 @@ public class MutableParameters {
 	@Column(name = "FILE_ID")
 	private Integer file_id;
 
+	@Column(name = "FILE_UNIQUE_ID")
 	private Integer file_unique_id;
 	
 	@Column(name = "LTH_DAY")

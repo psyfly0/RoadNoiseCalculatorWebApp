@@ -59,6 +59,7 @@ public class FileReadService {
         File dbfFile = findDbfFile(tempFolder);
 
         shapeData = extractShapeData(shpFile, dbfFile);
+        
         FileUtils.deleteDirectory(tempFolder); // Delete temp directory and its content
 
         return shapeData;
