@@ -14,6 +14,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.ByteArrayResource;
 import org.springframework.core.io.Resource;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -60,10 +61,18 @@ public class FileReadSaveController {
 	private FileSaveService fileSaveService;
 
     @PostMapping("/fileLoad")
-    public List<Map<String, Object>> fileLoad(@RequestParam("zipFile") MultipartFile zipFile) throws IOException {
-        shapeData = fileReadService.readShapefileFromZip(zipFile);
-        List<Map<String, Object>> attributeData = shapeData.getAttributeData();
-        return attributeData;     
+    public ResponseEntity<?> fileLoad(@RequestParam("zipFile") MultipartFile zipFile) {
+    	try {
+            shapeData = fileReadService.readShapefileFromZip(zipFile);
+            List<Map<String, Object>> attributeData = shapeData.getAttributeData();
+            return ResponseEntity.ok(attributeData);
+        } catch (IOException e) {
+            log.error("Error reading shapefile from ZIP", e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Hiba a .zip olvasása közben.");
+        } catch (IllegalArgumentException e) {
+            log.error("Required files are missing in the ZIP", e);
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("A .zip nem tartalmaz minden szükséges fájlt.");
+        }    
     }
     
     @PostMapping("/saveToDatabase")

@@ -88,6 +88,14 @@
 		    };
 		
 		    const handleFileUpload = async () => {
+				if (!file) {
+			        return;
+			    }
+
+			    if (file.name.split('.').pop() !== 'zip') {
+			        alert('Csak .zip fájlt lehet felölteni.');
+			        return;
+			    }
 		        const formData = new FormData();
 		        formData.append('zipFile', file);
 		
@@ -105,7 +113,9 @@
 		                setColumnNames(Array(data[0] ? Object.keys(data[0]) : []).fill(''));
 		                
 		            } else {
-		                console.error('Failed to upload file');
+		                const errorMessage = await response.text();
+        				console.error('Failed to upload file:', errorMessage);
+        				alert(`Hiba: ${errorMessage}`);
 		            }
 		        } catch (error) {
 		            console.error('Error uploading file:', error);
@@ -132,6 +142,25 @@
 		        	return mappedRow;
 		    	});
 		    	
+		    	const excludeFromCheck = ['R_Azonosító']; // Keys to exclude from the check
+
+				// Check if all fields from columnMapping are selected except excluded ones
+				const selectedFields = Object.keys(columnMapping).filter((key) => columnNames.includes(columnMapping[key]));
+				const requiredFields = Object.entries(columnMapping)
+				    .filter(([key, value]) => !excludeFromCheck.includes(key))
+				    .map(([key, value]) => key);
+				    
+			    console.log('selectedFields:', selectedFields);
+				console.log('requiredFields:', requiredFields);
+				
+				const missingFields = requiredFields.filter((field) => !selectedFields.includes(field));
+				console.log('missingFields', missingFields);
+				
+				if (missingFields.length > 0) {
+				    // Alert the user about missing fields
+				    alert(`Válaszd még ki: ${missingFields.join(', ')}`);
+				    return; // Stop further execution
+				}
 
 		
 				// Send mappedData and fileName to '/console/saveToDatabase' endpoint
@@ -201,6 +230,16 @@
 		            console.error('Error sending Modified Parameters:', error);
 		        }
 		    };
+		    
+		    const isInteger = (value) => {
+    // Check if the value is an integer
+    return /^\d+$/.test(value);
+};
+
+const isDouble = (value) => {
+    // Check if the value is a double
+    return /^-?\d+(\.\d+)?$/.test(value);
+};
 		
 		    return (
 		        <div>
@@ -221,16 +260,24 @@
 		                            <label htmlFor={key}>{value}</label>
 		                            {userInputValues[key] ? (
 		                                <input
-		                                    type="text"
-		                                    id={key}
-		                                    value={modifiedParameters[key] || defaultValues[key]}
-		                                    onChange={(event) =>
-		                                        setModifiedParameters({
-		                                            ...modifiedParameters,
-		                                            [key]: event.target.value,
-		                                        })
-		                                    }
-		                                />
+							                type="text"
+							                id={key}
+							                value={modifiedParameters[key] !== undefined ? modifiedParameters[key] : defaultValues[key] || ''}
+							                onChange={(event) => {
+							                    const { value: inputValue } = event.target;
+							                    if (inputValue === '' || isInteger(inputValue) || isDouble(inputValue)) {
+							                        let processedValue = inputValue;
+							                        // Remove leading zeros if more numbers are typed
+							                        if (processedValue.length > 1 && processedValue.startsWith('0') && !processedValue.startsWith('0.')) {
+							                            processedValue = processedValue.replace(/^0+(?=\d)/, '');
+							                        }
+							                        setModifiedParameters({
+							                            ...modifiedParameters,
+							                            [key]: processedValue === '' ? undefined : processedValue,
+							                        });
+							                    }
+							                }}
+							            />
 		                            ) : (
 		                                <select
 		                                    id={key}

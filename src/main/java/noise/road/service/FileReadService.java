@@ -105,6 +105,9 @@ public class FileReadService {
 		ShapeDataDTO shapeData = null;
         ShapefileDataStore dataStore = null;
         try {
+        	if (shpFile == null || dbfFile == null) {
+                throw new IllegalArgumentException("Required files are missing in the ZIP");
+            }
             dataStore = new ShapefileDataStore(shpFile.toURI().toURL());
             String typeName = dataStore.getTypeNames()[0];
             SimpleFeatureType schema;
@@ -134,6 +137,10 @@ public class FileReadService {
             if (!geometries.isEmpty()) {            	
             	shapeData = new ShapeDataDTO(geometries, schema, attributes);
             }
+        } catch (IllegalArgumentException e) {
+        	throw e;
+        }  catch (IOException e) {
+            throw new IOException("Error reading .shp file from ZIP" + e);
         } finally {
             if (dataStore != null) {
                 dataStore.dispose();
@@ -167,9 +174,9 @@ public class FileReadService {
                 records.add(recordMap);
             }
             dbfReader.close();
-            return records;
+            return records;        	
         } catch (IOException e) {
-            throw new IOException("Error reading DBF file: " + file.getName(), e);
+            throw new IOException("Error reading .dbf file from ZIP" + e);
         }
     }
 }
