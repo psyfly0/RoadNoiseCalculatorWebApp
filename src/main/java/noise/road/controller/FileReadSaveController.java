@@ -13,6 +13,7 @@ import org.locationtech.jts.geom.Geometry;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.ByteArrayResource;
 import org.springframework.core.io.Resource;
+import org.springframework.dao.DataAccessException;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -77,32 +78,56 @@ public class FileReadSaveController {
     
     @PostMapping("/saveToDatabase")
     public ResponseEntity<String> saveToDatabase(@RequestBody SaveDbfRequest saveDbfRequest) {
-    	if (!constantsAlreadySaved) {
-    		constantParametersService.insertParametersToDatabase();
-    		constantsAlreadySaved = true;
-    	}   	
-    	
-    	String fileName = saveDbfRequest.getFileName();
-        List<DbfDataPreprocessDTO> requestBody = saveDbfRequest.getMappedData();
-        List<Geometry> geometries = shapeData.getGeometries();
-        
-        log.info("requestBody: {}", requestBody);
-        
-        saveDisplayService.saveData(requestBody, fileName, geometries);
-    	
-    	// fetch the length of data for mutable parameters
-    	uploadedDataLength = requestBody.size();
-     
-        return ResponseEntity.ok("Data saved successfully to the database");
+    	try {
+	    	if (!constantsAlreadySaved) {
+	    		constantParametersService.insertParametersToDatabase();
+	    		constantsAlreadySaved = true;
+	    	}   	
+	    	
+	    	String fileName = saveDbfRequest.getFileName();
+	        List<DbfDataPreprocessDTO> requestBody = saveDbfRequest.getMappedData();
+	        List<Geometry> geometries = shapeData.getGeometries();
+	        
+	        log.info("requestBody: {}", requestBody);
+	        
+	        saveDisplayService.saveData(requestBody, fileName, geometries);
+	    	
+	    	// fetch the length of data for mutable parameters
+	    	uploadedDataLength = requestBody.size();
+	     
+	        return ResponseEntity.ok("Data saved successfully to the database");
+	        
+    	} catch (DataAccessException e) {
+    		log.error("Database access error occurred", e);
+    		return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Hiba az adatbázis elérésében.");
+    	} catch (IOException e) {
+    		log.error("IO error occurred", e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Hiba a fájl mentése közben.");
+    	} catch (IllegalArgumentException e) {
+    		log.error("Required parameters are missing", e);
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Hiba a fájl mentése közben. Hibásan megadott oszlopnevek és/vagy paraméterek.");
+    	}
        
     }
     
     @PostMapping("/saveMutableParameters")
     public ResponseEntity<String> saveMutableParametersToDatabase(@RequestBody MutableParametersDTO parameters) {
     	log.info("Mutable parameters: {}", parameters);
-    	mutableParametersService.saveInitialMutableParameters(parameters, uploadedDataLength);
-    	
-    	return ResponseEntity.ok("Mutable parameters saved successfully to the database");
+    	try {
+    		
+	    	mutableParametersService.saveInitialMutableParameters(parameters, uploadedDataLength);	    	
+	    	return ResponseEntity.ok("Mutable parameters saved successfully to the database");
+	    	
+    	} catch (DataAccessException e) {
+    		log.error("Database access error occurred", e);
+    		return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Hiba az adatbázis elérésében.");
+    	} catch (IOException e) {
+    		log.error("IO error occurred", e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Hiba a paraméterek mentése közben.");
+    	} catch (IllegalArgumentException e) {
+    		log.error("Required parameters are missing", e);
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Hiba a paraméterek mentése közben. Hibásan megadott paraméterek.");
+    	}
     }
     
     @PostMapping("/saveFile/{activeFileId}/{fileName}")

@@ -1,5 +1,6 @@
 package noise.road.service;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -10,6 +11,7 @@ import java.util.stream.Collectors;
 import org.locationtech.jts.geom.Geometry;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataAccessException;
 import org.springframework.stereotype.Service;
 
 import noise.road.dto.DbfDataDTO;
@@ -39,7 +41,7 @@ public class SaveDisplayService {
 	@Autowired
 	private ModelMapper modelMapper;
 	
-	public void saveData(List<DbfDataPreprocessDTO> dbfDataDTO, String fileName, List<Geometry> geometries) {
+	public void saveData(List<DbfDataPreprocessDTO> dbfDataDTO, String fileName, List<Geometry> geometries) throws IOException, IllegalArgumentException, DataAccessException {
 		
 		List<DbfData> dbfDataList = new ArrayList<>();
 		List<Results> resultsList = new ArrayList<>();

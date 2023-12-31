@@ -180,7 +180,9 @@
 		                setFileUploadSuccess(true);
 		                console.log('Response1 success:', fileUploadSuccess);
 		            } else {
-		                console.error('Failed to filter data');
+						const errorMessage = await response.text();
+		                console.error('Failed to save data', errorMessage);
+		                alert(`Hiba mentés közben:`, errorMessage);
 		            }
 		        } catch (error) {
 		            console.error('Error filtering data:', error);
@@ -224,7 +226,9 @@
 		                window.location.href = '/console/display';
 
 		            } else {
-		                console.error('Failed to send Modified Parameters to backend');
+						const errorMessage = await response.text();
+		                console.error('Failed to save mutable params', errorMessage);
+		                alert(`Hiba a paraméterek mentés közben:`, errorMessage);
 		            }
 		        } catch (error) {
 		            console.error('Error sending Modified Parameters:', error);
@@ -232,14 +236,14 @@
 		    };
 		    
 		    const isInteger = (value) => {
-    // Check if the value is an integer
-    return /^\d+$/.test(value);
-};
-
-const isDouble = (value) => {
-    // Check if the value is a double
-    return /^-?\d+(\.\d+)?$/.test(value);
-};
+			    // Check if the value is an integer
+			    return /^\d+$/.test(value);
+			};
+			
+			const isDouble = (value) => {
+			    // Check if the value is a double
+			    return /^-?\d+(\.\d+)?$/.test(value);
+			};
 		
 		    return (
 		        <div>

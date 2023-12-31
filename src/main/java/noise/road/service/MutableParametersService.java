@@ -1,9 +1,11 @@
 package noise.road.service;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataAccessException;
 import org.springframework.stereotype.Service;
 import noise.road.dto.MutableParametersDTO;
 import noise.road.entity.MutableParameters;
@@ -21,7 +23,7 @@ public class MutableParametersService {
 	private MutableParametersRepository mpRepository;
 	
 	//@Transactional
-	public void saveInitialMutableParameters(MutableParametersDTO mpDTO, int dataLength) {
+	public void saveInitialMutableParameters(MutableParametersDTO mpDTO, int dataLength) throws IOException, IllegalArgumentException, DataAccessException {
 		
 		List<MutableParameters> paramList = new ArrayList<>();	
 		int file_unique_id = 1;
