@@ -10,6 +10,8 @@ import java.util.Map;
 
 import org.apache.commons.io.FileUtils;
 import org.locationtech.jts.geom.Geometry;
+import org.locationtech.jts.io.ParseException;
+import org.opengis.referencing.FactoryException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.ByteArrayResource;
 import org.springframework.core.io.Resource;
@@ -131,28 +133,45 @@ public class FileReadSaveController {
     }
     
     @PostMapping("/saveFile/{activeFileId}/{fileName}")
-    public ResponseEntity<Resource> saveFile(@PathVariable int activeFileId, 
+    public ResponseEntity<?> saveFile(@PathVariable int activeFileId, 
 												@PathVariable String fileName, 
 												@RequestBody List<String> columnNames) {
     	
     	log.info("fileName: {}", fileName);
     	log.info("Received column names: {}", columnNames);
-  
-    	File generatedZipFile = fileSaveService.saveShpFile(activeFileId, fileName, columnNames);
     	
+    	File generatedZipFile = null;
+    	
+    	try {
+    		generatedZipFile = fileSaveService.saveShpFile(activeFileId, fileName, columnNames);   	
+    	} catch (DataAccessException e) {
+    		log.error("Database access error occurred", e);
+    		return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Hiba az adatbázis elérésében.");
+    	} catch (FactoryException e) {
+    		log.error("CRS parsing error occurred", e);
+    		return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Hiba a koordináta átváltásban.");
+    	} catch (IOException e) {
+    		log.error("Error during reading/writing files", e);
+    		return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Hiba a fájlok olvasása/írása közben.");
+    	} catch (ParseException e) {
+    		log.error("Error parsing WKT", e);
+    		return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Hiba a geometria olvasása közben.");
+    	} catch (IllegalArgumentException e) {
+    		log.error("Required parameters are missing", e);
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Hibásan megadott paraméterek.");
+    	}
+	
     	// Provide the generated .zip file for download
         Path path = Paths.get(generatedZipFile.getAbsolutePath());
         ByteArrayResource resource = null;
 		try {
 			resource = new ByteArrayResource(Files.readAllBytes(path));
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			log.error("Error during fetching the generated .zip file", e);
+    		return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Hiba az elkészült .zip elérése során.");
 		}
 		
-
 		generatedZipFile.delete();
-
 
         return ResponseEntity.ok()
                 .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + fileName + ".zip\"")
@@ -160,11 +179,30 @@ public class FileReadSaveController {
     }
     
     @PostMapping("/saveProtectiveDistance/{activeFileId}/{fileName}")
-    public ResponseEntity<Resource> saveProtectiveDistance(@PathVariable int activeFileId, @PathVariable String fileName) {
+    public ResponseEntity<?> saveProtectiveDistance(@PathVariable int activeFileId, @PathVariable String fileName) {
     	String saveName = "vedotav";
     	String saveFolderName = "PROTECTIVE";
     	
-    	File generatedZipFile = fileSaveService.saveProtectiveAndImpactAreaDistance(activeFileId, fileName, saveName, saveFolderName);
+    	File generatedZipFile = null;
+    	
+    	try {
+    		generatedZipFile = fileSaveService.saveProtectiveAndImpactAreaDistance(activeFileId, fileName, saveName, saveFolderName);
+    	} catch (DataAccessException e) {
+    		log.error("Database access error occurred", e);
+    		return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Hiba az adatbázis elérésében.");
+    	} catch (FactoryException e) {
+    		log.error("CRS parsing error occurred", e);
+    		return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Hiba a koordináta átváltásban.");
+    	} catch (IOException e) {
+    		log.error("Error during reading/writing files", e);
+    		return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Hiba a fájlok olvasása/írása közben.");
+    	} catch (ParseException e) {
+    		log.error("Error parsing WKT", e);
+    		return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Hiba a geometria olvasása közben.");
+    	} catch (IllegalArgumentException e) {
+    		log.error("Required parameters are missing", e);
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Hibásan megadott paraméterek.");
+    	}   	
     	
     	// Provide the generated .zip file for download
         Path path = Paths.get(generatedZipFile.getAbsolutePath());
@@ -173,8 +211,8 @@ public class FileReadSaveController {
         try {
 			resource = new ByteArrayResource(Files.readAllBytes(path));
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			log.error("Error during fetching the generated .zip file", e);
+    		return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Hiba az elkészült .zip elérése során.");
 		}
         
         generatedZipFile.delete();
@@ -185,12 +223,30 @@ public class FileReadSaveController {
     }
     
     @PostMapping("/saveImpactAreaDistance/{activeFileId}/{fileName}")
-    public ResponseEntity<Resource> saveImpactAreaDistance(@PathVariable int activeFileId, @PathVariable String fileName) {
+    public ResponseEntity<?> saveImpactAreaDistance(@PathVariable int activeFileId, @PathVariable String fileName) {
     	String saveName = "hatasTer";
     	String saveFolderName = "IMPACTAREA";
     	
-    	File generatedZipFile = fileSaveService.saveProtectiveAndImpactAreaDistance(activeFileId, fileName, saveName, saveFolderName);
-    	
+    	File generatedZipFile = null;
+    	try {
+    		generatedZipFile = fileSaveService.saveProtectiveAndImpactAreaDistance(activeFileId, fileName, saveName, saveFolderName);
+    	} catch (DataAccessException e) {
+    		log.error("Database access error occurred", e);
+    		return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Hiba az adatbázis elérésében.");
+    	} catch (FactoryException e) {
+    		log.error("CRS parsing error occurred", e);
+    		return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Hiba a koordináta átváltásban.");
+    	} catch (IOException e) {
+    		log.error("Error during reading/writing files", e);
+    		return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Hiba a fájlok olvasása/írása közben.");
+    	} catch (ParseException e) {
+    		log.error("Error parsing WKT", e);
+    		return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Hiba a geometria olvasása közben.");
+    	} catch (IllegalArgumentException e) {
+    		log.error("Required parameters are missing", e);
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Hibásan megadott paraméterek.");
+    	} 
+    		
     	// Provide the generated .zip file for download
         Path path = Paths.get(generatedZipFile.getAbsolutePath());
         ByteArrayResource resource = null;
@@ -198,8 +254,8 @@ public class FileReadSaveController {
         try {
 			resource = new ByteArrayResource(Files.readAllBytes(path));
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			log.error("Error during fetching the generated .zip file", e);
+    		return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Hiba az elkészült .zip elérése során.");
 		}
         
         generatedZipFile.delete();

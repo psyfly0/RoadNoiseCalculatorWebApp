@@ -8,7 +8,9 @@ import java.util.List;
 
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataAccessException;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.TransactionException;
 import org.springframework.transaction.annotation.Transactional;
 
 import jakarta.persistence.EntityManager;
@@ -50,7 +52,7 @@ public class ModificationService {
 	@PersistenceContext
     private EntityManager entityManager;
 	
-	public void modifyCellValue(int activeFileId, int rowNumber, String columnName, Integer updatedCellValue) {
+	public void modifyCellValue(int activeFileId, int rowNumber, String columnName, Integer updatedCellValue) throws DataAccessException, IllegalArgumentException, NoSuchMethodException{
 
 		int rowAdjusted = rowNumber + 1;
 		DbfData dbfData = dbfDataRepository.findRow(activeFileId, rowAdjusted);
@@ -73,7 +75,7 @@ public class ModificationService {
 	        }	
 	}
 	
-	public MutableParametersDTO getMutableParametersForRow(int activeFileId, int rowNumber) {
+	public MutableParametersDTO getMutableParametersForRow(int activeFileId, int rowNumber) throws DataAccessException, IllegalArgumentException {
 		
 		int rowAdjusted = rowNumber + 1;		
 		MutableParameters mutableParam = mutableParamRepository.findRow(activeFileId, rowAdjusted);
@@ -83,7 +85,7 @@ public class ModificationService {
         return mutableParamDTO;
 	}
 	
-	public void setMutableParametersForRow(int activeFileId, int rowNumber, MutableParametersDTO mutableParamsDTO) {
+	public void setMutableParametersForRow(int activeFileId, int rowNumber, MutableParametersDTO mutableParamsDTO) throws DataAccessException, IllegalArgumentException {
 		int rowAdjusted = rowNumber + 1;
 		
 		MutableParameters mutableParam = mutableParamRepository.findRow(activeFileId, rowAdjusted);
@@ -104,7 +106,7 @@ public class ModificationService {
 	}
 	
 	@Transactional
-	public void deleteRowsColumns(int activeFileId, List<Integer> rowNumbers, List<String> columnNames) {
+	public void deleteRowsColumns(int activeFileId, List<Integer> rowNumbers, List<String> columnNames) throws DataAccessException, IllegalArgumentException, TransactionException {
 		log.info("activeFileId: {}", activeFileId);
 		log.info("rowNumber: {}", rowNumbers);
 		log.info("columnNames: {}", columnNames);

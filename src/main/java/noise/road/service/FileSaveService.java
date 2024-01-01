@@ -34,6 +34,7 @@ import org.opengis.feature.simple.SimpleFeatureType;
 import org.opengis.referencing.FactoryException;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataAccessException;
 import org.springframework.stereotype.Service;
 
 import lombok.extern.slf4j.Slf4j;
@@ -58,7 +59,7 @@ public class FileSaveService {
 	@Autowired
 	private ResultsRepository resultsRepository;
 
-	public File saveShpFile(int activeFileId, String fileName, List<String> columnNames) {
+	public File saveShpFile(int activeFileId, String fileName, List<String> columnNames) throws DataAccessException, FactoryException, IOException, ParseException, IllegalArgumentException {
 		long startTime = System.nanoTime();
 		List<DbfData> dbfDataList = dbfDataRepository.findByFileId(activeFileId);
 		List<ShapeGeometry> shpGeometry = shapeGeometryRepsotiory.findByFileId(activeFileId);
@@ -71,7 +72,7 @@ public class FileSaveService {
 		try {
 			crs = CRS.parseWKT(FileSaveLogic.stringWKT_EOV());
 		} catch (FactoryException e) {
-			e.printStackTrace();
+			throw new FactoryException("Error during CRS parsing" + e);
 		}
         typeBuilder.setCRS(crs);
         typeBuilder.add("geometry", MultiLineString.class); 
@@ -102,7 +103,7 @@ public class FileSaveService {
 	         Charset charset = Charset.forName("UTF-8");
 	         dataStore.setCharset(charset);	
 	     } catch (IOException e) {
-	         e.printStackTrace();
+	         throw new IOException("Error during creating temp folder" + e);
 	     }
 	     
 	     // Create the feature collection
@@ -165,7 +166,7 @@ public class FileSaveService {
             	SimpleFeature feature = featureBuilder.buildFeature(null);
                 featureCollection.add(feature);
             } catch (ParseException e) {
-                e.printStackTrace();
+                throw new ParseException("Error during parsing WKT" + e);
             }
 
         }
@@ -176,7 +177,7 @@ public class FileSaveService {
 			dataStore.createSchema(featureType);
 			typeName = dataStore.getTypeNames()[0];
 		} catch (IOException e) {
-			e.printStackTrace();
+			throw new IOException("Error during creating dataStore" + e);
 		}
 
         Transaction transaction = new DefaultTransaction();
@@ -198,12 +199,12 @@ public class FileSaveService {
            featureIterator.close();
            transaction.commit();
            } catch (IOException e) {
-			e.printStackTrace();
+        	   throw new IOException("Error during writing file" + e);
 			} finally {
                try {
 					transaction.close();
 				} catch (IOException e) {
-					e.printStackTrace();
+					throw new IOException("Error during closing transaction" + e);
 				}
            }
         
@@ -228,14 +229,13 @@ public class FileSaveService {
                    generatedZipFile = zipFilePath.toFile();
                }
            } catch (IOException e) {
-               e.printStackTrace();
+        	   throw new IOException("Error during creating .zip file" + e);
            }
            
            try {
 			FileUtils.deleteDirectory(tempFolder);
 			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+				throw new IOException("Error during deleting temp folder" + e);
 			} 
            
            long endTime = System.nanoTime();
@@ -245,7 +245,7 @@ public class FileSaveService {
            return generatedZipFile;
 	}
 	
-	public File saveProtectiveAndImpactAreaDistance(int activeFileId, String fileName, String saveName, String saveFolderName) {
+	public File saveProtectiveAndImpactAreaDistance(int activeFileId, String fileName, String saveName, String saveFolderName) throws DataAccessException, FactoryException, IOException, ParseException, IllegalArgumentException {
 		long startTime = System.nanoTime();
 		List<ShapeGeometry> shpGeometry = shapeGeometryRepsotiory.findByFileId(activeFileId);
 		List<Results> resultsList = resultsRepository.findByFileId(activeFileId);
@@ -261,7 +261,7 @@ public class FileSaveService {
 		try {
 			crs = CRS.parseWKT(FileSaveLogic.stringWKT_EOV());
 		} catch (FactoryException e) {
-			e.printStackTrace();
+			throw new FactoryException("Error during CRS parsing" + e);
 		}
 		 typeBuilder.setCRS(crs);
 		 typeBuilder.add("geometry", MultiLineString.class); // Geometry attribute
@@ -287,7 +287,7 @@ public class FileSaveService {
 	         Charset charset = Charset.forName("UTF-8");
 	         dataStore.setCharset(charset);	
 	     } catch (IOException e) {
-	         e.printStackTrace();
+	    	 throw new IOException("Error during creating temp folder" + e);
 	     }
 	     
 	     // Create the feature collection
@@ -309,13 +309,13 @@ public class FileSaveService {
         try {
 			dataStore.createSchema(featureType);
 		} catch (IOException e) {
-			e.printStackTrace();
+			throw new IOException("Error during creating dataStore" + e);
 		}
         
 		try {
 			typeName = dataStore.getTypeNames()[0];
 		} catch (IOException e) {
-			e.printStackTrace();
+			throw new IOException("Error during creating dataStore" + e);
 		}
         Transaction transaction = new DefaultTransaction();
         try (FeatureWriter<SimpleFeatureType, SimpleFeature> writer = dataStore.getFeatureWriterAppend(typeName, transaction);
@@ -331,12 +331,12 @@ public class FileSaveService {
             writer.close();
             transaction.commit();
         } catch (IOException e) {
-			e.printStackTrace();
+        	throw new IOException("Error during writing file" + e);
 		} finally {
             try {
 				transaction.close();
 			} catch (IOException e) {
-				e.printStackTrace();
+				throw new IOException("Error during closing transaction" + e);
 			}
         }
         dataStore.dispose();
@@ -360,7 +360,7 @@ public class FileSaveService {
                 generatedZipFile = zipFilePath.toFile();
             }
         } catch (IOException e) {
-            e.printStackTrace();
+        	throw new IOException("Error during creating .zip file" + e);
         }
         long endTime = System.nanoTime();
         long durationInNano = endTime - startTime;
@@ -370,8 +370,7 @@ public class FileSaveService {
         try {
 			FileUtils.deleteDirectory(tempFolder);
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			throw new IOException("Error during deleting temp folder" + e);
 		} 
         
         return generatedZipFile;

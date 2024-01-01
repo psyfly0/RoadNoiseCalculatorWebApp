@@ -9,6 +9,7 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 import org.locationtech.jts.geom.Geometry;
+import org.modelmapper.MappingException;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
@@ -118,7 +119,7 @@ public class SaveDisplayService {
 		file_id++;
 	}
 	
-    public Map<Integer, List<DbfDataDTO>> getAll() {
+    public Map<Integer, List<DbfDataDTO>> getAll() throws DataAccessException, MappingException, NullPointerException {
         List<DbfData> dbfDataList = dbfDataRepository.findAll();
         List<Results> resultsList = resultsRepository.findAll();
 

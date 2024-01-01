@@ -3,6 +3,7 @@ package noise.road.service;
 import java.util.ArrayList;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataAccessException;
 import org.springframework.stereotype.Service;
 
 import lombok.extern.slf4j.Slf4j;
@@ -59,7 +60,7 @@ public class CalculationsService {
     //	}
     }
     
-    public void calculateAll(int fileId) {
+    public void calculateAll(int fileId) throws DataAccessException, IllegalArgumentException {
     	fetchData(fileId);
     	
     	List<Results> resultsEntitiesToUpdate = resultsRepository.findByFileId(fileId);
@@ -89,7 +90,7 @@ public class CalculationsService {
     	
     }
     
-    public void calculateLAeq(int fileId) {
+    public void calculateLAeq(int fileId) throws DataAccessException, IllegalArgumentException {
 		fetchData(fileId);
 
 		List<Results> resultsEntitiesToUpdate = resultsRepository.findByFileId(fileId);
@@ -109,7 +110,7 @@ public class CalculationsService {
 		resultsRepository.saveAll(resultEntitiesList);		
 	}
     
-    public void calculateLw(int fileId) {
+    public void calculateLw(int fileId) throws DataAccessException, IllegalArgumentException {
 		fetchData(fileId);
 		
 		List<Results> resultsEntitiesToUpdate = resultsRepository.findByFileId(fileId);
@@ -129,7 +130,7 @@ public class CalculationsService {
 		resultsRepository.saveAll(resultEntitiesList);		
 	}
     
-    public void calculateProtectiveDistance(int fileId) {
+    public void calculateProtectiveDistance(int fileId) throws DataAccessException, IllegalArgumentException {
 		fetchData(fileId);
 		
 		List<Results> resultsEntitiesToUpdate = resultsRepository.findByFileId(fileId);
@@ -149,7 +150,7 @@ public class CalculationsService {
 		resultsRepository.saveAll(resultEntitiesList);	
 	}
     
-    public void calculateImpactArea(int fileId) {
+    public void calculateImpactArea(int fileId) throws DataAccessException, IllegalArgumentException {
 		fetchData(fileId);
 		
 		List<Results> resultsEntitiesToUpdate = resultsRepository.findByFileId(fileId);
@@ -169,7 +170,7 @@ public class CalculationsService {
 		resultsRepository.saveAll(resultEntitiesList);		
 	}
     
-    public void calculateNoiseAtGivenDistance(int fileId, double distance) {
+    public void calculateNoiseAtGivenDistance(int fileId, double distance) throws DataAccessException, IllegalArgumentException {
 		this.distanceToCalculate = distance;
 		fetchData(fileId);
 		

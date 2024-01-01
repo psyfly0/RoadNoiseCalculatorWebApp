@@ -182,7 +182,7 @@
 		            } else {
 						const errorMessage = await response.text();
 		                console.error('Failed to save data', errorMessage);
-		                alert(`Hiba mentés közben:`, errorMessage);
+		                alert(`Hiba mentés közben: ${errorMessage}`);
 		            }
 		        } catch (error) {
 		            console.error('Error filtering data:', error);
@@ -228,7 +228,7 @@
 		            } else {
 						const errorMessage = await response.text();
 		                console.error('Failed to save mutable params', errorMessage);
-		                alert(`Hiba a paraméterek mentés közben:`, errorMessage);
+		                alert(`Hiba a paraméterek mentés közben: ${errorMessage}`);
 		            }
 		        } catch (error) {
 		            console.error('Error sending Modified Parameters:', error);

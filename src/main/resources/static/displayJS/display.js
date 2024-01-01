@@ -195,7 +195,13 @@
 	        if (response.ok) {
 				deleteColumns(selectedColumnNames);
 				handleDeleteRowsColumns();
-				renderTable(groupedData[activeFileId]);
+			//	renderTable(groupedData[activeFileId]);
+				fetchDataAndRenderTabs();
+			} else {
+				const errorMessage = response.text();
+	            console.error('Error during deleting rows/columns:', errorMessage);
+	            alert(`Hiba: ${errorMessage}`);
+	            throw new Error('Network response was not ok');
 			}
 	    })
 	    .catch(error => {
@@ -325,7 +331,12 @@
 	            a.click();
 	            a.remove();
 	            window.URL.revokeObjectURL(url);
-        	}
+        	} else {
+				const errorMessage = await response.text();
+	            console.error('Error during saving impactArea:', errorMessage);
+	            alert(`Hiba: ${errorMessage}`);
+	            throw new Error('Network response was not ok');
+			}
 		})
 		.catch((error) => {
 			console.error('Error in saving the file:', error);
@@ -367,7 +378,12 @@
 	            a.click();
 	            a.remove();
 	            window.URL.revokeObjectURL(url);
-        	}
+        	} else {
+				const errorMessage = await response.text();
+	            console.error('Error during saving protectiveDistance:', errorMessage);
+	            alert(`Hiba: ${errorMessage}`);
+	            throw new Error('Network response was not ok');
+			}
 		})
 		.catch((error) => {
 			console.error('Error in saving the file:', error);
@@ -421,7 +437,12 @@
 	            a.click();
 	            a.remove();
 	            window.URL.revokeObjectURL(url);
-        	}
+        	} else {
+				const errorMessage = await response.text();
+	            console.error('Error during saving the file:', errorMessage);
+	            alert(`Hiba: ${errorMessage}`);
+	            throw new Error('Network response was not ok');
+			}
 		})
 		.catch((error) => {
 			console.error('Error in saving the file:', error);
@@ -448,6 +469,12 @@
 			
 		    // Fetch data for the form
 		    const response = await fetch(`/modification/getMutableParameters/${activeFileId}/${row}`);
+		    if (!response.ok) {
+				const errorMessage = await response.text();
+                console.error('Error occured during mutable params modification:', errorMessage);
+                alert(`Hiba: ${errorMessage}`);
+	            throw new Error('Failed to save data to the backend');
+	        }
 		    const data = await response.json();
 		    
 			console.log('data from getMutableParamaters', data);
@@ -524,7 +551,7 @@
 			        }
 			    }
 				console.log('during submit, activeFileId, rowNumber, formData:', activeFileId, row, formData);
-		
+				
 			    fetch(`/modification/setMutableParameters/${activeFileId}/${row}`, {
 			        method: 'PUT',
 			        headers: {
@@ -532,6 +559,12 @@
 			        },
 			        body: JSON.stringify(formData)
 				    }).then((response) => {
+						if (!response.ok) {
+							const errorMessage = response.text();
+			                console.error('Error occured during mutable param modification:', errorMessage);
+			                alert(`Hiba: ${errorMessage}`);
+			                throw new Error('Network response was not ok');
+						}
 				        console.log('Mutable Parameters modified for the row.', response);
 				    }).catch((error) => {
 				        console.error('There was a problem with the fetch operation:', error);
@@ -662,6 +695,9 @@
 			    })
 			    .then(response => {
 			        if (!response.ok) {
+						const errorMessage = response.text();
+		                console.error('Error occured during cell modification:', errorMessage);
+		                alert(`Hiba: ${errorMessage}`);
 			            throw new Error('Failed to save data to the backend');
 			        }
 			        const activeData = groupedData[activeFileId];
@@ -685,7 +721,10 @@
 				    })
 				    .then(response => {
 						if (!response.ok) {
-							throw new Error('Network response was not ok');
+							const errorMessage = response.text();
+			                console.error('Error occured during calculation:', errorMessage);
+			                alert(`Hiba: ${errorMessage}`);
+			                throw new Error('Network response was not ok');
 						}
 						return response.json();
 					})
@@ -696,9 +735,13 @@
 				    .catch(error => {
 				        console.error('There was a problem with the fetch operation:', error);
 				    });
+				} else {
+					alert('LAeq éjjel érték szükséges a rendezéshez.')
 				}
 			}
 
+			let removeDropdownTimeout = null;
+			let dropdownDivCreated = false;
 			// handle difference request
 			function handleDifferenceSubmit() {
 				console.log('groupedData in difference:', groupedData);
@@ -742,6 +785,7 @@
 			        const okButton = document.createElement('button');
 			        okButton.textContent = 'OK';
 			        okButton.onclick = () => {
+						clearTimeout(removeDropdownTimeout);
 			            const fileId1 = dropdown1.value; // Get the selected fileId from the dropdown
     					const fileId2 = dropdown2.value; 
 			            
@@ -756,6 +800,10 @@
 					    // Check if laeqDay or laeqNight are null in either file
 					    if (checkLaeqNull(file1) || checkLaeqNull(file2)) {
 					        console.log('Error: laeqDay or laeqNight is null in one of the selected files.');
+					        dropdownDiv.parentNode.removeChild(dropdownDiv);
+					        dropdownDivCreated = false;
+		                    dropdownDiv = null; // Reset dropdownDiv
+		                    alert('LAeq nincs kiszámítva az egyik választott fájlban.');
 					        return; // Prevent sending data if any null value is found
 					    }
 						// create new columns for the values
@@ -764,6 +812,7 @@
 			            // Remove the dropdownDiv when 'OK' is clicked
 		                if (dropdownDiv && dropdownDiv.parentNode) {
 		                    dropdownDiv.parentNode.removeChild(dropdownDiv);
+		                    dropdownDivCreated = false;
 		                    dropdownDiv = null; // Reset dropdownDiv
 		                }
 			        };
@@ -778,6 +827,16 @@
 			
 			        // Append the div to the container
 			        container.appendChild(dropdownDiv);
+			        dropdownDivCreated = true;
+			        
+				    // Set a timeout to remove the dropdown after 10 seconds
+				    removeDropdownTimeout = setTimeout(() => {
+				        if (dropdownDiv && dropdownDiv.parentNode) {
+				            dropdownDiv.parentNode.removeChild(dropdownDiv);
+				            dropdownDivCreated = false;
+				            dropdownDiv = null; // Reset dropdownDiv
+				        }
+				    }, 10000);
 
 			    } else {
 			        console.log('At least two files are required for comparison.');
@@ -885,7 +944,10 @@
 						// Handle deletion of predefined columns
         				deletePredefinedColumns(fileId1, fileId2);
         				handleBadResponse()
-			            throw new Error('Network response was not ok');
+						const errorMessage = response.text();
+		                console.error('Error occured during calculation:', errorMessage);
+		                alert(`Hiba a számítások során: ${errorMessage}`);
+		                throw new Error('Network response was not ok');
 			        }
 			        			        
 			        fetchDataAndRenderTabs();
@@ -991,7 +1053,10 @@
 						})
 						.then(response => {
 							if (!response.ok) {
-								throw new Error('Network response was not ok');
+								const errorMessage = response.text();
+				                console.error('Error occured during calculation:', errorMessage);
+				                alert(`Hiba a számítások során: ${errorMessage}`);
+				                throw new Error('Network response was not ok');
 							}
 							fetchDataAndRenderTabs();
 						})
@@ -1012,6 +1077,9 @@
 						})
 						.then(response => {
 							if (!response.ok) {
+								const errorMessage = response.text();
+				                console.error('Error occured during calculation:', errorMessage);
+				                alert(`Hiba a számítások során: ${errorMessage}`);
 								throw new Error('Network response was not ok');
 							}
 							fetchDataAndRenderTabs();

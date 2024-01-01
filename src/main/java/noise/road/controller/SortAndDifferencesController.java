@@ -4,6 +4,8 @@ import java.util.List;
 import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataAccessException;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -30,25 +32,42 @@ public class SortAndDifferencesController {
 
 	@PostMapping("differences/{fileId1}/{fileId2}")
 	public ResponseEntity<String> calculateDifferences(@PathVariable int fileId1, @PathVariable int fileId2, @RequestBody Map<String, Object> requestBody) {
-		log.info("fileId1: {}", fileId1);
-		log.info("fileId2: {}", fileId2);
-		
-		int differenceColumnToUpdate = (int) requestBody.get("differenceColumnToUpdate");
-	    log.info("differenceColumnToUpdate: {}", differenceColumnToUpdate);
-	    
-		differenceCalcService.calculateDifferences(fileId1, fileId2, differenceColumnToUpdate);
-		return ResponseEntity.ok("Difference-Calculation performed and database successfully modifed");
+		try {
+			log.info("fileId1: {}", fileId1);
+			log.info("fileId2: {}", fileId2);
+			
+			int differenceColumnToUpdate = (int) requestBody.get("differenceColumnToUpdate");
+		    log.info("differenceColumnToUpdate: {}", differenceColumnToUpdate);
+		    
+			differenceCalcService.calculateDifferences(fileId1, fileId2, differenceColumnToUpdate);
+			return ResponseEntity.ok("Difference-Calculation performed and database successfully modifed");
+		} catch (DataAccessException e) {
+    		log.error("Database access error occurred", e);
+    		return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Hiba az adatbázis elérésében.");
+		} catch (IllegalArgumentException e) {
+			log.error("Required parameters are missing", e);
+			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Hiba a számítások elvégzése közben. Hibásan megadott paraméterek.");
+		}
 	}
 	
-	@PostMapping("sortByLaeq/{activeFileId}")
+/*	@PostMapping("sortByLaeq/{activeFileId}")
 	public ResponseEntity<String> sortDataByLaeq(@PathVariable int activeFileId) {
 		log.info("activeFileId: {}", activeFileId);
 		
 		return ResponseEntity.ok("Sort by LAeq performed.");
-	}
+	}*/
 	
 	@GetMapping("/sortByLaeq/{activeFileId}")
-    public List<DbfDataDTO> displaySortedData(@PathVariable int activeFileId) {
-        return sortService.sortDbfDataAndResultsByLaeqNight(activeFileId);
+    public ResponseEntity<?> displaySortedData(@PathVariable int activeFileId) {
+		try {
+			List<DbfDataDTO> sortedData = sortService.sortDbfDataAndResultsByLaeqNight(activeFileId);
+	        return ResponseEntity.ok(sortedData);
+		} catch (DataAccessException e) {
+    		log.error("Database access error occurred", e);
+    		return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Hiba az adatbázis elérésében.");
+		} catch (IllegalArgumentException e) {
+			log.error("Required parameters are missing", e);
+			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Hiba az adatok rendezése közben. Hibásan megadott paraméterek.");
+		}
     }
 }
