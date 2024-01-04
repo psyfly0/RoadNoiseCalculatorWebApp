@@ -49,19 +49,30 @@ public class SetupDataLoader implements
           = createPrivilegeIfNotFound("READ_PRIVILEGE");
         Privilege writePrivilege
           = createPrivilegeIfNotFound("WRITE_PRIVILEGE");
+        Privilege guestPrivilege 
+		  = createPrivilegeIfNotFound("GUEST_PRIVILEGE");
  
         List<Privilege> adminPrivileges = Arrays.asList(
           readPrivilege, writePrivilege);
         createRoleIfNotFound("ROLE_ADMIN", adminPrivileges);
         createRoleIfNotFound("ROLE_USER", Arrays.asList(readPrivilege));
+        createRoleIfNotFound("ROLE_GUEST", Arrays.asList(guestPrivilege));
 
         Role adminRole = roleRepository.findByName("ROLE_ADMIN");
-        User user = new User();
-        user.setPassword(passwordEncoder.encode("1"));
-        user.setUsername("admin");
-        user.setEnabled(true);
-        user.setRoles(Arrays.asList(adminRole));
-        userRepository.save(user);
+        User adminUser = new User();
+        adminUser.setPassword(passwordEncoder.encode("1"));
+        adminUser.setUsername("admin");
+        adminUser.setEnabled(true);
+        adminUser.setRoles(Arrays.asList(adminRole));
+        userRepository.save(adminUser);
+        
+        Role guestRole = roleRepository.findByName("ROLE_GUEST");
+        User guestUser = new User();
+        guestUser.setPassword(passwordEncoder.encode("guest"));
+        guestUser.setUsername("guest");
+        guestUser.setEnabled(true);
+        guestUser.setRoles(Arrays.asList(guestRole));
+        userRepository.save(guestUser);
 
         alreadySetup = true;
     }

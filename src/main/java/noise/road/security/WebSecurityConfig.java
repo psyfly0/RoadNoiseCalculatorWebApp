@@ -13,6 +13,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.access.expression.DefaultWebSecurityExpressionHandler;
+import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 
 @Configuration
@@ -27,7 +28,7 @@ public class WebSecurityConfig {
 	@Bean
 	public RoleHierarchy roleHierarchy() {
 	    RoleHierarchyImpl roleHierarchy = new RoleHierarchyImpl();
-	    String hierarchy = "ROLE_ADMIN > ROLE_USER";
+	    String hierarchy = "ROLE_ADMIN > ROLE_USER > ROLE_GUEST";
 	    roleHierarchy.setHierarchy(hierarchy);
 	    return roleHierarchy;
 	}
@@ -40,15 +41,25 @@ public class WebSecurityConfig {
 	}
 	
 	@Bean
+	public AuthenticationSuccessHandler myAuthenticationSuccessHandler(){
+	    return new MySimpleUrlAuthenticationSuccessHandler();
+	}
+
+
+		
+	@Bean
 	@Order(1)
 	SecurityFilterChain apiSecurityFilterChain(HttpSecurity http) throws Exception {
 	    return http
 	    		.csrf(csrf -> csrf.disable())
 	            .securityMatcher("/console/**", "/calculations/**", "/sortAndDifferences/**", "/modification/**")
+	    	//	.securityMatcher("/calculations/**", "/sortAndDifferences/**", "/modification/**")
 	            .authorizeHttpRequests(auth -> {
+	            	auth.requestMatchers("/console/display", "/console/displayData").hasRole("GUEST");
+	            	auth.requestMatchers("/console/**").hasAnyRole("ADMIN", "USER");
 	                auth.anyRequest().authenticated();
 	            })
-	        //    .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.ALWAYS))
+	         //   .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.ALWAYS))
 	            .httpBasic(Customizer.withDefaults())
 	            .build();
 	}
@@ -72,7 +83,7 @@ public class WebSecurityConfig {
 	
 	@Bean
 	@Order(3)
-	SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+	SecurityFilterChain loginSecurityFilterChain(HttpSecurity http) throws Exception {
 	    return http
 	            .authorizeHttpRequests(auth -> {
 	                    auth.requestMatchers("/").permitAll();
@@ -85,15 +96,17 @@ public class WebSecurityConfig {
 	            .formLogin(form -> form
 	            		.loginPage("/login")
 	            		.loginProcessingUrl("/login")
-	            		.defaultSuccessUrl("/console/upload", true)
+	            		.successHandler(myAuthenticationSuccessHandler())
 	            		.failureUrl("/login?error=true	")
 	            		.permitAll()
 	            		)
 	            .logout(logout -> logout
 	            		.logoutUrl("/logout")
 	            		.logoutSuccessUrl("/")
+	            	//	.deleteCookies("JSESSIONID")
 	            		)       
 	            .build();
 	}
+
 
 }

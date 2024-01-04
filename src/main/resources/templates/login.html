@@ -18,5 +18,10 @@
 			</div>
 			<input type="submit" value="Bejelentkezés" />
 		</form>
+		<form th:action="@{/login}" method="post">
+			<input type="hidden" name="username" value="guest" />
+			<input type="hidden" name="password" value="guest" />
+			<input type="submit" value="Bejelentkezés vendégként" />
+		</form>
 	</body>
 </html>
