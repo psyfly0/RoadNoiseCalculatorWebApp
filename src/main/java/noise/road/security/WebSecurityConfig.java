@@ -87,6 +87,7 @@ public class WebSecurityConfig {
 	    return http
 	            .authorizeHttpRequests(auth -> {
 	                    auth.requestMatchers("/").permitAll();
+	                    auth.requestMatchers("/registration").permitAll();
 	                    auth.requestMatchers("/error").permitAll();
 	                    auth.requestMatchers("/login").permitAll();
 	                    auth.requestMatchers("/logout").permitAll();

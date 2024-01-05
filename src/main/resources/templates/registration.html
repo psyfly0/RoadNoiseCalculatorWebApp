@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html xmlns:th="https://www.thymeleaf.org">
+	<head>
+		<title>Bejelentkezés</title>
+	</head>
+	<body>
+		<h2>Regisztráció</h2>
+	<!--	<div th:if="${param.error}">
+			Hibás felhasználónév vagy jelszó</div>
+		<div th:if="${param.logout}">
+			Sikeres kijelentkezés</div> -->
+		<a href="/login">Bejelentkezés</a>
+		<h2>Valami szöveg a regisztrációról</h2>
+	    <form th:action="@{/registration}" th:object="${userDto}" method="post">
+	        <label>Felhasználónév:</label>
+		    <input type="text" th:field="*{username}" required/><br/>
+		    <span th:if="${#fields.hasErrors('username')}" th:errors="*{username}"></span><br/>
+		    <span th:if="${usernameExistError != null}" th:text="${usernameExistError}"></span><br/>
+		    <span th:if="${bothExistError != null}" th:text="${bothExistError}"></span><br/>
+		
+		    <label>Jelszó:</label>
+		    <input type="password" th:field="*{password}" required/><br/>
+		    <span th:if="${#fields.hasErrors('password')}" th:errors="*{password}"></span><br/>
+		
+		    <label>E-mail:</label>
+		    <input type="email" th:field="*{email}" required/><br/>
+		    <span th:if="${#fields.hasErrors('email')}" th:errors="*{email}"></span><br/>
+		    <span th:if="${emailExistError != null}" th:text="${emailExistError}"></span><br/>
+       
+	        <input type="submit" value="Regisztráció"/>
+    	</form>
+		
+	</body>
+</html>

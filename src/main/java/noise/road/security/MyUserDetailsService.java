@@ -11,6 +11,7 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import noise.road.authenticationModel.Privilege;
@@ -31,7 +32,10 @@ public class MyUserDetailsService implements UserDetailsService {
     private PrivilegeRepository privilegeRepository;
     
     @Autowired
-    private RoleRepository roleRepository;   
+    private RoleRepository roleRepository;  
+    
+    @Autowired
+    private PasswordEncoder passwordEncoder;
     
     public UserDetails createUserDetails(User user) {
         return new org.springframework.security.core.userdetails.User(
@@ -49,18 +53,31 @@ public class MyUserDetailsService implements UserDetailsService {
         return userRepository.findAll();
     }
 
-    public User registerNewUser(String username, String password) {
-    	User existingUser = userRepository.findByUsername(username);
-        if (existingUser != null) {
-            return null;
-        }
+    public User registerNewUser(String username, String password, String email) {
     	User newUser = new User();
         newUser.setUsername(username);
-        newUser.setPassword(password);
+        newUser.setPassword(passwordEncoder.encode(password));
+        newUser.setEmail(email);
         newUser.setEnabled(true); 
 
         newUser.setRoles(Arrays.asList(roleRepository.findByName("ROLE_USER")));
         return userRepository.save(newUser);
+    }
+    
+    public String checkUsernameAndEmail(String username, String email) {
+        User existingUserWithUsername = userRepository.findByUsername(username);
+        User existingUserWithEmail = userRepository.findByEmail(email);
+
+        // Check if username or email is already taken
+        if (existingUserWithUsername != null && existingUserWithEmail != null) {
+            return "bothExists";
+        } else if (existingUserWithUsername != null) {
+            return "usernameExists";
+        } else if (existingUserWithEmail != null) {
+            return "emailExists"; 
+        }
+
+        return "noneExists";
     }
       
     @Override
