@@ -52,7 +52,7 @@ public class WebSecurityConfig {
 	SecurityFilterChain apiSecurityFilterChain(HttpSecurity http) throws Exception {
 	    return http
 	    		.csrf(csrf -> csrf.disable())
-	            .securityMatcher("/console/**", "/calculations/**", "/sortAndDifferences/**", "/modification/**")
+	            .securityMatcher("concurrentDatabase/**", "/console/**", "/calculations/**", "/sortAndDifferences/**", "/modification/**")
 	    	//	.securityMatcher("/calculations/**", "/sortAndDifferences/**", "/modification/**")
 	            .authorizeHttpRequests(auth -> {
 	            	auth.requestMatchers("/console/display", "/console/displayData").hasRole("GUEST");
@@ -104,7 +104,7 @@ public class WebSecurityConfig {
 	            .logout(logout -> logout
 	            		.logoutUrl("/logout")
 	            		.logoutSuccessUrl("/")
-	            	//	.deleteCookies("JSESSIONID")
+	            		.deleteCookies("JSESSIONID")
 	            		)       
 	            .build();
 	}

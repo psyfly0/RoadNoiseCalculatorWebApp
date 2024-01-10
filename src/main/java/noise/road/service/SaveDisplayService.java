@@ -1,6 +1,10 @@
 package noise.road.service;
 
 import java.io.IOException;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -14,7 +18,9 @@ import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
+import lombok.extern.slf4j.Slf4j;
 import noise.road.dto.DbfDataDTO;
 import noise.road.dto.DbfDataPreprocessDTO;
 
@@ -24,8 +30,11 @@ import noise.road.entity.ShapeGeometry;
 import noise.road.repository.DbfDataRepository;
 import noise.road.repository.ResultsRepository;
 import noise.road.repository.ShapeGeometryRepository;
+import noise.road.tenantConfig.TenantConnectionProvider;
+
 
 @Service
+@Slf4j
 public class SaveDisplayService {
 	
 	private int file_id = 1;
@@ -42,6 +51,7 @@ public class SaveDisplayService {
 	@Autowired
 	private ModelMapper modelMapper;
 	
+	@Transactional
 	public void saveData(List<DbfDataPreprocessDTO> dbfDataDTO, String fileName, List<Geometry> geometries) throws IOException, IllegalArgumentException, DataAccessException {
 		
 		List<DbfData> dbfDataList = new ArrayList<>();
@@ -117,6 +127,7 @@ public class SaveDisplayService {
 		shapeGeometryRepository.saveAll(shapeGeometries);
 		
 		file_id++;
+
 	}
 	
     public Map<Integer, List<DbfDataDTO>> getAll() throws DataAccessException, MappingException, NullPointerException {

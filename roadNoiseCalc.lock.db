@@ -1,6 +1,6 @@
 #FileLock
-#Fri Jan 05 14:17:24 CET 2024
-server=192.168.0.185\:56864
+#Wed Jan 10 08:41:41 CET 2024
+server=192.168.0.185\:63026
 hostName=PC122483.utiber.hu
 method=file
-id=18cd9c56819b1720bbbd703df4af2c5d1228c7d34ed
+id=18cf251de9d6ae1159585c2ced645861226aedcacb6

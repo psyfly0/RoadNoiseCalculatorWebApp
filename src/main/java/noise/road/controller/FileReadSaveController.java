@@ -27,6 +27,8 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpSession;
 import lombok.extern.slf4j.Slf4j;
 import noise.road.dto.DbfDataDTO;
 import noise.road.dto.DbfDataPreprocessDTO;
@@ -81,11 +83,11 @@ public class FileReadSaveController {
     @PostMapping("/saveToDatabase")
     public ResponseEntity<String> saveToDatabase(@RequestBody SaveDbfRequest saveDbfRequest) {
     	try {
-	    	if (!constantsAlreadySaved) {
+	    	/*if (!constantsAlreadySaved) {
 	    		constantParametersService.insertParametersToDatabase();
 	    		constantsAlreadySaved = true;
-	    	}   	
-	    	
+	    	}   */
+
 	    	String fileName = saveDbfRequest.getFileName();
 	        List<DbfDataPreprocessDTO> requestBody = saveDbfRequest.getMappedData();
 	        List<Geometry> geometries = shapeData.getGeometries();

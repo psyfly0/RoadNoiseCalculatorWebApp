@@ -5,6 +5,8 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
 
+//import noise.road.tenantConfig.TenantIdentifierResolver;
+
 @SpringBootApplication
 public class RoadNoiseCalculatorWebAppApplication {
 
@@ -16,5 +18,10 @@ public class RoadNoiseCalculatorWebAppApplication {
     public ModelMapper modelMapper() {
         return new ModelMapper();
     }
+	
+/*	@Bean
+    public TenantIdentifierResolver sessionIdTenantResolver() {
+        return new TenantIdentifierResolver();
+    }*/
 
 }

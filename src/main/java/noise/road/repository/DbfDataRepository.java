@@ -12,6 +12,9 @@ import noise.road.entity.DbfData;
 
 public interface DbfDataRepository extends JpaRepository<DbfData, Integer> {
 	
+	@Query(value = "SELECT * FROM DBF_DATA WHERE FILE_ID = :fileId AND FILE_UNIQUE_ID = :row", nativeQuery = true)
+	DbfData saveAll(@Param("fileId") int fileId, @Param("row") int row);
+	
 	@Query(value = "SELECT * FROM DBF_DATA WHERE FILE_ID = (SELECT MAX(FILE_ID) FROM DBF_DATA)", nativeQuery = true)
     List<DbfData> findAllByLatestFileId();
 	

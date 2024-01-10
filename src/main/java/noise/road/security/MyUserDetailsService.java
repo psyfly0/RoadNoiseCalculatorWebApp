@@ -37,6 +37,9 @@ public class MyUserDetailsService implements UserDetailsService {
     @Autowired
     private PasswordEncoder passwordEncoder;
     
+    @Autowired
+    private TenantService tenantService;
+    
     public UserDetails createUserDetails(User user) {
         return new org.springframework.security.core.userdetails.User(
                 user.getUsername(), 
@@ -61,7 +64,10 @@ public class MyUserDetailsService implements UserDetailsService {
         newUser.setEnabled(true); 
 
         newUser.setRoles(Arrays.asList(roleRepository.findByName("ROLE_USER")));
-        return userRepository.save(newUser);
+        
+        User savedUser = userRepository.save(newUser);
+        tenantService.initDatabase(newUser.getUsername());
+        return savedUser;
     }
     
     public String checkUsernameAndEmail(String username, String email) {
