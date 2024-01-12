@@ -16,7 +16,7 @@ public class TenantService {
 
     public void initDatabase(String schema) {
         Flyway flyway = Flyway.configure()
-                .locations("db/tenants")
+                .locations("db/migration/tenants")
                 .dataSource(dataSource)
                 .schemas(schema)
                 .load();

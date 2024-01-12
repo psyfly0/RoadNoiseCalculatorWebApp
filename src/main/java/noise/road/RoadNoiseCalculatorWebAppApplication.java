@@ -4,6 +4,7 @@ import org.modelmapper.ModelMapper;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
+import org.springframework.security.authentication.AuthenticationManager;
 
 //import noise.road.tenantConfig.TenantIdentifierResolver;
 
@@ -18,7 +19,7 @@ public class RoadNoiseCalculatorWebAppApplication {
     public ModelMapper modelMapper() {
         return new ModelMapper();
     }
-	
+
 /*	@Bean
     public TenantIdentifierResolver sessionIdTenantResolver() {
         return new TenantIdentifierResolver();

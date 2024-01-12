@@ -58,22 +58,25 @@ public class SetupDataLoader implements
         createRoleIfNotFound("ROLE_USER", Arrays.asList(readPrivilege));
         createRoleIfNotFound("ROLE_GUEST", Arrays.asList(guestPrivilege));
 
-        Role adminRole = roleRepository.findByName("ROLE_ADMIN");
-        User adminUser = new User();
-        adminUser.setPassword(passwordEncoder.encode("1"));
-        adminUser.setUsername("admin");
-        adminUser.setEnabled(true);
-        adminUser.setRoles(Arrays.asList(adminRole));
-        userRepository.save(adminUser);
+        if (userRepository.findByUsername("admin") == null) {
+	        Role adminRole = roleRepository.findByName("ROLE_ADMIN");
+	        User adminUser = new User();
+	        adminUser.setPassword(passwordEncoder.encode("1"));
+	        adminUser.setUsername("admin");
+	        adminUser.setEnabled(true);
+	        adminUser.setRoles(Arrays.asList(adminRole));
+	        userRepository.save(adminUser);
+        }
         
-        Role guestRole = roleRepository.findByName("ROLE_GUEST");
-        User guestUser = new User();
-        guestUser.setPassword(passwordEncoder.encode("guest"));
-        guestUser.setUsername("guest");
-        guestUser.setEnabled(true);
-        guestUser.setRoles(Arrays.asList(guestRole));
-        userRepository.save(guestUser);
-
+  /*      if (userRepository.findByUsername("guest") == null) {
+	        Role guestRole = roleRepository.findByName("ROLE_GUEST");
+	        User guestUser = new User();
+	        guestUser.setPassword(passwordEncoder.encode("guest"));
+	        guestUser.setUsername("guest");
+	        guestUser.setEnabled(true);
+	        guestUser.setRoles(Arrays.asList(guestRole));
+	        userRepository.save(guestUser);
+        }*/
         alreadySetup = true;
     }
 

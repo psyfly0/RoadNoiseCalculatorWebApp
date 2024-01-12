@@ -63,7 +63,11 @@ public class MyUserDetailsService implements UserDetailsService {
         newUser.setEmail(email);
         newUser.setEnabled(true); 
 
-        newUser.setRoles(Arrays.asList(roleRepository.findByName("ROLE_USER")));
+        if (username.startsWith("guest")) {
+        	newUser.setRoles(Arrays.asList(roleRepository.findByName("ROLE_GUEST")));
+        } else {
+        	newUser.setRoles(Arrays.asList(roleRepository.findByName("ROLE_USER")));
+        }
         
         User savedUser = userRepository.save(newUser);
         tenantService.initDatabase(newUser.getUsername());

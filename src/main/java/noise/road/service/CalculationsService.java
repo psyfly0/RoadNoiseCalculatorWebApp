@@ -88,7 +88,7 @@ public class CalculationsService {
 			
 			resultEntitiesList.add(results);
 		}
-    	log.info("All calculations resultEntitiesList: {}", resultEntitiesList);
+    //	log.info("All calculations resultEntitiesList: {}", resultEntitiesList);
     	resultsRepository.saveAll(resultEntitiesList);	
     	
     }
@@ -109,7 +109,7 @@ public class CalculationsService {
 			
 			resultEntitiesList.add(results);
 		}
-		log.info("LAeq resultEntitiesList: {}", resultEntitiesList);
+	//	log.info("LAeq resultEntitiesList: {}", resultEntitiesList);
 		resultsRepository.saveAll(resultEntitiesList);		
 	}
     
@@ -129,7 +129,7 @@ public class CalculationsService {
 			
 			resultEntitiesList.add(results);
 		}
-		log.info("LWeq resultEntitiesList: {}", resultEntitiesList);
+	//	log.info("LWeq resultEntitiesList: {}", resultEntitiesList);
 		resultsRepository.saveAll(resultEntitiesList);		
 	}
     
@@ -149,7 +149,7 @@ public class CalculationsService {
 			
 			resultEntitiesList.add(results);
 		}
-		log.info("ProtectiveDistance resultEntitiesList: {}", resultEntitiesList);
+	//	log.info("ProtectiveDistance resultEntitiesList: {}", resultEntitiesList);
 		resultsRepository.saveAll(resultEntitiesList);	
 	}
     
@@ -169,7 +169,7 @@ public class CalculationsService {
 			
 			resultEntitiesList.add(results);
 		}
-		log.info("ImpactArea resultEntitiesList: {}", resultEntitiesList);
+	//	log.info("ImpactArea resultEntitiesList: {}", resultEntitiesList);
 		resultsRepository.saveAll(resultEntitiesList);		
 	}
     
@@ -190,7 +190,7 @@ public class CalculationsService {
 			
 			resultEntitiesList.add(results);
 		}
-		log.info("NoiseAtGivenDistance resultEntitiesList: {}", resultEntitiesList);
+	//	log.info("NoiseAtGivenDistance resultEntitiesList: {}", resultEntitiesList);
 		resultsRepository.saveAll(resultEntitiesList);
 	}
     

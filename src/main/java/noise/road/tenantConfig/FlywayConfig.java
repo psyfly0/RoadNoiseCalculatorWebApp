@@ -16,10 +16,12 @@ public class FlywayConfig {
 	@Bean
     public Flyway flyway(DataSource dataSource) {
         Flyway flyway = Flyway.configure()
-                .locations("db/default")
+                .locations("db/migration/default")
                 .dataSource(dataSource)
                 .schemas(TenantIdentifierResolver.DEFAULT_TENANT)
+                .cleanDisabled(false)									// KI KELL MAJD VENNI, TESZTELÉSHEZ MARADJON CSAK
                 .load();
+        flyway.clean();													// KI KELL MAJD VENNI, TESZTELÉSHEZ MARADJON CSAK											
         flyway.migrate();
         return flyway;
     }
@@ -30,10 +32,12 @@ public class FlywayConfig {
             repository.findAll().forEach(user -> {
                 String tenant = user.getUsername();
                 Flyway flyway = Flyway.configure()
-                        .locations("db/tenants")
+                        .locations("db/migration/tenants")
                         .dataSource(dataSource)
                         .schemas(tenant)
+                        .cleanDisabled(false)
                         .load();
+                flyway.clean();
                 flyway.migrate();
             });
         };

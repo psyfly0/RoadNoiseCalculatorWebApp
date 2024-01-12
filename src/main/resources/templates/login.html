@@ -9,7 +9,7 @@
 			Hibás felhasználónév vagy jelszó</div>
 		<div th:if="${param.logout}">
 			Sikeres kijelentkezés</div>
-		<form th:action="@{/login}" method="post">
+		<form th:action="@{/login}" method="post" id="loginForm">
 			<div>
 			<input type="text" name="username" placeholder="Felhasználó név"/>
 			</div>
@@ -18,15 +18,12 @@
 			</div>
 			<input type="submit" value="Bejelentkezés" />
 		</form>
-		<form th:action="@{/login}" method="post">
-			<input type="hidden" name="username" value="guest" />
-			<input type="hidden" name="password" value="guest" />
+		<form th:action="@{/registration/registerGuest}" method="post">
 			<input type="submit" value="Bejelentkezés vendégként" />
 		</form>
 		<span>
 			<h2>Vagy regisztrálj: </h2>
 			<a href="/registration">itt</a>
 		</span>
-		
 	</body>
 </html>

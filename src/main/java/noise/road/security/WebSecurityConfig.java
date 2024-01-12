@@ -1,14 +1,19 @@
 package noise.road.security;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.annotation.Order;
 import org.springframework.security.access.hierarchicalroles.RoleHierarchy;
 import org.springframework.security.access.hierarchicalroles.RoleHierarchyImpl;
+import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.Customizer;
+import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
+import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
@@ -44,9 +49,7 @@ public class WebSecurityConfig {
 	public AuthenticationSuccessHandler myAuthenticationSuccessHandler(){
 	    return new MySimpleUrlAuthenticationSuccessHandler();
 	}
-
-
-		
+	
 	@Bean
 	@Order(1)
 	SecurityFilterChain apiSecurityFilterChain(HttpSecurity http) throws Exception {
@@ -59,7 +62,7 @@ public class WebSecurityConfig {
 	            	auth.requestMatchers("/console/**").hasAnyRole("ADMIN", "USER");
 	                auth.anyRequest().authenticated();
 	            })
-	         //   .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.ALWAYS))
+	            .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.ALWAYS))
 	            .httpBasic(Customizer.withDefaults())
 	            .build();
 	}
@@ -87,7 +90,7 @@ public class WebSecurityConfig {
 	    return http
 	            .authorizeHttpRequests(auth -> {
 	                    auth.requestMatchers("/").permitAll();
-	                    auth.requestMatchers("/registration").permitAll();
+	                    auth.requestMatchers("/registration/**").permitAll();
 	                    auth.requestMatchers("/error").permitAll();
 	                    auth.requestMatchers("/login").permitAll();
 	                    auth.requestMatchers("/logout").permitAll();
