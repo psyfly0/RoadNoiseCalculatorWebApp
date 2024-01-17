@@ -23,10 +23,4 @@ public class FormController {
 		return "logout";
 	}
 	
-	@GetMapping("/loginGuest")
-	public String loginGuest(Model model, @RequestParam(value = "logout", defaultValue = "false") boolean logout, @RequestParam(value = "error", defaultValue = "false") boolean error) {
-		model.addAttribute("logout", logout);
-		model.addAttribute("error", error);
-		return "loginGuest";
-	}
 }

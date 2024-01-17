@@ -20,8 +20,6 @@ import lombok.extern.slf4j.Slf4j;
 import noise.road.dto.MutableParametersDTO;
 import noise.road.entity.DbfData;
 import noise.road.entity.MutableParameters;
-import noise.road.entity.Results;
-import noise.road.entity.ShapeGeometry;
 import noise.road.repository.DbfDataRepository;
 import noise.road.repository.MutableParametersRepository;
 import noise.road.repository.ResultsRepository;
@@ -111,7 +109,8 @@ public class ModificationService {
 		log.info("rowNumber: {}", rowNumbers);
 		log.info("columnNames: {}", columnNames);
 		
-		if (rowNumbers != null && !rowNumbers.isEmpty()) {			
+		if (rowNumbers != null && !rowNumbers.isEmpty()) {		
+			mutableParamRepository.deleteRowsByFileIdAndRowNumbers(activeFileId, rowNumbers);
 			shapeGeometryRepository.deleteRowsByFileIdAndRowNumbers(activeFileId, rowNumbers);
 			resultsRepository.deleteRowsByFileIdAndRowNumbers(activeFileId, rowNumbers);
 			dbfDataRepository.deleteRowsByFileIdAndRowNumbers(activeFileId, rowNumbers);

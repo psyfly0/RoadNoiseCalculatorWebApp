@@ -62,11 +62,6 @@ public class DataService {
         log.info("Mapped DbfDataDTO List: {}", mappedDbfDataDTOList);
 
         return mappedDbfDataDTOList;
-    	/*return Optional.ofNullable(dbfDataList)
-                .map(dataList -> dataList.stream()
-                        .map(dbfData -> modelMapper.map(dbfData, DbfDataDTO.class))
-                        .collect(Collectors.toList()))
-                .orElse(Collections.emptyList());*/
     }
     
     private ConstantParametersDTO mapCpParametersToDto(ConstantParameters cpParameters) {

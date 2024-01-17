@@ -19,9 +19,7 @@ public class FlywayConfig {
                 .locations("db/migration/default")
                 .dataSource(dataSource)
                 .schemas(TenantIdentifierResolver.DEFAULT_TENANT)
-                .cleanDisabled(false)									// KI KELL MAJD VENNI, TESZTELÉSHEZ MARADJON CSAK
-                .load();
-        flyway.clean();													// KI KELL MAJD VENNI, TESZTELÉSHEZ MARADJON CSAK											
+                .load();										
         flyway.migrate();
         return flyway;
     }
@@ -35,9 +33,7 @@ public class FlywayConfig {
                         .locations("db/migration/tenants")
                         .dataSource(dataSource)
                         .schemas(tenant)
-                        .cleanDisabled(false)
                         .load();
-                flyway.clean();
                 flyway.migrate();
             });
         };

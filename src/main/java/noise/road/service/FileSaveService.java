@@ -6,10 +6,7 @@ import java.io.IOException;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.zip.ZipOutputStream;
 
 import org.geotools.data.shapefile.ShapefileDataStore;
@@ -23,9 +20,7 @@ import org.geotools.feature.FeatureIterator;
 import org.geotools.feature.simple.SimpleFeatureBuilder;
 import org.geotools.feature.simple.SimpleFeatureTypeBuilder;
 import org.geotools.referencing.CRS;
-import org.locationtech.jts.geom.Coordinate;
 import org.locationtech.jts.geom.Geometry;
-import org.locationtech.jts.geom.GeometryFactory;
 import org.locationtech.jts.geom.MultiLineString;
 import org.locationtech.jts.io.ParseException;
 import org.locationtech.jts.io.WKTReader;
@@ -38,7 +33,6 @@ import org.springframework.dao.DataAccessException;
 import org.springframework.stereotype.Service;
 
 import lombok.extern.slf4j.Slf4j;
-import noise.road.dto.DbfDataDTO;
 import noise.road.entity.DbfData;
 import noise.road.entity.Results;
 import noise.road.entity.ShapeGeometry;

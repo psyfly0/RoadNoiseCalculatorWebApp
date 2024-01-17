@@ -5,6 +5,7 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
@@ -22,6 +23,10 @@ public class MutableParameters {
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	@Column(name = "ID")
 	private Integer id;
+	
+	@OneToOne
+    @JoinColumn(name = "DBF_DATA_ID")
+    private DbfData dbfData;
 	
 	@Column(name = "FILE_ID")
 	private Integer file_id;

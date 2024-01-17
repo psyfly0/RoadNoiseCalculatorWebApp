@@ -38,7 +38,7 @@ public class User {
 	          name = "user_id", referencedColumnName = "id"), 
 	        inverseJoinColumns = @JoinColumn(
 	          name = "role_id", referencedColumnName = "id")) 
-	private Collection<Role> roles;
+	public Collection<Role> roles;
 	
 	public User(String username, String password) {
 		this.username = username;

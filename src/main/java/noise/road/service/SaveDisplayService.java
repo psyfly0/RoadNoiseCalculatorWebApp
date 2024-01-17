@@ -1,10 +1,6 @@
 package noise.road.service;
 
 import java.io.IOException;
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.SQLException;
-import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -21,23 +17,24 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import lombok.extern.slf4j.Slf4j;
+import noise.road.authenticationModel.UserFileCounter;
 import noise.road.dto.DbfDataDTO;
 import noise.road.dto.DbfDataPreprocessDTO;
 
 import noise.road.entity.DbfData;
+import noise.road.entity.MutableParameters;
 import noise.road.entity.Results;
 import noise.road.entity.ShapeGeometry;
 import noise.road.repository.DbfDataRepository;
+import noise.road.repository.MutableParametersRepository;
 import noise.road.repository.ResultsRepository;
 import noise.road.repository.ShapeGeometryRepository;
-import noise.road.tenantConfig.TenantConnectionProvider;
+import noise.road.repository.UserFileCounterRepository;
 
 
 @Service
 @Slf4j
 public class SaveDisplayService {
-	
-	private int file_id = 1;
 	
 	@Autowired
 	private DbfDataRepository dbfDataRepository;
@@ -49,13 +46,31 @@ public class SaveDisplayService {
 	private ShapeGeometryRepository shapeGeometryRepository;
 	
 	@Autowired
+	private MutableParametersRepository mpRepository;
+	
+	@Autowired
+    private UserFileCounterRepository userFileCounterRepository;
+	
+	@Autowired
 	private ModelMapper modelMapper;
 	
 	@Transactional
-	public void saveData(List<DbfDataPreprocessDTO> dbfDataDTO, String fileName, List<Geometry> geometries) throws IOException, IllegalArgumentException, DataAccessException {
+	public void saveData(List<DbfDataPreprocessDTO> dbfDataDTO, String fileName, List<Geometry> geometries, String username) throws IOException, IllegalArgumentException, DataAccessException {
 		
+		// Check if the user has a counter record, create one if not
+        UserFileCounter userFileCounter = userFileCounterRepository.findByUsername(username)
+                .orElseGet(() -> {
+                    UserFileCounter newUserFileCounter = new UserFileCounter();
+                    newUserFileCounter.setUsername(username);
+                    newUserFileCounter.setFileCounter(1);
+                    return userFileCounterRepository.save(newUserFileCounter);
+                });
+        
+        int file_id = userFileCounter.getFileCounter();
+        
 		List<DbfData> dbfDataList = new ArrayList<>();
 		List<Results> resultsList = new ArrayList<>();
+		List<MutableParameters> mutableParamsList = new ArrayList<>();
 		List<ShapeGeometry> shapeGeometries = new ArrayList<>();
 		
 		String fName = removeExtensionFromName(fileName);
@@ -103,6 +118,14 @@ public class SaveDisplayService {
 			
 			resultsList.add(results);
 			
+			// Create a new Mutable Parameters instance for each DbfData entry
+			MutableParameters mutableParams = new MutableParameters();
+			mutableParams.setDbfData(dbfData);
+			mutableParams.setFile_id(dbfData.getFile_id());
+			mutableParams.setFile_unique_id(dbfData.getFile_unique_id());
+			
+			mutableParamsList.add(mutableParams);
+			
 			file_unique_id++;
 		}
 		
@@ -124,10 +147,12 @@ public class SaveDisplayService {
 		
 		dbfDataRepository.saveAll(dbfDataList);
 		resultsRepository.saveAll(resultsList);
+		mpRepository.saveAll(mutableParamsList);
 		shapeGeometryRepository.saveAll(shapeGeometries);
 		
-		file_id++;
-
+		// Increment the fileCounter for the user
+        userFileCounter.setFileCounter(file_id + 1);
+        userFileCounterRepository.save(userFileCounter);
 	}
 	
     public Map<Integer, List<DbfDataDTO>> getAll() throws DataAccessException, MappingException, NullPointerException {

@@ -8,17 +8,16 @@ import java.nio.file.Paths;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.commons.io.FileUtils;
 import org.locationtech.jts.geom.Geometry;
 import org.locationtech.jts.io.ParseException;
 import org.opengis.referencing.FactoryException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.ByteArrayResource;
-import org.springframework.core.io.Resource;
 import org.springframework.dao.DataAccessException;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -27,10 +26,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpSession;
 import lombok.extern.slf4j.Slf4j;
-import noise.road.dto.DbfDataDTO;
 import noise.road.dto.DbfDataPreprocessDTO;
 import noise.road.dto.MutableParametersDTO;
 import noise.road.dto.SaveDbfRequest;
@@ -48,7 +44,6 @@ public class FileReadSaveController {
 	
 	private ShapeDataDTO shapeData;
 	private int uploadedDataLength = 0;
-	private boolean constantsAlreadySaved = false;
 	
 	@Autowired
 	private FileReadService fileReadService;
@@ -81,20 +76,18 @@ public class FileReadSaveController {
     }
     
     @PostMapping("/saveToDatabase")
-    public ResponseEntity<String> saveToDatabase(@RequestBody SaveDbfRequest saveDbfRequest) {
+    public ResponseEntity<String> saveToDatabase(@RequestBody SaveDbfRequest saveDbfRequest, Authentication auth) {
     	try {
-	    	/*if (!constantsAlreadySaved) {
-	    		constantParametersService.insertParametersToDatabase();
-	    		constantsAlreadySaved = true;
-	    	}   */
-
+    		constantParametersService.insertParametersToDatabase();
+    		
 	    	String fileName = saveDbfRequest.getFileName();
 	        List<DbfDataPreprocessDTO> requestBody = saveDbfRequest.getMappedData();
 	        List<Geometry> geometries = shapeData.getGeometries();
+	        String username = auth.getName();
 	        
 	        log.info("requestBody: {}", requestBody);
 	        
-	        saveDisplayService.saveData(requestBody, fileName, geometries);
+	        saveDisplayService.saveData(requestBody, fileName, geometries, username);
 	    	
 	    	// fetch the length of data for mutable parameters
 	    	uploadedDataLength = requestBody.size();
@@ -115,11 +108,11 @@ public class FileReadSaveController {
     }
     
     @PostMapping("/saveMutableParameters")
-    public ResponseEntity<String> saveMutableParametersToDatabase(@RequestBody MutableParametersDTO parameters) {
+    public ResponseEntity<String> saveMutableParametersToDatabase(@RequestBody MutableParametersDTO parameters, Authentication auth) {
     	log.info("Mutable parameters: {}", parameters);
     	try {
-    		
-	    	mutableParametersService.saveInitialMutableParameters(parameters, uploadedDataLength);	    	
+    		String username = auth.getName();
+	    	mutableParametersService.saveInitialMutableParameters(parameters, uploadedDataLength, username);	    	
 	    	return ResponseEntity.ok("Mutable parameters saved successfully to the database");
 	    	
     	} catch (DataAccessException e) {

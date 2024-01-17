@@ -50,13 +50,6 @@ public class SortAndDifferencesController {
 		}
 	}
 	
-/*	@PostMapping("sortByLaeq/{activeFileId}")
-	public ResponseEntity<String> sortDataByLaeq(@PathVariable int activeFileId) {
-		log.info("activeFileId: {}", activeFileId);
-		
-		return ResponseEntity.ok("Sort by LAeq performed.");
-	}*/
-	
 	@GetMapping("/sortByLaeq/{activeFileId}")
     public ResponseEntity<?> displaySortedData(@PathVariable int activeFileId) {
 		try {

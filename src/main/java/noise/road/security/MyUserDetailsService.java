@@ -13,16 +13,18 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-
+import lombok.extern.slf4j.Slf4j;
 import noise.road.authenticationModel.Privilege;
 import noise.road.authenticationModel.Role;
 import noise.road.authenticationModel.User;
 import noise.road.repository.PrivilegeRepository;
 import noise.road.repository.RoleRepository;
 import noise.road.repository.UserRepository;
+import noise.road.service.TenantService;
 
 
 @Service
+@Slf4j
 public class MyUserDetailsService implements UserDetailsService {
 
     @Autowired
@@ -56,12 +58,14 @@ public class MyUserDetailsService implements UserDetailsService {
         return userRepository.findAll();
     }
 
+  //  @Transactional
     public User registerNewUser(String username, String password, String email) {
     	User newUser = new User();
         newUser.setUsername(username);
         newUser.setPassword(passwordEncoder.encode(password));
         newUser.setEmail(email);
         newUser.setEnabled(true); 
+        log.info("Registering new user: username={}, password={}", username, passwordEncoder.encode(password));
 
         if (username.startsWith("guest")) {
         	newUser.setRoles(Arrays.asList(roleRepository.findByName("ROLE_GUEST")));

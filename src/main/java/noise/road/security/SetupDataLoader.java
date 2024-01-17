@@ -67,16 +67,7 @@ public class SetupDataLoader implements
 	        adminUser.setRoles(Arrays.asList(adminRole));
 	        userRepository.save(adminUser);
         }
-        
-  /*      if (userRepository.findByUsername("guest") == null) {
-	        Role guestRole = roleRepository.findByName("ROLE_GUEST");
-	        User guestUser = new User();
-	        guestUser.setPassword(passwordEncoder.encode("guest"));
-	        guestUser.setUsername("guest");
-	        guestUser.setEnabled(true);
-	        guestUser.setRoles(Arrays.asList(guestRole));
-	        userRepository.save(guestUser);
-        }*/
+
         alreadySetup = true;
     }
 

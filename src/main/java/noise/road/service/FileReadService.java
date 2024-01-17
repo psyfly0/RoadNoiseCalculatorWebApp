@@ -27,12 +27,10 @@ import org.geotools.data.shapefile.dbf.DbaseFileHeader;
 import org.geotools.data.shapefile.dbf.DbaseFileReader;
 import org.geotools.data.simple.SimpleFeatureIterator;
 import org.geotools.feature.simple.SimpleFeatureTypeBuilder;
-import org.geotools.referencing.CRS;
 import org.locationtech.jts.geom.Geometry;
 import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
 import org.opengis.feature.type.GeometryDescriptor;
-import org.opengis.referencing.crs.CoordinateReferenceSystem;
 
 @Service
 public class FileReadService {

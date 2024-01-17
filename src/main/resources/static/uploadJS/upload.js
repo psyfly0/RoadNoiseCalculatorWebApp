@@ -1,3 +1,4 @@
+
  const columnMapping = {
 		    'Azonosító': 'identifier',
 		    'I_km/h': 'kmh1',

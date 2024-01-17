@@ -1,15 +1,12 @@
 package noise.road.service;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.List;
 
-import org.locationtech.jts.geom.Geometry;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
 import org.springframework.stereotype.Service;
 
-import noise.road.dto.DbfDataPreprocessDTO;
 import noise.road.entity.DbfData;
 import noise.road.entity.MutableParameters;
 import noise.road.entity.Results;

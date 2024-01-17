@@ -21,12 +21,12 @@ import org.springframework.orm.jpa.vendor.HibernateJpaVendorAdapter;
 public class HibernateConfig {
 
 	@Bean
-    public JpaVendorAdapter jpaVendorAdapter() {
+    JpaVendorAdapter jpaVendorAdapter() {
         return new HibernateJpaVendorAdapter();
     }
 
     @Bean
-    public LocalContainerEntityManagerFactoryBean entityManagerFactory(DataSource dataSource, JpaProperties jpaProperties,
+    LocalContainerEntityManagerFactoryBean entityManagerFactory(DataSource dataSource, JpaProperties jpaProperties,
             MultiTenantConnectionProvider multiTenantConnectionProvider, CurrentTenantIdentifierResolver tenantIdentifierResolver) {
 
         LocalContainerEntityManagerFactoryBean em = new LocalContainerEntityManagerFactoryBean();

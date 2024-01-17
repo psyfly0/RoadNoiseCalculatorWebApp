@@ -30,4 +30,14 @@ public interface DbfDataRepository extends JpaRepository<DbfData, Integer> {
     @Modifying
     @Query(value = "DELETE FROM DBF_DATA WHERE FILE_ID = :fileId AND FILE_UNIQUE_ID IN (:rowNumbers)", nativeQuery = true)
     void deleteRowsByFileIdAndRowNumbers(@Param("fileId") int fileId, @Param("rowNumbers") List<Integer> rowNumbers);
+	
+	@Transactional
+    @Modifying
+    @Query(value = "DELETE FROM DBF_DATA", nativeQuery = true)
+    void deleteAllData();
+	
+	@Transactional
+    @Modifying
+    @Query(value = "DROP TABLE DBF_DATA", nativeQuery = true)
+    void dropTable();
 }

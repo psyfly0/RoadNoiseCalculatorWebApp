@@ -33,34 +33,21 @@ public class CalculationsService {
     private Double distanceToCalculate;
 	
     public void fetchData(int fileId) {
-    	boolean isFetchedDbf = false;
-    	boolean isFetchedConstant = false;
-    	boolean isFetchedMutable = false;
-    	
-    	//if (dbfDataDTOList == null || dbfDataDTOList.stream().noneMatch(data -> data.getFile_id() == fileId)) {
+
     		dbfDataDTOList = new ArrayList<>();
     		dbfDataDTOList = dataService.fetchDbfData(fileId);
-    		isFetchedDbf = true;
     		log.info("dbfDataDTOList: {}", dbfDataDTOList);
-    //	}
-    	
-    //	if (constantParameters == null) {
+
             constantParameters = dataService.fetchConstantParameters();
-            isFetchedConstant = true;
             log.info("constantParameters: {}", constantParameters);
-      //  }
-    	
-    //	if (mutableParameters == null || mutableParameters.stream().noneMatch(data -> data.getFile_id() == fileId)) {
+
     		mutableParameters = new ArrayList<>();
     		mutableParameters = dataService.fetchMutableParameters(fileId);
-    		isFetchedMutable = true;
     		log.info("mutableParameters: {}", mutableParameters);
-    //	}
-    	
-    //	if (isFetchedDbf || isFetchedConstant || isFetchedMutable || distanceToCalculate != null) {
+
     		resultsList = getAllResults(fileId);
     		log.info("resultsList: {}", resultsList);
-    //	}
+
     }
     
     public void calculateAll(int fileId) throws DataAccessException, IllegalArgumentException {
@@ -88,7 +75,6 @@ public class CalculationsService {
 			
 			resultEntitiesList.add(results);
 		}
-    //	log.info("All calculations resultEntitiesList: {}", resultEntitiesList);
     	resultsRepository.saveAll(resultEntitiesList);	
     	
     }
@@ -109,7 +95,6 @@ public class CalculationsService {
 			
 			resultEntitiesList.add(results);
 		}
-	//	log.info("LAeq resultEntitiesList: {}", resultEntitiesList);
 		resultsRepository.saveAll(resultEntitiesList);		
 	}
     
@@ -129,7 +114,6 @@ public class CalculationsService {
 			
 			resultEntitiesList.add(results);
 		}
-	//	log.info("LWeq resultEntitiesList: {}", resultEntitiesList);
 		resultsRepository.saveAll(resultEntitiesList);		
 	}
     
@@ -149,7 +133,6 @@ public class CalculationsService {
 			
 			resultEntitiesList.add(results);
 		}
-	//	log.info("ProtectiveDistance resultEntitiesList: {}", resultEntitiesList);
 		resultsRepository.saveAll(resultEntitiesList);	
 	}
     
@@ -169,7 +152,6 @@ public class CalculationsService {
 			
 			resultEntitiesList.add(results);
 		}
-	//	log.info("ImpactArea resultEntitiesList: {}", resultEntitiesList);
 		resultsRepository.saveAll(resultEntitiesList);		
 	}
     
@@ -190,7 +172,6 @@ public class CalculationsService {
 			
 			resultEntitiesList.add(results);
 		}
-	//	log.info("NoiseAtGivenDistance resultEntitiesList: {}", resultEntitiesList);
 		resultsRepository.saveAll(resultEntitiesList);
 	}
     

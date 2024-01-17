@@ -3,13 +3,18 @@ package noise.road.service;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import noise.road.authenticationModel.UserFileCounter;
 import noise.road.dto.MutableParametersDTO;
 import noise.road.entity.MutableParameters;
 import noise.road.repository.MutableParametersRepository;
+import noise.road.repository.UserFileCounterRepository;
 
 @Service
 public class MutableParametersService {
@@ -17,22 +22,29 @@ public class MutableParametersService {
 	private final static String ACCELERATING ="gyorsuló";
 	private final static String DECELERATING = "lassuló";
 	
-	private int file_id = 1;
-	
 	@Autowired
 	private MutableParametersRepository mpRepository;
 	
-	//@Transactional
-	public void saveInitialMutableParameters(MutableParametersDTO mpDTO, int dataLength) throws IOException, IllegalArgumentException, DataAccessException {
+	@Autowired
+    private UserFileCounterRepository userFileCounterRepository;
+	
+	@Transactional
+	public void saveInitialMutableParameters(MutableParametersDTO mpDTO, int dataLength, String username) throws IOException, IllegalArgumentException, DataAccessException {
+
+		int fileId = 0;
 		
+		Optional<UserFileCounter> userFileCounterOptional = userFileCounterRepository.findByUsername(username);
+		if (userFileCounterOptional.isPresent()) {
+			UserFileCounter userFileCounter = userFileCounterOptional.get();
+	        fileId = userFileCounter.getFileCounter() - 1;
+		}
+
+
+		List<MutableParameters> mutableParamsToUpdate = mpRepository.findByFileId(fileId);      
 		List<MutableParameters> paramList = new ArrayList<>();	
-		int file_unique_id = 1;
 		
 		for (int i = 0; i < dataLength; i++) {
-			MutableParameters param = new MutableParameters();
-		
-			param.setFile_id(file_id);
-			param.setFile_unique_id(file_unique_id);
+			MutableParameters param = mutableParamsToUpdate.get(i);
 			
 			param.setLthDay(mpDTO.getLthDay());
 			param.setLthNight(mpDTO.getLthNight());
@@ -46,14 +58,10 @@ public class MutableParametersService {
 			param.setParameterP_cat2_3(calculateCategoryIIandIIIparameterP(mpDTO.getSlopeElevation(), mpDTO.getTrafficType()));
 			
 			paramList.add(param);
-			
-			file_unique_id++;
 			 
 		}
 	
 		mpRepository.saveAll(paramList);
-		
-		file_id++;
 	}
 	
 	public double calculateCategoryIparameterP(double slopeElevation, String trafficType) {

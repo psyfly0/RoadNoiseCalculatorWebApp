@@ -19,4 +19,14 @@ public interface ShapeGeometryRepository extends CrudRepository<ShapeGeometry, I
     @Modifying
     @Query(value = "DELETE FROM SHP_GEOMETRY WHERE FILE_ID = :fileId AND FILE_UNIQUE_ID IN (:rowNumbers)", nativeQuery = true)
     void deleteRowsByFileIdAndRowNumbers(@Param("fileId") int fileId, @Param("rowNumbers") List<Integer> rowNumbers);
+	
+	@Transactional
+    @Modifying
+    @Query(value = "DELETE FROM SHP_GEOMETRY", nativeQuery = true)
+    void deleteAllData();
+	
+	@Transactional
+    @Modifying
+    @Query(value = "DROP TABLE SHP_GEOMETRY", nativeQuery = true)
+    void dropTable();
 }

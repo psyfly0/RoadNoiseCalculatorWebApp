@@ -5,10 +5,6 @@
 	</head>
 	<body>
 		<h2>Regisztráció</h2>
-	<!--	<div th:if="${param.error}">
-			Hibás felhasználónév vagy jelszó</div>
-		<div th:if="${param.logout}">
-			Sikeres kijelentkezés</div> -->
 		<a href="/login">Bejelentkezés</a>
 		<h2>Valami szöveg a regisztrációról</h2>
 	    <form th:action="@{/registration}" th:object="${userDto}" method="post">

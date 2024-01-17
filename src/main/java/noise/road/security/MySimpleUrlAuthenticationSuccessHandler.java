@@ -5,6 +5,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
@@ -16,9 +17,13 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 import lombok.extern.slf4j.Slf4j;
+import noise.road.service.UserDataCleanupService;
 
 @Slf4j
 public class MySimpleUrlAuthenticationSuccessHandler implements AuthenticationSuccessHandler {
+	
+	@Autowired
+	private UserDataCleanupService userDataCleanupService;
 	
 	private RedirectStrategy redirectStrategy = new DefaultRedirectStrategy();
 	
@@ -45,6 +50,12 @@ public class MySimpleUrlAuthenticationSuccessHandler implements AuthenticationSu
 	                        + targetUrl);
 	        return;
 	    }
+	    
+	    // Set the session timeout 
+        request.getSession().setMaxInactiveInterval(600);
+        
+        // clear tables before login
+        userDataCleanupService.cleanupUserData(authentication.getName());
 
 	    redirectStrategy.sendRedirect(request, response, targetUrl);
 	}

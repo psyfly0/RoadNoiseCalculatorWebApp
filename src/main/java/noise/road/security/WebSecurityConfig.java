@@ -7,6 +7,8 @@ import org.springframework.core.annotation.Order;
 import org.springframework.security.access.hierarchicalroles.RoleHierarchy;
 import org.springframework.security.access.hierarchicalroles.RoleHierarchyImpl;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.ProviderManager;
+import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
@@ -16,22 +18,33 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.web.DefaultRedirectStrategy;
+import org.springframework.security.web.RedirectStrategy;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.access.expression.DefaultWebSecurityExpressionHandler;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
+import org.springframework.security.web.authentication.logout.HeaderWriterLogoutHandler;
+import org.springframework.security.web.authentication.logout.LogoutSuccessHandler;
+import org.springframework.security.web.header.writers.ClearSiteDataHeaderWriter;
+import org.springframework.security.web.header.writers.ClearSiteDataHeaderWriter.Directive;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
+
+import noise.road.service.UserDataCleanupService;
 
 @Configuration
 @EnableWebSecurity
 public class WebSecurityConfig {
-	
+
+	@Autowired
+    private CustomLogoutHandler logoutHandler;
+    
 	@Bean
-	public PasswordEncoder encoder() {
+	PasswordEncoder encoder() {
 	    return new BCryptPasswordEncoder();
 	}
 	
 	@Bean
-	public RoleHierarchy roleHierarchy() {
+	RoleHierarchy roleHierarchy() {
 	    RoleHierarchyImpl roleHierarchy = new RoleHierarchyImpl();
 	    String hierarchy = "ROLE_ADMIN > ROLE_USER > ROLE_GUEST";
 	    roleHierarchy.setHierarchy(hierarchy);
@@ -39,14 +52,14 @@ public class WebSecurityConfig {
 	}
 	
 	@Bean
-	public DefaultWebSecurityExpressionHandler overriddenWebSecurityExpressionHandler() {
+	DefaultWebSecurityExpressionHandler overriddenWebSecurityExpressionHandler() {
 	    DefaultWebSecurityExpressionHandler expressionHandler = new DefaultWebSecurityExpressionHandler();
 	    expressionHandler.setRoleHierarchy(roleHierarchy());
 	    return expressionHandler;
 	}
 	
 	@Bean
-	public AuthenticationSuccessHandler myAuthenticationSuccessHandler(){
+	AuthenticationSuccessHandler myAuthenticationSuccessHandler(){
 	    return new MySimpleUrlAuthenticationSuccessHandler();
 	}
 	
@@ -55,14 +68,19 @@ public class WebSecurityConfig {
 	SecurityFilterChain apiSecurityFilterChain(HttpSecurity http) throws Exception {
 	    return http
 	    		.csrf(csrf -> csrf.disable())
-	            .securityMatcher("concurrentDatabase/**", "/console/**", "/calculations/**", "/sortAndDifferences/**", "/modification/**")
-	    	//	.securityMatcher("/calculations/**", "/sortAndDifferences/**", "/modification/**")
+	            .securityMatcher("/console/**", "/calculations/**", "/sortAndDifferences/**", "/modification/**")
 	            .authorizeHttpRequests(auth -> {
 	            	auth.requestMatchers("/console/display", "/console/displayData").hasRole("GUEST");
 	            	auth.requestMatchers("/console/**").hasAnyRole("ADMIN", "USER");
 	                auth.anyRequest().authenticated();
 	            })
-	            .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.ALWAYS))
+	            .sessionManagement(session -> session
+	            		.sessionCreationPolicy(SessionCreationPolicy.ALWAYS)
+	            		.invalidSessionUrl("/")
+	            		.sessionFixation().newSession()
+	            		.maximumSessions(1).maxSessionsPreventsLogin(true)
+	            		.expiredUrl("/"))
+	            		
 	            .httpBasic(Customizer.withDefaults())
 	            .build();
 	}
@@ -83,7 +101,7 @@ public class WebSecurityConfig {
 	                )
 	            .build();
 	}
-	
+
 	@Bean
 	@Order(3)
 	SecurityFilterChain loginSecurityFilterChain(HttpSecurity http) throws Exception {
@@ -106,7 +124,9 @@ public class WebSecurityConfig {
 	            		)
 	            .logout(logout -> logout
 	            		.logoutUrl("/logout")
+	            		.addLogoutHandler(logoutHandler)
 	            		.logoutSuccessUrl("/")
+	            		.invalidateHttpSession(true)
 	            		.deleteCookies("JSESSIONID")
 	            		)       
 	            .build();
