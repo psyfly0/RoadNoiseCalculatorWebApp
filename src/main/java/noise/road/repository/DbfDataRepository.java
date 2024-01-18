@@ -36,6 +36,10 @@ public interface DbfDataRepository extends JpaRepository<DbfData, Integer> {
     @Query(value = "DELETE FROM DBF_DATA", nativeQuery = true)
     void deleteAllData();
 	
+	@Modifying
+	@Query(value = "ALTER TABLE DBF_DATA ALTER COLUMN ID RESTART WITH 1", nativeQuery = true)
+	void resetIdSequence();
+	
 	@Transactional
     @Modifying
     @Query(value = "DROP TABLE DBF_DATA", nativeQuery = true)

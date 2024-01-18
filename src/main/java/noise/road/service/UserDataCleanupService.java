@@ -12,6 +12,7 @@ import noise.road.repository.DbfDataRepository;
 import noise.road.repository.MutableParametersRepository;
 import noise.road.repository.ResultsRepository;
 import noise.road.repository.ShapeGeometryRepository;
+import noise.road.repository.UserFileCounterRepository;
 
 @Service
 @Slf4j
@@ -31,6 +32,9 @@ public class UserDataCleanupService {
 	
 	@Autowired
     private ShapeGeometryRepository shpGeometryRepository;
+	
+	@Autowired
+	private UserFileCounterRepository userFileCounterRepsository;
 	
 	@Autowired
     private JdbcTemplate jdbcTemplate;
@@ -67,11 +71,24 @@ public class UserDataCleanupService {
 	private void deleteData(String username) {
 		jdbcTemplate.execute("SET SCHEMA \"" + username + "\"");		
 		
+		userFileCounterRepsository.deleteAllData();
+		userFileCounterRepsository.resetIdSequence();
+		
     	resultsRepository.deleteAllData();
+    	resultsRepository.resetIdSequence();
+    	
     	mutableParamsRepository.deleteAllData();
+    	mutableParamsRepository.resetIdSequence();
+    	
     	shpGeometryRepository.deleteAllData();
+    	shpGeometryRepository.resetIdSequence();
+    	
     	constantParamsRepository.deleteAllData();
+    	constantParamsRepository.resetIdSequence();
+    	
         dbfDataRepository.deleteAllData();
+        dbfDataRepository.resetIdSequence();
+
 	}
     
     private void dropSchema(String schemaName) {

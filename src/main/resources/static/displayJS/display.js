@@ -105,6 +105,57 @@
     let previousDifferenceColumnToUpdate;
 	let previousDifferenceColumnTemp;
 	let previousDifferenceColumnDefault;
+	
+	function handleExcelSave() {
+		console.log('groupedData[activeFileId]', groupedData[activeFileId]);
+		console.log('groupedData[activeFileId][0]', groupedData[activeFileId][0]);
+		if (groupedData[activeFileId] === null) {
+			return;
+		}
+		
+		const activeFileData = groupedData[activeFileId][0];
+
+	    const columnNames = Object.keys(columnMapping).filter(key => {
+		    const dataKey = columnMapping[key];
+		    return activeFileData[dataKey] !== null && activeFileData[dataKey] !== undefined;
+		});
+		
+		const fileName = groupedData[activeFileId][0].fileName;
+	    
+	    console.log('columnNames', columnNames);
+		
+		fetch(`/console/saveToExcel/${activeFileId}/${fileName}`,{
+			method: 'POST',
+			headers: {
+				'Content-type': 'application/json'
+			},
+			body: JSON.stringify(columnNames)
+		})
+		.then(async (response) => {
+			if (response.ok) {
+	            const blob = await response.blob();
+	            const url = window.URL.createObjectURL(blob);
+	
+	            // Create an anchor element
+	            const a = document.createElement('a');
+	            a.href = url;
+	            a.download = `${fileName}.xlsx`;
+	            document.body.appendChild(a);
+	            a.click();
+	            a.remove();
+	            window.URL.revokeObjectURL(url);
+        	} else {
+				const errorMessage = await response.text();
+	            console.error('Error during saving the file:', errorMessage);
+	            alert(`Hiba: ${errorMessage}`);
+	            throw new Error('Network response was not ok');
+			}
+		})
+		.catch((error) => {
+			console.error('Error in saving the file:', error);
+		});
+		
+	}
 			
 	let deleteMode = false;
 	let selectedRows = new Set();

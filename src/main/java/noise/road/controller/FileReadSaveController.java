@@ -16,6 +16,7 @@ import org.springframework.core.io.ByteArrayResource;
 import org.springframework.dao.DataAccessException;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -258,6 +259,42 @@ public class FileReadSaveController {
         return ResponseEntity.ok()
                 .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + fileName + "_" + saveName  + ".zip\"")
                 .body(resource);
+    }
+    
+    @PostMapping("/saveToExcel/{activeFileId}/{fileName}")
+    public ResponseEntity<?> saveToExcel(@PathVariable int activeFileId, @PathVariable String fileName, @RequestBody List<String> columnNames) {
+    	
+		File generatedExcelFile = null;
+    	
+    	try {
+    		generatedExcelFile = fileSaveService.saveToExcel(activeFileId, fileName, columnNames);   	
+    	} catch (DataAccessException e) {
+    		log.error("Database access error occurred", e);
+    		return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Hiba az adatbázis elérésében.");
+    	} catch (IOException e) {
+    		log.error("Error during reading/writing files", e);
+    		return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Hiba a fájlok olvasása/írása közben.");
+    	} catch (IllegalArgumentException e) {
+    		log.error("Required parameters are missing", e);
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Hibásan megadott paraméterek.");
+    	}
+	
+    	// Provide the generated .xlsx file for download
+        Path path = Paths.get(generatedExcelFile.getAbsolutePath());
+        ByteArrayResource resource = null;
+		try {
+			resource = new ByteArrayResource(Files.readAllBytes(path));
+		} catch (IOException e) {
+			log.error("Error during fetching the generated .xlsx file", e);
+    		return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Hiba az elkészült .xlsx elérése során.");
+		}
+		
+		generatedExcelFile.delete();
+		
+		return ResponseEntity.ok()
+		        .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + fileName + ".xlsx\"")
+		        .contentType(MediaType.parseMediaType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"))
+		        .body(resource);
     }
 
 }

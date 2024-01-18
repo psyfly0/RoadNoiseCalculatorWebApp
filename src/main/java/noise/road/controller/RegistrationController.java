@@ -38,7 +38,7 @@ public class RegistrationController {
     }
 
     @PostMapping
-  //  @Transactional
+    @Transactional
     public String processRegistration(Model model, @ModelAttribute("userDto") @Valid UserDTO userDto, BindingResult result) {
         // Validate and process the userDto
         if (result.hasErrors()) {

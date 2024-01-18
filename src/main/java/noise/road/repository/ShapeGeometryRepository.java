@@ -25,6 +25,10 @@ public interface ShapeGeometryRepository extends CrudRepository<ShapeGeometry, I
     @Query(value = "DELETE FROM SHP_GEOMETRY", nativeQuery = true)
     void deleteAllData();
 	
+	@Modifying
+	@Query(value = "ALTER TABLE SHP_GEOMETRY ALTER COLUMN ID RESTART WITH 1", nativeQuery = true)
+	void resetIdSequence();
+	
 	@Transactional
     @Modifying
     @Query(value = "DROP TABLE SHP_GEOMETRY", nativeQuery = true)

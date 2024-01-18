@@ -6,7 +6,10 @@ import java.io.IOException;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
+import java.util.TreeMap;
 import java.util.zip.ZipOutputStream;
 
 import org.geotools.data.shapefile.ShapefileDataStore;
@@ -40,6 +43,10 @@ import noise.road.repository.DbfDataRepository;
 import noise.road.repository.ResultsRepository;
 import noise.road.repository.ShapeGeometryRepository;
 import noise.road.service.fileSaveHelper.FileSaveLogic;
+
+import org.apache.poi.ss.usermodel.*;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+
 
 @Service
 @Slf4j
@@ -371,5 +378,117 @@ public class FileSaveService {
         return generatedZipFile;
 	}
 	
+	public File saveToExcel(int activeFileId, String fileName, List<String> columnNames) throws DataAccessException, IOException, IllegalArgumentException {
+		
+		List<DbfData> dbfDataList = dbfDataRepository.findByFileId(activeFileId);
+        List<Results> resultsList = resultsRepository.findByFileId(activeFileId);
+        Object[] columns = columnNames.toArray();
+        
+        TreeMap<Integer, Object[]> excelDataMap = new TreeMap<>();
+        
+        int dataSize = dbfDataList.size() == 0 ? resultsList.size() : dbfDataList.size();
+        int cellCountInARow = columnNames.size();
+        
+        // header row
+        excelDataMap.put(1, columns);
+        
+        for (int i = 0; i < dataSize; i++) {
+        	DbfData dbfData = dbfDataList.get(i);
+            Results results = resultsList.get(i);
+            
+            checkAndAddToMap(i + 2, dbfData, results, excelDataMap, cellCountInARow);
+        }
+        
+        // Create a new workbook and sheet
+        Workbook workbook = new XSSFWorkbook();
+        Sheet sheet = workbook.createSheet(fileName);
+        
+        // iterate over the map
+        Set<Integer> keyset = excelDataMap.keySet();
+        int rowNum = 0;
+        
+       for (int key : keyset) {
+    	   Row row = sheet.createRow(rowNum++);
+    	   
+    	   Object[] objArr = excelDataMap.get(key);
+    	   
+    	   int cellNum = 0;
+    	   
+    	   for (Object obj : objArr) {
+    		   Cell cell = row.createCell(cellNum++);
+    		   
+    		   if (obj instanceof String) {
+    			   cell.setCellValue((String) obj);
+    		   } else if (obj instanceof Integer) {
+    			   cell.setCellValue((Integer) obj);
+    		   } else if (obj instanceof Double) {
+    			   cell.setCellValue((Double) obj);
+    		   }
+    	   }
+       }
 
+        // Save workbook to a file
+        File excelFile = null;
+        try {
+            excelFile = File.createTempFile(fileName, ".xlsx");
+            try (FileOutputStream fileOut = new FileOutputStream(excelFile)) {
+                workbook.write(fileOut);
+            }
+        } catch (IOException e) {
+            throw new IOException("Error during creating Excel file" + e);
+        } finally {
+            workbook.close();
+        }
+        
+        return excelFile;    
+	}
+	
+	private void checkAndAddToMap(int rowIndex, DbfData dbfData, Results results, TreeMap<Integer, Object[]> excelDataMap, int cellCountInARow) {
+		Object[] rowValues = new Object[cellCountInARow];
+		List<Object> values = new ArrayList<>();
+		
+		FileSaveLogic.addNonNullValueToListExcel(values, dbfData.getIdentifier());
+		FileSaveLogic.addNonNullValueToListExcel(values, dbfData.getSpeed1());
+		FileSaveLogic.addNonNullValueToListExcel(values, dbfData.getSpeed2());
+		FileSaveLogic.addNonNullValueToListExcel(values, dbfData.getSpeed3());
+		FileSaveLogic.addNonNullValueToListExcel(values, dbfData.getAcousticCatDay1());
+		FileSaveLogic.addNonNullValueToListExcel(values, dbfData.getAcousticCatDay2());
+		FileSaveLogic.addNonNullValueToListExcel(values, dbfData.getAcousticCatDay3());
+		FileSaveLogic.addNonNullValueToListExcel(values, dbfData.getAcousticCatNight1());
+		FileSaveLogic.addNonNullValueToListExcel(values, dbfData.getAcousticCatNight2());
+		FileSaveLogic.addNonNullValueToListExcel(values, dbfData.getAcousticCatNight3());
+		FileSaveLogic.addNonNullValueToListExcel(values, dbfData.getIdentifierR());
+		FileSaveLogic.addNonNullValueToListExcel(values, dbfData.getSpeed1R());
+		FileSaveLogic.addNonNullValueToListExcel(values, dbfData.getSpeed2R());
+		FileSaveLogic.addNonNullValueToListExcel(values, dbfData.getSpeed3R());
+		FileSaveLogic.addNonNullValueToListExcel(values, dbfData.getAcousticCatDay1R());
+		FileSaveLogic.addNonNullValueToListExcel(values, dbfData.getAcousticCatDay2R());
+		FileSaveLogic.addNonNullValueToListExcel(values, dbfData.getAcousticCatDay3R());
+		FileSaveLogic.addNonNullValueToListExcel(values, dbfData.getAcousticCatNight1R());
+		FileSaveLogic.addNonNullValueToListExcel(values, dbfData.getAcousticCatNight2R());
+		FileSaveLogic.addNonNullValueToListExcel(values, dbfData.getAcousticCatNight3R());
+		
+		FileSaveLogic.addNonNullValueToListExcel(values, results.getLaeqDay());
+		FileSaveLogic.addNonNullValueToListExcel(values, results.getLaeqNight());
+		FileSaveLogic.addNonNullValueToListExcel(values, results.getLwDay());
+		FileSaveLogic.addNonNullValueToListExcel(values, results.getLwNight());
+		FileSaveLogic.addNonNullValueToListExcel(values, results.getProtectiveDistanceDay());
+		FileSaveLogic.addNonNullValueToListExcel(values, results.getProtectiveDistanceNight());
+		FileSaveLogic.addNonNullValueToListExcel(values, results.getImpactAreaDay());
+		FileSaveLogic.addNonNullValueToListExcel(values, results.getImpactAreaNight());
+		FileSaveLogic.addNonNullValueToListExcel(values, results.getNoiseAtGivenDistanceDay());
+		FileSaveLogic.addNonNullValueToListExcel(values, results.getNoiseAtGivenDistanceNight());
+		FileSaveLogic.addNonNullValueToListExcel(values, results.getDifferenceDay0());
+		FileSaveLogic.addNonNullValueToListExcel(values, results.getDifferenceNight0());
+		FileSaveLogic.addNonNullValueToListExcel(values, results.getDifferenceDay1());
+		FileSaveLogic.addNonNullValueToListExcel(values, results.getDifferenceNight1());
+		FileSaveLogic.addNonNullValueToListExcel(values, results.getDifferenceDay2());
+		FileSaveLogic.addNonNullValueToListExcel(values, results.getDifferenceNight2());
+		
+		rowValues = values.toArray();
+		excelDataMap.put(rowIndex, rowValues);
+	    	 
+	}
+
+	
 }

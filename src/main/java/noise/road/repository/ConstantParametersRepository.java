@@ -18,4 +18,8 @@ public interface ConstantParametersRepository extends CrudRepository<ConstantPar
     @Modifying
     @Query(value = "DROP TABLE CONSTANT_PARAMETERS", nativeQuery = true)
     void dropTable();
+	
+	@Modifying
+	@Query(value = "ALTER TABLE CONSTANT_PARAMETERS ALTER COLUMN ID RESTART WITH 1", nativeQuery = true)
+	void resetIdSequence();
 }

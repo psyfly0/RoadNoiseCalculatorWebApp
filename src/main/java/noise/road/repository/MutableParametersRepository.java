@@ -27,6 +27,10 @@ public interface MutableParametersRepository extends JpaRepository<MutableParame
     @Modifying
     @Query(value = "DELETE FROM MUTABLE_PARAMETERS", nativeQuery = true)
     void deleteAllData();
+	
+	@Modifying
+	@Query(value = "ALTER TABLE MUTABLE_PARAMETERS ALTER COLUMN ID RESTART WITH 1", nativeQuery = true)
+	void resetIdSequence();
 
 	@Transactional
     @Modifying

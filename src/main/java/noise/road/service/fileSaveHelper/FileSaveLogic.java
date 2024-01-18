@@ -7,9 +7,11 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.TreeMap;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
+import org.apache.poi.ss.usermodel.Row;
 import org.geotools.feature.simple.SimpleFeatureBuilder;
 import org.locationtech.jts.geom.Coordinate;
 import org.locationtech.jts.geom.Geometry;
@@ -19,6 +21,7 @@ import org.locationtech.jts.io.WKTReader;
 import org.locationtech.jts.operation.buffer.BufferParameters;
 
 import lombok.extern.slf4j.Slf4j;
+import noise.road.entity.DbfData;
 import noise.road.entity.Results;
 import noise.road.entity.ShapeGeometry;
 
@@ -169,6 +172,22 @@ public class FileSaveLogic {
 		if (value != null) {
             featureBuilder.add(value);
         }
+	}
+	
+	private static Object addNonNullAttributeToExcel(Object value) {
+		if (value != null) {
+			return value;
+		}
+		return null;
+	}
+	
+	public static void addNonNullValueToListExcel(List<Object> values, Object valueToCheck) {
+		Object value = addNonNullAttributeToExcel(valueToCheck);
+	    if (value != null) {
+	        values.add(value);
+
+	    }
+
 	}
 	
 	public static void addToZipFile(File file, String fileName, ZipOutputStream zipOut) throws IOException {
