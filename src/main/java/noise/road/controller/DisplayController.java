@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import lombok.extern.slf4j.Slf4j;
 import noise.road.dto.DbfDataDTO;
+import noise.road.service.ConstantParametersService;
 import noise.road.service.DisplayDataForGuestsService;
 import noise.road.service.SaveDisplayService;
 
@@ -29,6 +30,9 @@ public class DisplayController {
 	@Autowired
 	private DisplayDataForGuestsService guestService;
 	
+	@Autowired
+	private ConstantParametersService constantParametersService;
+	
 	@GetMapping("/displayData")
 	public Map<Integer, List<DbfDataDTO>> displayAllData(Authentication authentication) {
 		// Check the user's role and serve different content based on the role
@@ -37,6 +41,7 @@ public class DisplayController {
         	
             // Serve content for ROLE_GUEST
         	try {
+        		constantParametersService.insertParametersToDatabase();
         		guestService.populateTablesForGuest();
         	} catch (DataAccessException e) {
         		log.error("Database access error occurred", e);

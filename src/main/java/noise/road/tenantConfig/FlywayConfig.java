@@ -14,7 +14,7 @@ import noise.road.repository.UserRepository;
 public class FlywayConfig {
 
 	@Bean
-    public Flyway flyway(DataSource dataSource) {
+    Flyway flyway(DataSource dataSource) {
         Flyway flyway = Flyway.configure()
                 .locations("db/migration/default")
                 .dataSource(dataSource)

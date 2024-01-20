@@ -6,30 +6,17 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.core.annotation.Order;
 import org.springframework.security.access.hierarchicalroles.RoleHierarchy;
 import org.springframework.security.access.hierarchicalroles.RoleHierarchyImpl;
-import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.ProviderManager;
-import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.Customizer;
-import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
-import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
-import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.security.web.DefaultRedirectStrategy;
-import org.springframework.security.web.RedirectStrategy;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.access.AccessDeniedHandler;
 import org.springframework.security.web.access.expression.DefaultWebSecurityExpressionHandler;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
-import org.springframework.security.web.authentication.logout.HeaderWriterLogoutHandler;
-import org.springframework.security.web.authentication.logout.LogoutSuccessHandler;
-import org.springframework.security.web.header.writers.ClearSiteDataHeaderWriter;
-import org.springframework.security.web.header.writers.ClearSiteDataHeaderWriter.Directive;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
-
-import noise.road.service.UserDataCleanupService;
 
 @Configuration
 @EnableWebSecurity
@@ -37,6 +24,11 @@ public class WebSecurityConfig {
 
 	@Autowired
     private CustomLogoutHandler logoutHandler;
+	
+	@Bean
+	AccessDeniedHandler accessDeniedHandler(){
+	    return new CustomAccessDeniedHandler();
+	}
     
 	@Bean
 	PasswordEncoder encoder() {
@@ -67,10 +59,13 @@ public class WebSecurityConfig {
 	@Order(1)
 	SecurityFilterChain apiSecurityFilterChain(HttpSecurity http) throws Exception {
 	    return http
+	    		
 	    		.csrf(csrf -> csrf.disable())
 	            .securityMatcher("/console/**", "/calculations/**", "/sortAndDifferences/**", "/modification/**")
 	            .authorizeHttpRequests(auth -> {
-	            	auth.requestMatchers("/console/display", "/console/displayData").hasRole("GUEST");
+	            	auth.requestMatchers("/console/display", "/console/displayData",
+	            			"/console/saveFile/**", "/console/saveProtectiveDistance/**",
+	            			"/console/saveImpactAreaDistance/**", "/console/saveToExcel/**").hasRole("GUEST");
 	            	auth.requestMatchers("/console/**").hasAnyRole("ADMIN", "USER");
 	                auth.anyRequest().authenticated();
 	            })
@@ -80,7 +75,9 @@ public class WebSecurityConfig {
 	            		.sessionFixation().newSession()
 	            		.maximumSessions(1).maxSessionsPreventsLogin(true)
 	            		.expiredUrl("/"))
-	            		
+	            .exceptionHandling(configurer -> configurer
+	                    .accessDeniedHandler(accessDeniedHandler())
+	                )
 	            .httpBasic(Customizer.withDefaults())
 	            .build();
 	}
@@ -109,7 +106,7 @@ public class WebSecurityConfig {
 	            .authorizeHttpRequests(auth -> {
 	                    auth.requestMatchers("/").permitAll();
 	                    auth.requestMatchers("/registration/**").permitAll();
-	                    auth.requestMatchers("/error").permitAll();
+	                    auth.requestMatchers("/error/**").permitAll();
 	                    auth.requestMatchers("/login").permitAll();
 	                    auth.requestMatchers("/logout").permitAll();
 	                    auth.anyRequest().authenticated();
