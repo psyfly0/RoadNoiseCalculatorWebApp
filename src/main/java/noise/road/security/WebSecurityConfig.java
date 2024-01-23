@@ -7,6 +7,7 @@ import org.springframework.core.annotation.Order;
 import org.springframework.security.access.hierarchicalroles.RoleHierarchy;
 import org.springframework.security.access.hierarchicalroles.RoleHierarchyImpl;
 import org.springframework.security.config.Customizer;
+import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
@@ -16,7 +17,10 @@ import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.access.AccessDeniedHandler;
 import org.springframework.security.web.access.expression.DefaultWebSecurityExpressionHandler;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
+import org.springframework.security.web.session.HttpSessionEventPublisher;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
+
+import noise.road.admin.model.ActiveUserStore;
 
 @Configuration
 @EnableWebSecurity
@@ -25,10 +29,18 @@ public class WebSecurityConfig {
 	@Autowired
     private CustomLogoutHandler logoutHandler;
 	
+	@Autowired
+	private CustomLogoutSuccessHandler logoutSuccessHandler;
+	
 	@Bean
-	AccessDeniedHandler accessDeniedHandler(){
-	    return new CustomAccessDeniedHandler();
+	public HttpSessionEventPublisher httpSessionEventPublisher() {
+	    return new HttpSessionEventPublisher();
 	}
+	
+	@Bean
+    ActiveUserStore activeUserStore(){
+        return new ActiveUserStore();
+    }
     
 	@Bean
 	PasswordEncoder encoder() {
@@ -66,18 +78,11 @@ public class WebSecurityConfig {
 	            	auth.requestMatchers("/console/display", "/console/displayData",
 	            			"/console/saveFile/**", "/console/saveProtectiveDistance/**",
 	            			"/console/saveImpactAreaDistance/**", "/console/saveToExcel/**").hasRole("GUEST");
+	            	auth.requestMatchers("/admin/**").hasRole("ADMIN");
 	            	auth.requestMatchers("/console/**").hasAnyRole("ADMIN", "USER");
 	                auth.anyRequest().authenticated();
 	            })
-	            .sessionManagement(session -> session
-	            		.sessionCreationPolicy(SessionCreationPolicy.ALWAYS)
-	            		.invalidSessionUrl("/")
-	            		.sessionFixation().newSession()
-	            		.maximumSessions(1).maxSessionsPreventsLogin(true)
-	            		.expiredUrl("/"))
-	            .exceptionHandling(configurer -> configurer
-	                    .accessDeniedHandler(accessDeniedHandler())
-	                )
+	            
 	            .httpBasic(Customizer.withDefaults())
 	            .build();
 	}
@@ -116,13 +121,23 @@ public class WebSecurityConfig {
 	            		.loginPage("/login")
 	            		.loginProcessingUrl("/login")
 	            		.successHandler(myAuthenticationSuccessHandler())
-	            		.failureUrl("/login?error=true	")
+	            		.failureUrl("/login?error=true")
 	            		.permitAll()
+	            		)
+	            .sessionManagement(session -> session
+	            		.sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED)
+	            		.invalidSessionUrl("/")
+	            		.sessionFixation((sessionFixation) -> sessionFixation
+	                            .newSession()
+	                        )
+	            		.maximumSessions(1)
+	            		.maxSessionsPreventsLogin(true)
+	            		.expiredUrl("/")	
 	            		)
 	            .logout(logout -> logout
 	            		.logoutUrl("/logout")
 	            		.addLogoutHandler(logoutHandler)
-	            		.logoutSuccessUrl("/")
+	            		.logoutSuccessHandler(logoutSuccessHandler)
 	            		.invalidateHttpSession(true)
 	            		.deleteCookies("JSESSIONID")
 	            		)       

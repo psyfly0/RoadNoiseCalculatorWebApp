@@ -6,6 +6,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
@@ -13,10 +14,14 @@ import org.springframework.security.web.DefaultRedirectStrategy;
 import org.springframework.security.web.RedirectStrategy;
 import org.springframework.security.web.WebAttributes;
 
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 import lombok.extern.slf4j.Slf4j;
+import noise.road.admin.listener.LoggedUser;
+import noise.road.admin.model.ActiveUserStore;
 import noise.road.service.UserDataCleanupService;
 
 @Slf4j
@@ -25,13 +30,24 @@ public class MySimpleUrlAuthenticationSuccessHandler implements AuthenticationSu
 	@Autowired
 	private UserDataCleanupService userDataCleanupService;
 	
+	@Autowired
+    ActiveUserStore activeUserStore;
+	
 	private RedirectStrategy redirectStrategy = new DefaultRedirectStrategy();
 	
 	@Override
     public void onAuthenticationSuccess(HttpServletRequest request, 
       HttpServletResponse response, Authentication authentication)
       throws IOException {
- 
+		
+		// keep track of logged in users
+		HttpSession session = request.getSession(false);
+        if (session != null) {
+            LoggedUser user = new LoggedUser(authentication.getName(), getEmail(authentication), activeUserStore);
+            activeUserStore.getLoggedUsers().add(user);
+            session.setAttribute("user", user);
+        }
+        
         handle(request, response, authentication);
         clearAuthenticationAttributes(request);
     }
@@ -64,7 +80,7 @@ public class MySimpleUrlAuthenticationSuccessHandler implements AuthenticationSu
 
 	    Map<String, String> roleTargetUrlMap = new HashMap<>();
 	    roleTargetUrlMap.put("ROLE_USER", "/console/upload");
-	    roleTargetUrlMap.put("ROLE_ADMIN", "/console/upload");
+	    roleTargetUrlMap.put("ROLE_ADMIN", "/admin/home");
 	    roleTargetUrlMap.put("ROLE_GUEST", "/console/display");
 
 	    final Collection<? extends GrantedAuthority> authorities = authentication.getAuthorities();
@@ -85,5 +101,16 @@ public class MySimpleUrlAuthenticationSuccessHandler implements AuthenticationSu
 	    }
 	    session.removeAttribute(WebAttributes.AUTHENTICATION_EXCEPTION);
 	}
+	
+	private String getEmail(Authentication authentication) {
+	    Object principal = authentication.getPrincipal();
+	    if (principal instanceof CustomUserDetails) {
+	        return ((CustomUserDetails) principal).getEmail();
+	    } else {
+	        // Handle other cases as needed
+	        return null;
+	    }
+	}
+	
 
 }

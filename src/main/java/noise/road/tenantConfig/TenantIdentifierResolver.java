@@ -15,7 +15,7 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class TenantIdentifierResolver implements CurrentTenantIdentifierResolver {
 
-	public static final String DEFAULT_TENANT = "default";
+	public static final String DEFAULT_TENANT = "admin";
 
     @Override
     public String resolveCurrentTenantIdentifier() {

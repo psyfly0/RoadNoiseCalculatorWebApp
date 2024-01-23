@@ -1,5 +1,7 @@
 package noise.road.repository;
 
+import java.util.List;
+
 import org.springframework.data.repository.CrudRepository;
 
 import noise.road.authenticationModel.Role;

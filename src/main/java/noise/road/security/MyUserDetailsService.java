@@ -11,7 +11,7 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
-import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import lombok.extern.slf4j.Slf4j;
 import noise.road.authenticationModel.Privilege;
@@ -37,20 +37,18 @@ public class MyUserDetailsService implements UserDetailsService {
     private RoleRepository roleRepository;  
     
     @Autowired
-    private PasswordEncoder passwordEncoder;
-    
-    @Autowired
     private TenantService tenantService;
     
-    public UserDetails createUserDetails(User user) {
-        return new org.springframework.security.core.userdetails.User(
+    public CustomUserDetails  createUserDetails(User user) {
+        return new CustomUserDetails (
                 user.getUsername(), 
                 user.getPassword(), 
-                user.isEnabled(), 
+                user.isEnabled(),
                 true, 
                 true, 
                 true, 
-                getAuthorities(user.getRoles())
+                getAuthorities(user.getRoles()),
+                user.getEmail()
         );
     }
     
@@ -58,14 +56,13 @@ public class MyUserDetailsService implements UserDetailsService {
         return userRepository.findAll();
     }
 
-  //  @Transactional
     public User registerNewUser(String username, String password, String email) {
     	User newUser = new User();
         newUser.setUsername(username);
-        newUser.setPassword(passwordEncoder.encode(password));
+        newUser.setPassword(new BCryptPasswordEncoder().encode(password));
         newUser.setEmail(email);
         newUser.setEnabled(true); 
-        log.info("Registering new user: username={}, password={}", username, passwordEncoder.encode(password));
+    //    log.info("Registering new user: username={}, password={}", username, passwordEncoder.encode(password));
 
         if (username.startsWith("guest")) {
         	newUser.setRoles(Arrays.asList(roleRepository.findByName("ROLE_GUEST")));
@@ -99,16 +96,14 @@ public class MyUserDetailsService implements UserDetailsService {
       throws UsernameNotFoundException {
  
         User user = userRepository.findByUsername(username);
-        if (user == null) {
+        if (user == null || !user.isEnabled()) {
         	return new org.springframework.security.core.userdetails.User(
                     " ", " ", true, true, true, true, 
                     getAuthorities(Arrays.asList(
                       roleRepository.findByName("ROLE_USER"))));
         }
 
-        return new org.springframework.security.core.userdetails.User(
-          user.getUsername(), user.getPassword(), user.isEnabled(), true, true, 
-          true, getAuthorities(user.getRoles()));
+        return createUserDetails(user);
     }
 
     private Collection<? extends GrantedAuthority> getAuthorities(

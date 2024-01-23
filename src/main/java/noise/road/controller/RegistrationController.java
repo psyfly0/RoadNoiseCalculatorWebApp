@@ -1,6 +1,5 @@
 package noise.road.controller;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -29,10 +28,13 @@ import noise.road.security.MyUserDetailsService;
 @Slf4j
 public class RegistrationController {
 
-	@Autowired
 	private MyUserDetailsService userDetailsService;
 
 	private int guestCounter = 0;
+	
+	public RegistrationController(MyUserDetailsService userDetailsService) {
+		this.userDetailsService = userDetailsService;
+	}
 
 	@GetMapping
     public String showRegistrationForm(HttpServletRequest request, HttpServletResponse response, Model model) {

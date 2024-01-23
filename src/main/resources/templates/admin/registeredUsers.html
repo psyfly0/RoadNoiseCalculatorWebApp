@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html xmlns:th="https://www.thymeleaf.org">
+	<head>
+		<title>Admin-Statistics</title>
+	</head>
+	<body>
+		<span>
+			<a href="/logout">Kijelentkezés</a>
+			<a href="/admin/home">Admin-főoldal</a>
+		</span>
+		<h2 th:text="'Regisztrált felhasználók (Total: ' + ${#lists.size(registeredUsers)} + ')'"></h2>
+	
+	    <form th:action="@{/admin/registeredUsers}" method="get">
+	        <input type="text" name="search" placeholder="Search by username or email">
+	        <button type="submit">Keresés</button>
+	        <button type="button" onclick="window.location.href='/admin/registeredUsers'">Reset</button>
+	    </form>
+	    
+        <table>
+            <thead>
+                <tr>
+                    <th>Felhasználónév</th>
+                    <th>Email</th>
+                    <th>Jogosult-e</th>
+                    <th>Roles</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr th:each="user : ${registeredUsers}">
+					<td>
+	                    <a th:href="@{/admin/modifyUser/{userId}(userId=${user.id})}">
+	                        <span th:text="${user.username}"></span>
+	                    </a>
+                	</td>
+                    <td th:text="${user.email}"></td>
+                    <td th:text="${user.enabled}"></td>
+                     <td>
+                       <ul>
+                           <li th:each="role : ${user.roles}" th:text="${role.name}"></li>
+                       </ul>
+                   </td>
+                </tr>
+            </tbody>
+        </table>
+	</body>
+</html>

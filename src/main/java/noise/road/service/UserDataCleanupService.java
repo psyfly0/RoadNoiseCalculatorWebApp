@@ -48,7 +48,6 @@ public class UserDataCleanupService {
     
 	@Transactional(propagation = Propagation.REQUIRES_NEW)
     public void deleteGuestSchema(String username) {
-		jdbcTemplate.execute("SET SCHEMA \"" + username + "\"");
         dropSchema(username);
         log.info("data deleted for guest: {}", username);
     }
@@ -58,8 +57,6 @@ public class UserDataCleanupService {
 		
 		deleteData(username);
 		
-		jdbcTemplate.execute("SET SCHEMA \"" + username + "\"");	
-		
 		resultsRepository.deleteAllData();
     	mutableParamsRepository.deleteAllData();
     	shpGeometryRepository.deleteAllData();
@@ -68,8 +65,7 @@ public class UserDataCleanupService {
         log.info("data deleted for guest: {}", username);
 	}
 	
-	private void deleteData(String username) {
-		jdbcTemplate.execute("SET SCHEMA \"" + username + "\"");		
+	private void deleteData(String username) {	
 		
 		userFileCounterRepsository.deleteAllData();
 		userFileCounterRepsository.resetIdSequence();

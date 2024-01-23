@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html xmlns:th="https://www.thymeleaf.org">
+	<head>
+		<title>Admin-Statistics</title>
+	</head>
+	<body>
+		<span>
+			<a href="/logout">Kijelentkezés</a>
+			<a href="/admin/home">Admin-főoldal</a>
+		</span>
+		
+	    <h2>Felhasználó módosítása / törlése</h2>
+
+	    <form th:action="@{/admin/modifyUser}" method="post" th:object="${user}">
+	        <input type="hidden" th:field="*{id}" />
+	
+	        <label>Felhasználónév:</label>
+	        <input type="text" th:field="*{username}" />
+
+	        <label>Jogosult-e:</label>
+	        <input type="checkbox" th:field="*{enabled}" />
+	
+	        <button type="submit">Változások mentése</button>
+	        
+	        <a th:href="@{'/admin/deleteUser/' + ${user.id}}"
+	           onclick="return confirmDelete();">Felhasználó törlése</a>
+	    </form>
+	    
+	    
+	    <script>
+			function confirmDelete() {
+				return confirm('Biztos töröljük a felhasználót?');
+			}
+		</script>
+
+	</body>
+</html>

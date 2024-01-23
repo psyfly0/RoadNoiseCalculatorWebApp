@@ -8,9 +8,13 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationListener;
 import org.springframework.context.event.ContextRefreshedEvent;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
+import jakarta.persistence.Query;
 import jakarta.transaction.Transactional;
 import noise.road.authenticationModel.Privilege;
 import noise.road.authenticationModel.Role;
@@ -35,9 +39,12 @@ public class SetupDataLoader implements
  
     @Autowired
     private PrivilegeRepository privilegeRepository;
+    
+    @PersistenceContext
+    private EntityManager entityManager;
  
-    @Autowired
-    private PasswordEncoder passwordEncoder;
+  //  @Autowired
+   // private PasswordEncoder passwordEncoder;
  
     @Override
     @Transactional
@@ -61,7 +68,7 @@ public class SetupDataLoader implements
         if (userRepository.findByUsername("admin") == null) {
 	        Role adminRole = roleRepository.findByName("ROLE_ADMIN");
 	        User adminUser = new User();
-	        adminUser.setPassword(passwordEncoder.encode("1"));
+	        adminUser.setPassword(new BCryptPasswordEncoder().encode("1"));
 	        adminUser.setUsername("admin");
 	        adminUser.setEnabled(true);
 	        adminUser.setRoles(Arrays.asList(adminRole));
