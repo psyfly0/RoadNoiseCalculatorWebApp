@@ -182,6 +182,7 @@
 				const newDeleteButton = document.createElement('button');
 				newDeleteButton.id = 'deleteButton';
             	newDeleteButton.textContent = 'Törlés!';
+            	newDeleteButton.className = 'btn btn-dark';
             	newDeleteButton.addEventListener('click', deleteSelected);
             	deleteButtonConfirmation.appendChild(newDeleteButton);
 			}
@@ -233,12 +234,10 @@
 	    console.log('deletion-selectedColumnNames', selectedColumnNames);
 	    console.log('deletion-data for backend', data);
 	
-	    // Send data to the backend using fetch or axios
 	    fetch(`/modification/deleteRowsColumns/${activeFileId}`, {
 	        method: 'POST',
 	        headers: {
 	            'Content-Type': 'application/json',
-	            // Add any necessary headers here
 	        },
 	        body: JSON.stringify(data),
 	    })
@@ -532,11 +531,13 @@
 			
 		    // Create a form with fetched data
 		    const form = document.createElement('form');
-		    form.classList.add('form');
+		    form.classList.add('form-control', 'bg-black', 'text-light');
+		    
 		
 		    // Iterate over the parameterMapping keys and create form fields
 		    Object.keys(parameterMapping).forEach((key) => {
 		        const label = document.createElement('label');
+		        label.style.marginRight = '2%';
 		        label.textContent = parameterMapping[key];
 		        
 				console.log('label - parametermapping', label);
@@ -546,6 +547,7 @@
 		            const input = document.createElement('input');
 		            input.name = key;
 		            console.log('input - userinputvalue', input);
+		            input.classList.add('form-control'); 
 		            input.type = 'text';
 		            // Set the input value based on the fetched data
 		            input.value = data[key] || '';
@@ -556,6 +558,7 @@
 		            // Create select dropdowns for selectableValues
 		            const select = document.createElement('select');
 		            select.name = key;
+		            select.classList.add('form-control');
 		            // Populate options for select dropdown based on selectableValues
 		            selectableValues[key].forEach((value) => {
 		                const option = document.createElement('option');
@@ -580,6 +583,8 @@
 		    // Create buttons for submit and cancel
 		    const submitButton = document.createElement('button');
 		    submitButton.textContent = 'Submit';
+		    submitButton.classList.add('btn', 'btn-dark'); 
+		    submitButton.style.marginRight = '2%';
 		    submitButton.addEventListener('click', () => {
 				
 		        console.log('before submit');
@@ -624,6 +629,7 @@
 	
 		    const cancelButton = document.createElement('button');
 		    cancelButton.textContent = 'Cancel';
+		    cancelButton.classList.add('btn', 'btn-dark'); 
 		    cancelButton.addEventListener('click', () => {
 		        // Handle cancel action - simply remove the form from the DOM
 		        isCellEditing = false;
@@ -643,6 +649,7 @@
 		    // Create a new row and cell to hold the form
 		    const formRow = dataTable.insertRow(clickedRow.rowIndex + 1); // Insert new row after the clicked row
 		    const formCell = formRow.insertCell(0); // Create a cell in the new row
+		    formCell.colSpan = 10; 
 		
 		    // Append the form to the cell
 		    formCell.appendChild(form);
@@ -795,16 +802,25 @@
 			let dropdownDivCreated = false;
 			// handle difference request
 			function handleDifferenceSubmit() {
+				// Check if the dropdownDiv is already created
+			    if (dropdownDivCreated) {
+			        // If it's already created, return or display a message to the user
+			        console.log('Dropdown form is already active.');
+			        return;
+			    }
+    
 				console.log('groupedData in difference:', groupedData);
 			    const files = Object.keys(groupedData); // Assuming groupedData contains uploaded file names
 			
 			    // Only proceed if at least 2 files are available
 			    if (files.length >= 2) {
-			        const container = document.getElementById('difference-container');
+			        const container = document.getElementById('dropdownContainer');
 			
 			        // Create dropdown elements
 			        const dropdown1 = document.createElement('select');
 			        const dropdown2 = document.createElement('select');
+			        dropdown1.classList.add('form-select', 'me-2', 'ms-5');
+			        dropdown2.classList.add('form-select', 'me-2', 'ms-2');
 			
 			        // Fill dropdowns with file names
 			        files.forEach(fileId => {
@@ -834,6 +850,8 @@
 			
 			        // Create OK button
 			        const okButton = document.createElement('button');
+			        okButton.classList.add('btn', 'btn-dark', 'me-5');
+			        okButton.style.marginLeft = '2%';
 			        okButton.textContent = 'OK';
 			        okButton.onclick = () => {
 						clearTimeout(removeDropdownTimeout);
@@ -867,19 +885,24 @@
 		                    dropdownDiv = null; // Reset dropdownDiv
 		                }
 			        };
-			
-			        // Create a div to hold dropdowns and the OK button
-			        let dropdownDiv = document.createElement('div');
-			        dropdownDiv.appendChild(dropdown1);
-			        dropdownDiv.appendChild(document.createTextNode(' és '));
-			        dropdownDiv.appendChild(dropdown2);
-			        dropdownDiv.appendChild(document.createTextNode('különbsége'));
-			        dropdownDiv.appendChild(okButton);
-			
-			        // Append the div to the container
-			        container.appendChild(dropdownDiv);
+			        
+			        // Wrap the dropdowns and OK button in a container
+				    let dropdownDiv = document.createElement('div');
+				    dropdownDiv.classList.add('difference-dropdown-container');
+				
+				    // Append dropdowns and OK button to the container
+				    dropdownDiv.appendChild(dropdown1);
+				    dropdownDiv.appendChild(document.createTextNode(' és '));
+				    dropdownDiv.appendChild(dropdown2);
+				    dropdownDiv.appendChild(document.createTextNode(' különbsége'));
+				    dropdownDiv.appendChild(okButton);
+				
+				    // Append the container to the difference-container
+				    container.appendChild(dropdownDiv);
+
 			        dropdownDivCreated = true;
 			        
+	
 				    // Set a timeout to remove the dropdown after 10 seconds
 				    removeDropdownTimeout = setTimeout(() => {
 				        if (dropdownDiv && dropdownDiv.parentNode) {
@@ -1162,7 +1185,7 @@
 			        });
 			};
 
-			
+
 			let activeFileId;
 			let tbody;
 			let thead;
@@ -1176,30 +1199,39 @@
 			        const tabs = Object.keys(groupedData).map(fileId => {
 					file_id = fileId;
 			        const fileName = groupedData[fileId][0].fileName;
-					
-			        return (
-			            <span key={fileId}>
-			                <button className="tabs" onClick={() => {
-								activeFileId = fileId; // Set the active file_id
-								console.log('activeFileId on tabClick', activeFileId);
-			                    renderTable(groupedData[fileId]);		                    
-			                }}>
-			                    {fileName}
-			                </button>
-			            </span>
+
+			        return (	
+				            <span key={fileId}>
+				                <button className="btn btn-dark" style={{ marginRight: '1%', marginBottom: '1%' }} onClick={() => {
+									activeFileId = fileId; // Set the active file_id
+									console.log('activeFileId on tabClick', activeFileId);
+									console.log('FileId on tabClick', fileId);
+				                    renderTable(groupedData[fileId]);		                    
+				                }}>
+				                    {fileName}
+				                </button>
+				            </span>			  
 			        );
 			    });
 			    // Set activeFileId for the lowest file_id by default
 			    const lowestFileId = Math.min(...Object.keys(groupedData));
-			    activeFileId = lowestFileId;
+			    
+			    if (activeFileId == null) {
+					activeFileId = lowestFileId;
+				} 
+			    
 			
 
 			    ReactDOM.render(
-			        <div>
-			            {tabs}
-			            <div id="table-container"></div>
-			        </div>,
-			        document.getElementById('root')
+			     
+				        <><div className="row pt-2 pb-2">
+                        <div className="col">
+                            {tabs}
+                        </div>
+                    </div><div className="row mb-5 table-responsive mx-auto" id="table-container">
+                        </div></>
+				 ,
+				    document.getElementById('root')
 			    );
 			console.log('activeFileId in renderTabsAndTables:', activeFileId);
 			    // Display the table for the lowest file_id by default
@@ -1217,7 +1249,7 @@
     			const fileName = data.length > 0 ? data[0].fileName : '';
     			
     			// Displaying the table name (fileName) above the table
-				const tableName = <h2>{fileName}</h2>;
+				const tableName = <h2 id="tableName">{fileName}</h2>;
 				
  				// Filter out fields that have null values based on columnMapping
 			    const nonNullColumns = Object.entries(columnMapping)
@@ -1230,7 +1262,7 @@
 			        });
 			
 			    const tableHeaders = nonNullColumns.map(({ displayName }, index) => (
-			        <th key={index}>{displayName}</th>
+			        <th scope="col" key={index}>{displayName}</th>
 			    ));
 			
 			    const tableRows = data.map((dataItem, index) => {
@@ -1245,19 +1277,17 @@
 			    });
 			
 			    const table = (
-					<div>
-						{tableName}
-				        <table id='dataTable'>
-				            <thead>
-				                <tr>
-				                    {tableHeaders}
-				                </tr>
-				            </thead>
-				            <tbody>
-				                {tableRows}
-				            </tbody>
-				        </table>
-			        </div>
+			        <table id='dataTable' className="table table-dark table-striped table-sm table-hover caption-top">
+			        <caption>{tableName}</caption>
+			            <thead>
+			                <tr>
+			                    {tableHeaders}
+			                </tr>
+			            </thead>
+			            <tbody>
+			                {tableRows}
+			            </tbody>
+			        </table>
 			    );
 
 			    console.log('Rendering Table:', table);

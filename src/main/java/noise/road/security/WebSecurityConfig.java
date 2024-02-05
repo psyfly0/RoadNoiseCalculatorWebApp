@@ -110,7 +110,9 @@ public class WebSecurityConfig {
 	    return http
 	            .authorizeHttpRequests(auth -> {
 	                    auth.requestMatchers("/").permitAll();
+	                    auth.requestMatchers("/static/**").permitAll();
 	                    auth.requestMatchers("/registration/**").permitAll();
+	                    auth.requestMatchers("/contact/**").permitAll();
 	                    auth.requestMatchers("/error/**").permitAll();
 	                    auth.requestMatchers("/login").permitAll();
 	                    auth.requestMatchers("/logout").permitAll();
@@ -123,7 +125,7 @@ public class WebSecurityConfig {
 	            		.successHandler(myAuthenticationSuccessHandler())
 	            		.failureUrl("/login?error=true")
 	            		.permitAll()
-	            		)
+	            		)	 
 	            .sessionManagement(session -> session
 	            		.sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED)
 	            		.invalidSessionUrl("/")

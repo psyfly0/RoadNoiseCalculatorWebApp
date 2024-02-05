@@ -1,0 +1,91 @@
+body {
+	background-color: black;
+}
+
+#error {
+    position: absolute;
+    top: 30%;
+    left: 10%;
+    transform: translate(-30%, -10%);	
+}
+
+.indexImage {
+	position: absolute;
+	top: 0%;
+	left: 0%;
+ 	width: 100vw;
+    height: 100vh;
+    object-fit: cover;
+}
+
+#error h1 {
+    padding-bottom: 1%;
+    font-size: 1px;
+    opacity: 0;
+    animation: flyIn-h1 5s forwards;
+}
+
+#error h2 {
+    padding-bottom: 1%;
+    font-size: 1px;
+    opacity: 0;
+    animation: flyIn-h2 5s forwards;
+}
+
+#error h3 {
+    padding-bottom: 1%;
+    font-size: 1px;
+    opacity: 0;
+    animation: flyIn-h3 5s forwards;
+}
+
+#error a {
+    margin-top: 5%;
+    font-size: 1px;
+    opacity: 0;
+    animation: flyIn-a 5s forwards;
+}
+
+@keyframes flyIn-h1 {
+    from {
+        font-size: 1px;
+        opacity: 0;
+    }
+    to {
+        font-size: 92px;
+        opacity: 1;
+    }
+}
+
+@keyframes flyIn-h2 {
+    from {
+        font-size: 1px;
+        opacity: 0;
+    }
+    to {
+        font-size: 32px;
+        opacity: 1;
+    }
+}
+
+@keyframes flyIn-h3 {
+    from {
+        font-size: 1px;
+        opacity: 0;
+    }
+    to {
+        font-size: 24px;
+        opacity: 1;
+    }
+}
+
+@keyframes flyIn-a {
+    from {
+        font-size: 1px;
+        opacity: 0;
+    }
+    to {
+        font-size: 16px;
+        opacity: 1;
+    }
+}

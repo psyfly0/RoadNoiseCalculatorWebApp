@@ -1,0 +1,40 @@
+		  <p class="fw-bold fs-4 text-decoration-underline">Vendég-mód</p>
+			  <p>Vendégként bejelentkezve nem lehet fájlokat feltölteni. 
+				  Próba gyanánt egy 2 soros .shp fájl kerül automatikusan megjelenítésre a vendég részére, 
+				  melyen minden számítási funkciót kipróbálhat, valamint a kész fájlt le is mentheti.</p>
+			  <p class="fw-bold fs-4 text-decoration-underline">Fájl felöltés</p>
+			  <p>Felölteni kizárólag .zip fájlt lehet. A .zip-nek tartalmaznia kell minimum: .shp, .dbf, .shx kiterjesztésű fájlokat ugyanazon a néven.
+				  A .dbf fájlnak tartalmaznia kell:
+				  <ul>
+					  <li>azonosító oszlopot,</li>
+					  <li>1., 2., 3. akusztikai kategóriára vonatkozó forgalmakat, külön nappalra és éjjelre (tehát ez 6 oszlopot jelent),
+						  mindkét irány esetében (ez így már 12 oszlop),
+					  </li>
+					  <li>sebességet tartalmazó oszlopot mindkét irányra.</li>
+				  </ul>
+			  </p>
+			  <p>"Feltöltés" gomb után a felöltött .zip .dbf fájlja látható. A megfelelő oszlopok kiválasztása után
+				  "Oszlopok szűrése" gombbal lehet továbbhaladni. Ha minden szükséges adat jól lett kiválasztva/rendelkezésre áll,
+				  akkor a "Számítási paraméterek" gombbal határozhatjuk meg az egész fájlra vonatkozó paramétereket. Későbbiekben ez soronként változtatható.
+			  </p>
+			  <p class="fw-bold fs-4 text-decoration-underline">Számítások ablak</p>
+			  <p>Ezen az oldalon a már szűrt, csak szükséges adatokkal rendelkező táblázat látható.</p>
+			  <p>A számítási/mentési opciók egyértelműek: számolja/menti ami a gombra van írva. </p>
+			  <p class="fw-bold text-decoration-underline">Különbség számítás</p>
+			  <p>Két fájl LAeq éjjel értékeiből készít különbséget. 
+				  +100 jelentése: új út, tehát az 1. fájlban létező, a 2. fájlban nem létező sor. 
+				  -100 jelentése: megszűnő út, tehát az 1. fájlban nem létező, a 2. fájlban létező sor.</p>
+			  <p class="fw-bold text-decoration-underline">Törlés mód</p>
+			  <p>A gomb megnyomása után sorokat és oszlopokat választhatunk ki, melyeket a megjelenő "Törlés!" gombbal törölhetünk is.</p>
+			  <p class="fw-bold text-decoration-underline">Cella módosítás</p>
+			  <p>Egy-egy adatot manuális átírhatunk: a táblázat cellájára szimpla klikk, majd az adatot lehet módosítani.</p>
+			  <p class="fw-bold text-decoration-underline">Számítási paraméterek módosítása</p>
+			  <p>A paraméterek soronként módosíthatóak a sorra való dupla kattintással.</p>
+			  <p class="fw-bold text-decoration-underline">Tabok</p>
+			  <p>A fájlok között a táblázat feletti tabokkal lehet váltani.</p>
+			  <p class="fw-bold text-decoration-underline">Mentett fájlok</p>
+			  <p>A fájlok EOV koordináta-rendszerre lesznek konvertálva.
+				  Védőtávolság-Hatásterület mentése esetén az utak nem, csak a bufferzóna kerül mentésre.
+				  "Fájl mentése" esetén csak az utak és a számított értékek kerülnek mentésre. Az utak geometriájának töréspontjai automatikusan sűrítve lesznek 2 méteres osztásközzel.
+				  Ezáltal modellező programba relatív magassággal lehet importálni, a terepre megfelelően ráfeszül az úthálózat (legalábbis IMMI esetében mindenképp).
+			  </p>

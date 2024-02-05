@@ -81,6 +81,10 @@ public class RegistrationController {
 	            model.addAttribute("emailExistError", "E-mail már létezik.");
 	            return "registration";
 	        case "noneExists":
+	        	if (!userDto.getPassword().equals(userDto.getPasswordConfirm())) {
+	        		model.addAttribute("passwordsNotMatchError", "Jelszavak nem egyeznek.");
+	        		return "registration";
+	        	}
 	            User newUser = userDetailsService.registerNewUser(userDto.getUsername(), userDto.getPassword(), userDto.getEmail());
 	            return "redirect:/login"; 
 	        default:

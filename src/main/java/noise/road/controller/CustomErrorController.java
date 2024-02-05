@@ -41,5 +41,4 @@ public class CustomErrorController implements ErrorController {
         return "error/error";
     }
 
-	
 }

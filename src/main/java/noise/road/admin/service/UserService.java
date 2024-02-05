@@ -1,11 +1,14 @@
 package noise.road.admin.service;
 
 import java.util.List;
+import java.util.stream.Collectors;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import noise.road.authenticationModel.Role;
 import noise.road.authenticationModel.User;
 import noise.road.repository.UserRepository;
 
@@ -19,7 +22,14 @@ public class UserService {
     private JdbcTemplate jdbcTemplate;
 
 	public List<User> getAllUsers() {
-		return userRepository.findAll();
+	//	return userRepository.findAll();
+		List<User> allUsers = userRepository.findAll();
+
+        // Filter out users with the "GUEST" role
+        return allUsers.stream()
+                .filter(user -> user.getRoles().stream().noneMatch(role -> "ROLE_GUEST".equals(role.getName())))
+                .collect(Collectors.toList());
+    
 	}
 	
 	public List<User> findByUsernameContainingOrEmailContaining(String username, String email) {

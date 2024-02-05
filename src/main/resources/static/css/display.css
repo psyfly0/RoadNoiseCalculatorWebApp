@@ -1,0 +1,111 @@
+.row {
+	margin-left: 0;
+}
+
+#displayImage {
+	float: right;
+	margin: 0px 0px 15px 15px;
+	max-width:600px; 
+	max-height:250px;
+}
+
+#text-field-container {
+	margin-right: 1%;
+}
+
+#userInputLabel {
+	color: white;
+ 	font-size: small;
+  	font-weight: bold;
+}
+
+#difference-container {
+	margin-right: 1%;
+}
+
+#saveFile button {
+    margin-right: 1%;
+}
+
+#saveFile button:last-child {
+    margin-right: 0;
+}
+
+#deleteRowsColumns button {
+	margin-right: 1%;
+
+}
+
+#deleteRowsColumns button:last-child {
+	margin-right: 0;
+}
+
+#line {
+	border-top: 2px solid white;
+	opacity: 100;
+  	border-radius: 5px;
+}
+
+#tabsContainer button {
+	margin-right: 1%;
+	margin-bottom: 1%;
+}
+
+#tabsContainer button:last-child {
+	margin-right: 0;
+}
+
+#tableName {
+	color: white;
+	font-weight: bold;
+	font-size: medium;
+}
+
+#table-container {
+    max-width: 90%;
+    max-height: 70vh;
+    overflow-x: auto;
+    overflow-y: auto;  
+}
+
+#dataTable {
+	border: 1px solid white;
+}
+
+#dataTable caption {
+	position: sticky;
+	z-index: 1;
+	top: 0;
+	font-weight: bold;
+  	padding: 10px;
+  	background-color: #212529; 
+  	color:#4BDE4B;
+  	caption-side: top;
+  	border: 2px solid white;
+  	border-collapse: collapse;
+}
+
+#dataTable thead {
+	position: sticky;
+	top: 48px;
+}
+
+.difference-dropdown-container {
+    display: flex;
+    align-items: center;
+    color: white;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+

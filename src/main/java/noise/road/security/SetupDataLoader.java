@@ -6,6 +6,7 @@ import java.util.List;
 
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationListener;
 import org.springframework.context.event.ContextRefreshedEvent;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -42,6 +43,10 @@ public class SetupDataLoader implements
     
     @PersistenceContext
     private EntityManager entityManager;
+    
+    @Value("${admin.password}")
+	private String adminPass;
+    
  
   //  @Autowired
    // private PasswordEncoder passwordEncoder;
@@ -68,7 +73,7 @@ public class SetupDataLoader implements
         if (userRepository.findByUsername("admin") == null) {
 	        Role adminRole = roleRepository.findByName("ROLE_ADMIN");
 	        User adminUser = new User();
-	        adminUser.setPassword(new BCryptPasswordEncoder().encode("1"));
+	        adminUser.setPassword(new BCryptPasswordEncoder().encode(adminPass));
 	        adminUser.setUsername("admin");
 	        adminUser.setEnabled(true);
 	        adminUser.setRoles(Arrays.asList(adminRole));

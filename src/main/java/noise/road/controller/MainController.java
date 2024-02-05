@@ -21,4 +21,8 @@ public class MainController {
 		return "console/display";
 	}
 
+	@GetMapping("contact")
+	public String contact() {
+		return "contact";
+	}
 }

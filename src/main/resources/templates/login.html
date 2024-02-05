@@ -2,30 +2,103 @@
 <html xmlns:th="https://www.thymeleaf.org">
 	<head>
 		<title>Bejelentkezés</title>
+		<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
+		<link rel="stylesheet" type="text/css" href="/static/css/common.css">
+		<link rel="stylesheet" type="text/css" href="/static/css/login.css">
 	</head>
 	<body>
-		<h2>Bejelentkezés</h2>
-		<div th:if="${param.error}">
-			Hibás felhasználónév vagy jelszó</div>
-		<div th:if="${param.logout}">
-			Sikeres kijelentkezés</div>
-		<form th:action="@{/login}" method="post" id="loginForm">
-			<div>
-			<input type="text" name="username" placeholder="Felhasználó név"/>
-			</div>
-			<div>
-			<input type="password" name="password" placeholder="Jelszó"/>
-			</div>
-			<input type="submit" value="Bejelentkezés" />
-		</form>
-		<form th:action="@{/registration/registerGuest}" method="post">
-			<input type="submit" value="Bejelentkezés vendégként" />
-		</form>
-		<span>
-			<h2>Vagy regisztrálj: </h2>
-			<a href="/registration">itt</a>
-		</span>
+		<!-- Nav bar and Collapse menu -->
+        <div class="collapse" id="navbarToggleExternalContent" data-bs-theme="dark">
+          <div class="bg-dark p-4">
+            <h4>-</h4>
+                <ul class="navbar-nav">
+                    <li class="nav-item">
+                        <a class="nav-link text-light" href="/">Főoldal</a>  
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link text-light" href="/registration">Regisztráció</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link text-light" href="/contact">Kapcsolat</a>
+                    </li>
+                    <li class="nav-item">
+                    	<a class="nav-link text-light" data-bs-toggle="offcanvas" data-bs-target="#offcanvasWithBothOptions" aria-controls="offcanvasWithBothOptions">Segítség</a>
+ 					</li>               
+                </ul>
+          </div>
+        </div>
+        <nav class="navbar navbar-dark bg-dark fixed-top">
+          <div class="container-fluid">
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarToggleExternalContent" aria-controls="navbarToggleExternalContent" aria-expanded="false" aria-label="Toggle navigation">
+              <span class="navbar-toggler-icon"></span>                   
+            </button>  
+            <div class="d-flex text-center">
+                <span class="text-light">Bejelentkezés</span>
+            </div>                              
+          </div>
+        </nav>
+        
+        <div class="offcanvas offcanvas-start w-25" data-bs-scroll="true" tabindex="-1" id="offcanvasWithBothOptions" aria-labelledby="offcanvasWithBothOptionsLabel" data-bs-theme="dark">
+		  <div class="offcanvas-header">
+		    <h5 class="offcanvas-title fw-bold" id="offcanvasWithBothOptionsLabel">Útmutató</h5>
+		    <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+		  </div>
+		  <div class="offcanvas-body" id="offcanvasContentContainer">
+			 <!-- Content loads dynamically -->
+		  </div>
+		</div>
 		
 		
+		<section class="vh-100">
+	  		<div class="container-fluid h-custom">
+			    <div class="row d-flex justify-content-center align-items-center h-100">
+					<div class="col-md-9 col-lg-6 col-xl-5 mt-5 pt-5 pb-5">
+						<img src="/static/images/soundWaveEar.jpeg" class="img-fluid" alt="Sample image">
+					</div>
+					<div class="col-md-8 col-lg-6 col-xl-4 offset-xl-1">
+												<p class="text-center text-dark-emphasis h1 fw-bold mb-5 mx-1 mx-md-4 mt-4">Bejelentkezés</p>
+						<div class="text-danger" th:if="${param.error}">
+							Hibás felhasználónév vagy jelszó</div>
+						<div class="text-success" th:if="${param.logout}">
+							Sikeres kijelentkezés</div>
+				    	<form th:action="@{/login}" method="post" id="loginForm" class="mb-4">
+					      <!-- Username input -->
+							<div class="form-outline mb-4">
+								<input type="text" id="form3Example3" name="username" class="form-control form-control-lg" placeholder="Felhasználó név" />
+							</div>				
+					      <!-- Password input -->
+					      	<div class="form-outline mb-3">
+					        	<input type="password" id="form3Example4" name="password" class="form-control form-control-lg" placeholder="Jelszó" />
+					      	</div>
+					
+					      	<div class="text-center text-lg-start mt-4 pt-2 mb-4">
+					        	<input type="submit" class="btn btn-secondary btn-lg" value="Bejelentkezés" style="padding-left: 2.5rem; padding-right: 2.5rem;"></input>
+					        	<p class="text-light small fw-bold mt-1 pt-10 mb-10">Nincs felhasználód még? <a href="/registration" class="link-danger">Regisztráció</a></p>
+					      	</div>
+				    	</form>
+					    					    
+					    <form th:action="@{/registration/registerGuest}" method="post" class="mt-4">
+							<input type="submit" class="btn btn-secondary btn-lg" value="Bejelentkezés vendégként" style="padding-left: 2.5rem; padding-right: 2.5rem;"></input>
+						</form>		    
+					</div>
+			    </div>	    
+			</div>		
+		</section>
+
+		<footer class="bg-dark text-light text-center py-2 fixed-bottom footer">
+	        <p>"Copyright &#169;" Ákos Szabó - 2024</p>
+		</footer>
+		
+		<script>
+		  // Use fetch to load the offcanvas content
+		  fetch('/static/offcanvas-content.html')
+		    .then(response => response.text())
+		    .then(html => {
+		      document.getElementById('offcanvasContentContainer').innerHTML = html;
+		    })
+		    .catch(error => console.error('Error loading offcanvas content:', error));
+		</script>
+		
+		<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL" crossorigin="anonymous"></script>    	
 	</body>
 </html>

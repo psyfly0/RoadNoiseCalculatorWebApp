@@ -19,6 +19,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -32,6 +33,7 @@ import noise.road.dto.DbfDataPreprocessDTO;
 import noise.road.dto.MutableParametersDTO;
 import noise.road.dto.SaveDbfRequest;
 import noise.road.dto.ShapeDataDTO;
+import noise.road.repository.DbfDataRepository;
 import noise.road.service.ConstantParametersService;
 import noise.road.service.SaveDisplayService;
 import noise.road.service.FileReadService;
@@ -60,6 +62,14 @@ public class FileReadSaveController {
 	
 	@Autowired
 	private FileSaveService fileSaveService;
+	
+	@Autowired
+    private DbfDataRepository dbfDataRepository;
+	
+	@GetMapping("/checkSavedData")
+	public boolean checkSavedData() {
+        return dbfDataRepository.count() > 0;
+    }
 
     @PostMapping("/fileLoad")
     public ResponseEntity<?> fileLoad(@RequestParam("zipFile") MultipartFile zipFile) {

@@ -7,56 +7,166 @@
 	    <!-- Note: when deploying, replace “development.js” with “production.min.js”. -->
 		<script src="https://unpkg.com/react@17/umd/react.development.js" crossorigin></script>
   		<script src="https://unpkg.com/react-dom@17/umd/react-dom.development.js" crossorigin></script>
-	    <script src="https://unpkg.com/babel-standalone@6/babel.min.js"></script>
+	    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+	    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
+		<link rel="stylesheet" type="text/css" href="/static/css/common.css">
+		<link rel="stylesheet" type="text/css" href="/static/css/display.css">
 	</head>    
 	<body>
-		<h1>display</h1>
-		<a id="backToUploadLink" href="/console/upload">Back to Console</a>
-		
-		<div>
-		    <label for="calculations">Számítások:</label>
-		    <select id="calculations" onchange="handleCalculationChange()">
-		        <option value="">Számítási műveletek</option>
-		        <option value="/calculations/all">Minden érték számítása</option>
-		        <option value="/calculations/laeq">Egyenértékű A-hangnyomásszint számítása</option>
-		        <option value="/calculations/lw">Hangteljesítményszint számítása</option>
-		        <option value="/calculations/protectiveDistance">Védőtávolság számítása</option>
-		        <option value="/calculations/impactArea">Hatásterület számítása</option>
-		        <option value="/calculations/givenDistance">Adott távolságon adódó zajterhelés számítása</option>
-		    </select>
-		    <div id="text-field-container" style="display: none;">
-	            <label for="userInput">Enter a number:</label>
-	            <input type="number" id="userInput" step="any">
-        	</div>
-        	<div id="submitButton">
-		    	<button onclick="handleSubmit()">Submit</button>
-		    </div>
-		    <div id="differenceButton">
-		    	<button onclick="handleDifferenceSubmit()">Difference Submit</button>
-		    </div>
+		<!-- Nav bar and Collapse menu -->
+        <div class="collapse" id="navbarToggleExternalContent" data-bs-theme="dark">
+          <div class="bg-dark p-4">
+            <h4>-</h4>
+                <ul class="navbar-nav">
+                    <li class="nav-item">
+                        <a class="nav-link text-light" href="/">Főoldal</a>  
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link text-light" href="/login">Bejelentkezés</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link text-light" href="/console/upload">Fájl feltöltés</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link text-light" href="/contact">Kapcsolat</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link text-light" href="/logout">Kijelentkezés</a>
+                    </li>
+                    <li class="nav-item">
+                    	<a class="nav-link text-light" data-bs-toggle="offcanvas" data-bs-target="#offcanvasWithBothOptions" aria-controls="offcanvasWithBothOptions">Segítség</a>
+ 					</li>
+                </ul>
+          </div>
+        </div>
+        <nav class="navbar navbar-dark bg-dark fixed-top">
+          <div class="container-fluid">
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarToggleExternalContent" aria-controls="navbarToggleExternalContent" aria-expanded="false" aria-label="Toggle navigation">
+              <span class="navbar-toggler-icon"></span>                   
+            </button>  
+            <div class="d-flex text-center">
+                <span class="text-light">Számítások</span>
+            </div>                              
+          </div>
+        </nav>
+        
+        <div class="offcanvas offcanvas-start w-25" data-bs-scroll="true" tabindex="-1" id="offcanvasWithBothOptions" aria-labelledby="offcanvasWithBothOptionsLabel" data-bs-theme="dark">
+		  <div class="offcanvas-header">
+		    <h5 class="offcanvas-title fw-bold" id="offcanvasWithBothOptionsLabel">Útmutató</h5>
+		    <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+		  </div>
+		  <div class="offcanvas-body" id="offcanvasContentContainer">
+			 <!-- Content loads dynamically -->
+		  </div>
 		</div>
 		
-		<div id="difference-container"></div>
-		<div id="sorting-container">
-			<button onclick="handleSorting()">Rendezés LAeq alapján</button>
-		</div>
-		<div id="saveFile">
-			<button onclick="handleFileSave()">Fájl mentése</button>
-			<button onclick="handleProtectiveDistanceSave()">Védőtávolság mentése</button>
-			<button onclick="handleImpactAreaSave()">Hatásterület mentése</button>
-		</div>
-		<div id="saveToExcel">
-			<button onclick="handleExcelSave()">Mentés Excel-be</button>
-		</div>
+		
+		<div class="container-fluid">
 			
-		<div id="deleteRowsColumns" class="delete-mode-off">
-			<button onclick="handleDeleteRowsColumns()">Törlés mód</button>
-			<span id="deleteButtonConfirmation"></span>
+			<img id="displayImage" src="/static/images/waveDisplay.png" alt="soundWave">
+			
+			<!-- row 0: link -->
+			<div class="row mt-5 pt-5 pb-2">
+				<div>
+				<a href="/console/upload" class="btn btn-dark text-success" role="button">
+                    Új fájl feltöltése
+                </a>
+                </div>
+			</div> 
+			
+			<!-- row 1: calculations, given distance, submit button -->
+			<div class="row pt-2 pb-2">
+				<div class="col-4">
+				    <select id="calculations" class="form-control" onchange="handleCalculationChange()">
+				        <option value="">Számítási műveletek</option>
+				        <option value="/calculations/all">Minden érték számítása</option>
+				        <option value="/calculations/laeq">Egyenértékű A-hangnyomásszint számítása</option>
+				        <option value="/calculations/lw">Hangteljesítményszint számítása</option>
+				        <option value="/calculations/protectiveDistance">Védőtávolság számítása</option>
+				        <option value="/calculations/impactArea">Hatásterület számítása</option>
+				        <option value="/calculations/givenDistance">Adott távolságon adódó zajterhelés számítása</option>
+				    </select>
+			    </div>
+			    
+				<div class="col-8 d-flex align-items-center">
+					<div id="text-field-container" style="display: none;">
+						<div class="d-flex">
+				            <label id="userInputLabel" or="userInput">Távolság méterben:</label>
+				            <input class="form-control" type="number" id="userInput" step="any">
+		            	</div>
+	        		</div>
+
+		        	<div id="submitButton">
+				    	<button class="btn btn-dark" onclick="handleSubmit()">Számítás!</button>
+				    </div>
+				</div>  
+		    </div>
+			   
+		   	<!-- row 2: difference and sorting --> 
+			<div class="row pt-2 pb-2">    
+				<div class="col d-flex align-items-center">			
+					<div id="difference-container">
+					    <div id="differenceButton">
+					    	<button class="btn btn-dark" onclick="handleDifferenceSubmit()">Különbség számítás</button>
+					    </div>
+					    
+					</div>
+					<div id="dropdownContainer"></div>
+					<div id="sorting-container">
+						<button class="btn btn-dark" onclick="handleSorting()">Rendezés (LAeq éjjel)</button>
+					</div>
+			
+				</div>
+			</div>
+			
+			<!-- row 3: save --> 
+			<div class="row pt-2 pb-2">  
+				<div id="saveFile">
+					<button class="btn btn-dark" onclick="handleFileSave()">Fájl mentése</button>
+					<button class="btn btn-dark" onclick="handleProtectiveDistanceSave()">Védőtávolság mentése</button>
+					<button class="btn btn-dark" onclick="handleImpactAreaSave()">Hatásterület mentése</button>
+					<button class="btn btn-dark" onclick="handleExcelSave()">Mentés Excel-be</button>
+				</div>
+			</div>
+				
+			<!-- row 4: delete --> 
+			<div class="row pt-2 pb-2">  				
+				<div id="deleteRowsColumns" class="delete-mode-off">
+					<button class="btn btn-dark" onclick="handleDeleteRowsColumns()">Törlés mód</button>
+					<span id="deleteButtonConfirmation"></span>
+				</div>			
+			</div>
+			
+			<!-- Horizontal line for separation -->
+			<hr id="line" class="my-3">
+			
+			<!-- row 5: tabs and table --> 
 		</div>
-		<div id="root"></div>
+			<div id="root" class="container-fluid"></div>
+		
+			
+			
+		
+		
+		<footer class="bg-dark text-light text-center py-2 fixed-bottom footer">
+	        <p>"Copyright &#169;" Ákos Szabó - 2024</p>
+		</footer>
+		
+		<script>
+		  // Use fetch to load the offcanvas content
+		  fetch('/static/offcanvas-content.html')
+		    .then(response => response.text())
+		    .then(html => {
+		      document.getElementById('offcanvasContentContainer').innerHTML = html;
+		    })
+		    .catch(error => console.error('Error loading offcanvas content:', error));
+		</script>
+		
+		
 	<!-- 	<div id="table-container"></div>-->
-		<script type="text/babel" src="/displayJS/display.js">
-			
-	  </script>
+		<script type="text/babel" src="/displayJS/display.js"></script>
+		
+		 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL" crossorigin="anonymous"></script>    	
+		
 	</body>
 </html>
