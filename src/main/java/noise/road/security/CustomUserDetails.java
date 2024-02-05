@@ -4,7 +4,7 @@ import java.util.Collection;
 
 import org.springframework.security.core.GrantedAuthority;
 
-public class CustomUserDetails extends org.springframework.security.core.userdetails.User {
+public class CustomUserDetails extends org.springframework.security.core.userdetails.User implements CustomUserDetailsInterface {
 
     private final String email;
 
@@ -13,6 +13,7 @@ public class CustomUserDetails extends org.springframework.security.core.userdet
         this.email = email;
     }
 
+    @Override
     public String getEmail() {
         return email;
     }
