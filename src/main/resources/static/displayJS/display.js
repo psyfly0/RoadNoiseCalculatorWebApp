@@ -107,6 +107,7 @@
 	let previousDifferenceColumnDefault;
 	
 	function handleExcelSave() {
+		document.body.style.cursor = "wait"; 
 		console.log('groupedData[activeFileId]', groupedData[activeFileId]);
 		console.log('groupedData[activeFileId][0]', groupedData[activeFileId][0]);
 		if (groupedData[activeFileId] === null) {
@@ -144,6 +145,7 @@
 	            a.click();
 	            a.remove();
 	            window.URL.revokeObjectURL(url);
+	            document.body.style.cursor = "auto"; 
         	} else {
 				const errorMessage = await response.text();
 	            console.error('Error during saving the file:', errorMessage);
@@ -210,6 +212,7 @@
 	
 	// Function to delete selected rows and columns
 	function deleteSelected() {
+		document.body.style.cursor = "wait"; 
         const selectedRowNumbers = Array.from(selectedRows); // Get an array of selected row numbers
         const incrementedRowNumbers = selectedRowNumbers.map(rowNumber => rowNumber + 1);
 	    // Ensure selectedColumns contains keys from columnMapping
@@ -247,6 +250,7 @@
 				handleDeleteRowsColumns();
 			//	renderTable(groupedData[activeFileId]);
 				fetchDataAndRenderTabs();
+				document.body.style.cursor = "auto"; 
 			} else {
 				const errorMessage = response.text();
 	            console.error('Error during deleting rows/columns:', errorMessage);
@@ -348,6 +352,7 @@
 			
 	// handle ImpactArea Save
 	function handleImpactAreaSave() {
+		document.body.style.cursor = "wait"; 
 		if (groupedData[activeFileId] === null) {
 			return;
 		}
@@ -381,6 +386,7 @@
 	            a.click();
 	            a.remove();
 	            window.URL.revokeObjectURL(url);
+	            document.body.style.cursor = "auto"; 
         	} else {
 				const errorMessage = await response.text();
 	            console.error('Error during saving impactArea:', errorMessage);
@@ -395,6 +401,7 @@
 	
 	// handle ProtectiveDistance Save
 	function handleProtectiveDistanceSave() {
+		document.body.style.cursor = "wait"; 
 		if (groupedData[activeFileId] === null) {
 			return;
 		}
@@ -428,6 +435,7 @@
 	            a.click();
 	            a.remove();
 	            window.URL.revokeObjectURL(url);
+	            document.body.style.cursor = "auto"; 
         	} else {
 				const errorMessage = await response.text();
 	            console.error('Error during saving protectiveDistance:', errorMessage);
@@ -442,6 +450,7 @@
 			
 	// handle File Save
 	function handleFileSave() {
+		document.body.style.cursor = "wait"; 
 		console.log('groupedData[activeFileId]', groupedData[activeFileId]);
 		console.log('groupedData[activeFileId][0]', groupedData[activeFileId][0]);
 		if (groupedData[activeFileId] === null) {
@@ -487,6 +496,7 @@
 	            a.click();
 	            a.remove();
 	            window.URL.revokeObjectURL(url);
+	            document.body.style.cursor = "auto"; 
         	} else {
 				const errorMessage = await response.text();
 	            console.error('Error during saving the file:', errorMessage);
@@ -596,6 +606,7 @@
 		    });
 		    
 		    const handleSubmit = () => {
+				document.body.style.cursor = "wait"; 
 			    const formData = {};
 			
 			    // Iterate through all form elements
@@ -622,6 +633,7 @@
 			                throw new Error('Network response was not ok');
 						}
 				        console.log('Mutable Parameters modified for the row.', response);
+				        document.body.style.cursor = "auto"; 
 				    }).catch((error) => {
 				        console.error('There was a problem with the fetch operation:', error);
 				    });
@@ -745,6 +757,7 @@
 			
 			// Function to send updated data to the backend
 			const saveCellDataToBackend = (activeFileId, row, columnName, updatedCellValue) => {
+				document.body.style.cursor = "wait"; 
 			    fetch(`/modification/cellValue/${activeFileId}/${row}/${columnName}/${updatedCellValue}`, {
 			        method: 'PUT',
 			        headers: {
@@ -761,6 +774,7 @@
 			        const activeData = groupedData[activeFileId];
 			        console.log('activeData in saveCellDataToBackend, RESPONSE OK', activeData);
 			        isModificationHappened = true;
+			        document.body.style.cursor = "auto"; 
 			    })
 			    .catch(error => {
 			        console.error('Error while updating data:', error);
@@ -770,6 +784,7 @@
 
 			// handle sorting request
 			function handleSorting() {
+				document.body.style.cursor = "wait"; 
 				console.log('groupedData in sorting:', groupedData);
 				if (groupedData[activeFileId][0].laeqDay !== null && groupedData[activeFileId][0].laeqNight !== null) {
 					fetch(`/sortAndDifferences/sortByLaeq/${activeFileId}`, {
@@ -789,6 +804,7 @@
 				    .then(data => {
 				        console.log('Fetched Data after Sorting:', data);
 				        renderTable(data);
+				        document.body.style.cursor = "auto"; 
 				    })
 				    .catch(error => {
 				        console.error('There was a problem with the fetch operation:', error);
@@ -1005,6 +1021,7 @@
 			}
 			
 			function sendFilesToBackend(fileId1, fileId2) {
+				document.body.style.cursor = "wait"; 
 				console.log('compare files id to backend:', fileId1, fileId2);
 			    fetch(`/sortAndDifferences/differences/${fileId1}/${fileId2}`, {
 			        method: 'POST',
@@ -1025,6 +1042,7 @@
 			        }
 			        			        
 			        fetchDataAndRenderTabs();
+			        document.body.style.cursor = "auto"; 
 			    })
 			    .catch(error => {
 			        console.error('There was a problem with the fetch operation:', error);
@@ -1050,6 +1068,7 @@
 	            }
 			}
 			 function handleSubmit() {
+				 document.body.style.cursor = "wait"; 
 				if (selectedValue === '/calculations/givenDistance') {
 					const userInput = document.getElementById('userInput').value;
 					console.log('userInput for noiseAtGivenDistance:', userInput);
@@ -1133,6 +1152,7 @@
 				                throw new Error('Network response was not ok');
 							}
 							fetchDataAndRenderTabs();
+							document.body.style.cursor = "auto"; 
 						})
 						.catch(error => {
 							console.error('There was a problem with the fetch operation:', error);
@@ -1157,6 +1177,7 @@
 								throw new Error('Network response was not ok');
 							}
 							fetchDataAndRenderTabs();
+							document.body.style.cursor = "auto"; 
 						})
 						.catch(error => {
 							console.error('There was a problem with the fetch operation:', error);
@@ -1168,6 +1189,7 @@
 			let groupedData;
 			// Function to fetch data, group by file_id, and render tabs and tables
 			const fetchDataAndRenderTabs = () => {
+				document.body.style.cursor = "wait"; 
 			    fetch('/console/displayData')
 			        .then(response => {
 			            if (!response.ok) {
@@ -1179,6 +1201,7 @@
 			            console.log('Fetched Data:', data);
 			            groupedData = data
 			            renderTabsAndTables(data);
+			            document.body.style.cursor = "auto"; 
 			        })
 			        .catch(error => {
 			            console.error('There was a problem with the fetch operation:', error);
@@ -1194,6 +1217,7 @@
 			let file_id;
 			// Function to render tabs and tables using grouped data
 			const renderTabsAndTables = (groupedData) => {
+				document.body.style.cursor = "wait"; 
 			    console.log('Grouped Data:', groupedData);
 			    
 			        const tabs = Object.keys(groupedData).map(fileId => {
@@ -1237,6 +1261,7 @@
 			    // Display the table for the lowest file_id by default
 			  //  const lowestFileId = Math.min(...Object.keys(groupedData));
 			    renderTable(groupedData[activeFileId]);
+			    document.body.style.cursor = "auto"; 
 			};
 			
 			// Function to render a specific table for a file

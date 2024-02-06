@@ -86,6 +86,7 @@
 			}, []);
 		
 		    const handleFileChange = (event) => {
+				document.body.style.cursor = "wait"; 
 		        const selectedFile = event.target.files[0];
 		        const fileName = selectedFile.name;
 		        
@@ -109,10 +110,12 @@
 		        setFileName(fileName);
 		        setIsFlashingUpload(true);
 		        setShowModifyForm(false);
+				document.body.style.cursor = "auto"; 
 		    };
 
 		
 		    const filterTableBySelectedColumns = () => {
+				document.body.style.cursor = "wait"; 
 		        const filteredData = attributeData.map((row) => {
 		            const newRow = {};
 		            
@@ -128,11 +131,13 @@
 		            console.log('NewRow:', newRow);
 		            return newRow;
 		        });
+		        document.body.style.cursor = "auto";
 		        return filteredData;
 		    };
 
 		
 		    const handleFileUpload = async () => {
+				document.body.style.cursor = "wait";
 				if (!file) {
 			        return;
 			    }
@@ -212,7 +217,9 @@
 		            }
 			        } catch (error) {
 			            console.error('Error uploading file:', error);
-			        }
+			        } finally {
+						document.body.style.cursor = "auto";
+					}
 		    };
 		      
 		    const saveColumnSelection = (columnSelection) => {
@@ -243,6 +250,7 @@
 		    
 
 		    const handleFilterClick = async () => {
+				document.body.style.cursor = "wait";
 		        const filteredData = filterTableBySelectedColumns();
 		        
 		        const mappedData = filteredData.map((row) => {
@@ -279,21 +287,25 @@
 				setFileUploadSuccess(true);
                 setIsFlashingFilter(false);
                 setIsFlashingModify(true);
+                document.body.style.cursor = "auto";
 		    };
 		    
 		    const handleModifyParametersClick = () => {
+				document.body.style.cursor = "wait";
 		        // Show the form only if response1 was successful
 		        if (attributeData.length > 0) {
 					console.log('SaveToDatabase Request Data:', { fileName, mappedData });
 		            setShowModifyForm(true);
 		            setIsFlashingModify(false);
 		            setIsFlashingModifySubmit(true);
+		            document.body.style.cursor = "auto";
 		        } else {
 		            console.error('No data available to modify parameters');
 		        }
 		    };
 
 		    const handleFormSubmit = async (event) => {
+				document.body.style.cursor = "wait";
 		        event.preventDefault();
 		
 			// Create a copy of modifiedParameters to retain unchanged parameters
@@ -324,10 +336,13 @@
 		            }
 		        } catch (error) {
 		            console.error('Error filtering data:', error);
-		        }
+		        } finally {
+					document.body.style.cursor = "auto";
+				}
 		
 		        // Send modifiedParameters to '/console/saveMutableParameters' endpoint
 		        try {
+					document.body.style.cursor = "wait";
 		            console.log('SaveMutableParameters Request Data:', updatedParameters);
 		            const response2 = await fetch('/console/saveMutableParameters', {
 		                method: 'POST',
@@ -350,7 +365,9 @@
 		            }
 		        } catch (error) {
 		            console.error('Error sending Modified Parameters:', error);
-		        }
+		        } finally {
+					document.body.style.cursor = "auto";
+				}
 		    };
 		    
 		    const isInteger = (value) => {
