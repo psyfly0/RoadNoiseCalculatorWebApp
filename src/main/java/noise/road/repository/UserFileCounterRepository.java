@@ -9,7 +9,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import noise.road.authenticationModel.UserFileCounter;
 
-public interface UserFileCounterRepository extends CrudRepository<UserFileCounter, Integer> {
+public interface UserFileCounterRepository extends CrudRepository<UserFileCounter, Long> {
 
 	Optional<UserFileCounter> findByUsername(String username);
 	

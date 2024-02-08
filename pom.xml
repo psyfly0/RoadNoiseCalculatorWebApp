@@ -126,6 +126,7 @@
   	</repositories>
 
 	<build>
+		
 		<plugins>
 			      <plugin>
         <inherited>true</inherited>

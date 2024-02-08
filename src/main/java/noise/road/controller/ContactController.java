@@ -6,6 +6,7 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 
@@ -21,7 +22,7 @@ public class ContactController {
     private EmailService emailService;
 	
 	@PostMapping("/submit")
-    public String submitForm(ContactForm form) {
+    public String submitForm(ContactForm form, Model model) {
 		String username = "";
         String email = "";
 		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
@@ -30,7 +31,14 @@ public class ContactController {
 			username = userDetails.getUsername();
 			email = userDetails.getEmail();
 		}
-		emailService.sendSimpleMail(form, username, email);
+		boolean messageSent = false;
+		try {
+	        emailService.sendSimpleMail(form, username, email);
+	        messageSent = true; 
+	    } catch (Exception e) {
+	        e.printStackTrace();
+	    }
+		model.addAttribute("messageSent", messageSent);
         return "contact"; 
     }
 

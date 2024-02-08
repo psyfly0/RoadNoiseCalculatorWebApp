@@ -4,6 +4,7 @@
 		<title>Kapcsolat</title>
 		<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
 		<link rel="stylesheet" type="text/css" href="/static/css/common.css">
+		<link rel="icon" type="image/ico" th:href="@{../static/favicon.ico}">
 	</head>
 	<body>
 		<!-- Nav bar and Collapse menu -->
@@ -79,6 +80,13 @@
                                         <button type="submit" class="btn btn-dark">Küldés</button>
                                     </div>
                                 </div>
+                                <!-- Success text -->
+                                <div class="form-group">
+								    <div class="col-md-12 text-right">
+								        <div th:if="${messageSent == true}" class="text-success">Üzenet elküldve</div>
+								        <div th:if="${messageSent == false}" class="text-danger">Üzenet küldése sikertelen</div>
+								    </div>
+								</div>
                             </fieldset>
                         </form>
                     </div>
