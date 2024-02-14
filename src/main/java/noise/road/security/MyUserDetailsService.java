@@ -4,6 +4,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
+import java.util.regex.Pattern;
+import java.util.regex.Matcher;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.GrantedAuthority;
@@ -54,6 +56,21 @@ public class MyUserDetailsService implements UserDetailsService {
     
     public List<User> getAllUsers() {
         return userRepository.findAll();
+    }
+    
+    public int getMaxGuest() {
+    	List<User> guestUsers = userRepository.findByUsernameStartingWith("guest");
+    	// Determine the max counter value
+        int maxCounter = 0;
+        Pattern pattern = Pattern.compile("guest(\\d+)");
+        for (User user : guestUsers) {
+            Matcher matcher = pattern.matcher(user.getUsername());
+            if (matcher.find()) {
+                int counter = Integer.parseInt(matcher.group(1));
+                maxCounter = Math.max(maxCounter, counter);
+            }
+        }
+    	return maxCounter + 1;
     }
 
     public User registerNewUser(String username, String password, String email) {

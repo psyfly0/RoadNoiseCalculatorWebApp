@@ -1,4 +1,20 @@
-
+	function checkSession() {
+	    fetch("/session/check-session")
+	        .then(response => {
+				console.log('session check invoked');
+	            if (!response.ok) {
+					console.log('status', response.status);
+	                if (response.status === 401) { // Unauthorized (session expired)
+	              //      window.location.replace("/login?sessionExpired=true");
+	                    window.location.href = "/login?sessionExpired=true";
+	                } else {
+	                    throw new Error('Network response was not ok');
+	                }
+	            }
+	  
+	        });
+	}
+	
  let columnMapping = {};
  
 	 // Function to get column mappings for a specific file
@@ -107,6 +123,7 @@
 	let previousDifferenceColumnDefault;
 	
 	function handleExcelSave() {
+		checkSession();
 		document.body.style.cursor = "wait"; 
 		console.log('groupedData[activeFileId]', groupedData[activeFileId]);
 		console.log('groupedData[activeFileId][0]', groupedData[activeFileId][0]);
@@ -165,6 +182,7 @@
 			
 	// handle Delete Rows and Columns
 	function handleDeleteRowsColumns() {
+		checkSession();
 		const deleteButtonConfirmation = document.getElementById('deleteButtonConfirmation');
 		const deleteButton = document.getElementById('deleteButton');
 	    const deleteButtonContainer = document.getElementById('deleteRowsColumns');
@@ -212,6 +230,7 @@
 	
 	// Function to delete selected rows and columns
 	function deleteSelected() {
+		checkSession();
 		document.body.style.cursor = "wait"; 
         const selectedRowNumbers = Array.from(selectedRows); // Get an array of selected row numbers
         const incrementedRowNumbers = selectedRowNumbers.map(rowNumber => rowNumber + 1);
@@ -265,6 +284,7 @@
 	}
 	
 	function deleteColumns(selectedColumnNames) {
+		checkSession();
 		for (const key in columnMapping) {
 			if (Object.prototype.hasOwnProperty.call(columnMapping, key)) {
 				const value = columnMapping[key];
@@ -352,6 +372,7 @@
 			
 	// handle ImpactArea Save
 	function handleImpactAreaSave() {
+		checkSession();
 		document.body.style.cursor = "wait"; 
 		if (groupedData[activeFileId] === null) {
 			return;
@@ -401,6 +422,7 @@
 	
 	// handle ProtectiveDistance Save
 	function handleProtectiveDistanceSave() {
+		checkSession();
 		document.body.style.cursor = "wait"; 
 		if (groupedData[activeFileId] === null) {
 			return;
@@ -450,6 +472,7 @@
 			
 	// handle File Save
 	function handleFileSave() {
+		checkSession();
 		document.body.style.cursor = "wait"; 
 		console.log('groupedData[activeFileId]', groupedData[activeFileId]);
 		console.log('groupedData[activeFileId][0]', groupedData[activeFileId][0]);
@@ -518,6 +541,7 @@
 			let singleClickTimer;
 					
 	const handleCellDoubleClick = async (cell) => {
+		checkSession();
 		if (!deleteMode) {
 		    const activeData = groupedData[activeFileId];
 		    const rowElement = cell.closest('tr');
@@ -669,6 +693,7 @@
 	};
 					
 	const handleCellClick = (cell) => {
+		checkSession();
 		if (!deleteMode) {
 		    if (!cell) {
 		        return;
@@ -757,6 +782,7 @@
 			
 			// Function to send updated data to the backend
 			const saveCellDataToBackend = (activeFileId, row, columnName, updatedCellValue) => {
+				checkSession();
 				document.body.style.cursor = "wait"; 
 			    fetch(`/modification/cellValue/${activeFileId}/${row}/${columnName}/${updatedCellValue}`, {
 			        method: 'PUT',
@@ -784,6 +810,7 @@
 
 			// handle sorting request
 			function handleSorting() {
+				checkSession();
 				document.body.style.cursor = "wait"; 
 				console.log('groupedData in sorting:', groupedData);
 				if (groupedData[activeFileId][0].laeqDay !== null && groupedData[activeFileId][0].laeqNight !== null) {
@@ -818,6 +845,7 @@
 			let dropdownDivCreated = false;
 			// handle difference request
 			function handleDifferenceSubmit() {
+				checkSession();
 				// Check if the dropdownDiv is already created
 			    if (dropdownDivCreated) {
 			        // If it's already created, return or display a message to the user
@@ -1021,6 +1049,7 @@
 			}
 			
 			function sendFilesToBackend(fileId1, fileId2) {
+				checkSession();
 				document.body.style.cursor = "wait"; 
 				console.log('compare files id to backend:', fileId1, fileId2);
 			    fetch(`/sortAndDifferences/differences/${fileId1}/${fileId2}`, {
@@ -1056,6 +1085,7 @@
 		    
 		    // listener for calculations div
 		    function handleCalculationChange() {
+				checkSession();
 			    const selectElement = document.getElementById('calculations');
 			    const textFieldContainer = document.getElementById('text-field-container');
 			    selectedValue = selectElement.value;
@@ -1068,6 +1098,7 @@
 	            }
 			}
 			 function handleSubmit() {
+				 checkSession();
 				 document.body.style.cursor = "wait"; 
 				if (selectedValue === '/calculations/givenDistance') {
 					const userInput = document.getElementById('userInput').value;
@@ -1189,6 +1220,7 @@
 			let groupedData;
 			// Function to fetch data, group by file_id, and render tabs and tables
 			const fetchDataAndRenderTabs = () => {
+				checkSession();
 				document.body.style.cursor = "wait"; 
 			    fetch('/console/displayData')
 			        .then(response => {
@@ -1357,6 +1389,7 @@
 			};
 			
 			// Call the function to fetch data and render tabs on page load
+			checkSession();
 			fetchDataAndRenderTabs();
 			
 			

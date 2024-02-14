@@ -1,5 +1,7 @@
 package noise.road.controller;
 
+import java.util.List;
+
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -17,11 +19,13 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 import noise.road.authenticationModel.User;
 import noise.road.dto.UserDTO;
 import noise.road.security.MyUserDetailsService;
+
 
 @Controller
 @RequestMapping("/registration")
@@ -30,7 +34,7 @@ public class RegistrationController {
 
 	private MyUserDetailsService userDetailsService;
 
-	private int guestCounter = 0;
+	//private int guestCounter = 11;
 	
 	public RegistrationController(MyUserDetailsService userDetailsService) {
 		this.userDetailsService = userDetailsService;
@@ -61,6 +65,7 @@ public class RegistrationController {
     @PostMapping
     @Transactional
     public String processRegistration(Model model, @ModelAttribute("userDto") @Valid UserDTO userDto, BindingResult result) {
+    	boolean success = false;
         // Validate and process the userDto
         if (result.hasErrors()) {
             // Handle validation errors
@@ -86,7 +91,8 @@ public class RegistrationController {
 	        		return "registration";
 	        	}
 	            User newUser = userDetailsService.registerNewUser(userDto.getUsername(), userDto.getPassword(), userDto.getEmail());
-	            return "redirect:/login"; 
+	            success = true;
+	            return "redirect:/login?regSuccess=" + success;
 	        default:
 	            return "error/error";
 	    }
@@ -95,6 +101,8 @@ public class RegistrationController {
     @PostMapping("/registerGuest")
     @Transactional
     public String registerGuest(HttpServletRequest request) {
+    	int guestCounter = userDetailsService.getMaxGuest();
+        
     	String username = "guest";
     	String incrementedUsername = username + guestCounter;
     	String pass = "guest";
@@ -109,7 +117,9 @@ public class RegistrationController {
             request.getSession().setAttribute(HttpSessionSecurityContextRepository.SPRING_SECURITY_CONTEXT_KEY, SecurityContextHolder.getContext());
             
             // sesssion timeout
-            request.getSession().setMaxInactiveInterval(600);
+            HttpSession session = request.getSession(false);
+            session.setAttribute("guest", true);
+            session.setMaxInactiveInterval(600);
             boolean isauth = authentication.isAuthenticated();
     	    log.info("is authenticated: {}", isauth);
     	} catch (Exception e) {

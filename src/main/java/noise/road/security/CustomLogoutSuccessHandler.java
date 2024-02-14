@@ -24,6 +24,6 @@ public class CustomLogoutSuccessHandler implements LogoutSuccessHandler {
             session.removeAttribute("user");
         }
         
-        response.sendRedirect("/");
+        response.sendRedirect("/login?logout=true");
     }
 }

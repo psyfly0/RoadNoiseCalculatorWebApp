@@ -7,20 +7,23 @@ import org.springframework.core.annotation.Order;
 import org.springframework.security.access.hierarchicalroles.RoleHierarchy;
 import org.springframework.security.access.hierarchicalroles.RoleHierarchyImpl;
 import org.springframework.security.config.Customizer;
-import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.security.web.SecurityFilterChain;
-import org.springframework.security.web.access.AccessDeniedHandler;
 import org.springframework.security.web.access.expression.DefaultWebSecurityExpressionHandler;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 import org.springframework.security.web.session.HttpSessionEventPublisher;
+import org.springframework.security.web.session.InvalidSessionStrategy;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 
+import jakarta.servlet.http.HttpServletResponse;
 import noise.road.admin.model.ActiveUserStore;
+
+
 
 @Configuration
 @EnableWebSecurity
@@ -33,8 +36,18 @@ public class WebSecurityConfig {
 	private CustomLogoutSuccessHandler logoutSuccessHandler;
 	
 	@Bean
-	public HttpSessionEventPublisher httpSessionEventPublisher() {
+	AuthenticationEntryPoint customAuthenticationEntryPoint() {
+		return new CustomAuthenticationEntryPoint();
+	}
+	
+	@Bean
+	HttpSessionEventPublisher httpSessionEventPublisher() {
 	    return new HttpSessionEventPublisher();
+	}
+	
+	@Bean
+	InvalidSessionStrategy myCustomInvalidSessionStrategy() {
+		return new MyCustomInvalidSessionStrategy();
 	}
 	
 	@Bean
@@ -81,8 +94,7 @@ public class WebSecurityConfig {
 	            	auth.requestMatchers("/admin/**").hasRole("ADMIN");
 	            	auth.requestMatchers("/console/**").hasAnyRole("ADMIN", "USER");
 	                auth.anyRequest().authenticated();
-	            })
-	            
+	            })	 
 	            .httpBasic(Customizer.withDefaults())
 	            .build();
 	}
@@ -116,6 +128,7 @@ public class WebSecurityConfig {
 	                    auth.requestMatchers("/error/**").permitAll();
 	                    auth.requestMatchers("/login").permitAll();
 	                    auth.requestMatchers("/logout").permitAll();
+	                    auth.requestMatchers("/session/**").permitAll();
 	                    auth.anyRequest().authenticated();
 	                }
 	            )
@@ -128,13 +141,14 @@ public class WebSecurityConfig {
 	            		)	 
 	            .sessionManagement(session -> session
 	            		.sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED)
-	            		.invalidSessionUrl("/")
+	            	//	.invalidSessionUrl("/session-expired")
+	            	//	.sessionAuthenticationErrorUrl("/login?sessionExpired=true")
 	            		.sessionFixation((sessionFixation) -> sessionFixation
 	                            .newSession()
 	                        )
 	            		.maximumSessions(1)
 	            		.maxSessionsPreventsLogin(true)
-	            		.expiredUrl("/")	
+	            //		.expiredUrl("/session-expired")
 	            		)
 	            .logout(logout -> logout
 	            		.logoutUrl("/logout")
@@ -142,9 +156,11 @@ public class WebSecurityConfig {
 	            		.logoutSuccessHandler(logoutSuccessHandler)
 	            		.invalidateHttpSession(true)
 	            		.deleteCookies("JSESSIONID")
-	            		)       
+	            		)  
+	         //   .exceptionHandling(exceptionHandling -> exceptionHandling
+	         //   		.authenticationEntryPoint(customAuthenticationEntryPoint()))
 	            .build();
+	   
 	}
-
 
 }

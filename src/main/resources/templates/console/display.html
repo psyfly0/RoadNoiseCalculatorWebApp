@@ -35,7 +35,7 @@
                         <a class="nav-link text-light" href="/logout">Kijelentkezés</a>
                     </li>
                     <li class="nav-item">
-                    	<a class="nav-link text-light" data-bs-toggle="offcanvas" data-bs-target="#offcanvasWithBothOptions" aria-controls="offcanvasWithBothOptions">Segítség</a>
+                    	<a class="nav-link text-light" role="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasWithBothOptions" aria-controls="offcanvasWithBothOptions">Segítség</a>
  					</li>
                 </ul>
           </div>
@@ -161,6 +161,26 @@
 		      document.getElementById('offcanvasContentContainer').innerHTML = html;
 		    })
 		    .catch(error => console.error('Error loading offcanvas content:', error));
+		</script>
+		
+		<script>
+		    setInterval(function() {
+		        fetch("/session/check-session")
+		            .then(response => {
+		                if (!response.ok) {
+		                    if (response.status === 401) { // Unauthorized (session expired)
+		                        window.location.replace("/login?sessionExpired=true");
+		                    } else {
+		                        throw new Error('Network response was not ok');
+		                    }
+		                }
+		                return response;
+		            })
+		            .catch(error => {
+		                console.error('There was a problem with the fetch operation:', error);
+		                // Handle error appropriately, e.g., inform the user
+		            });
+		    }, 660000);
 		</script>
 		
 		

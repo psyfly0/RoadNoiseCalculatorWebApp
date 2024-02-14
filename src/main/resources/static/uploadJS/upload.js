@@ -54,6 +54,23 @@
 		'slopeElevation' : true
 	};
 	
+	function checkSession() {
+	    fetch("/session/check-session")
+	        .then(response => {
+				console.log('session check invoked');
+	            if (!response.ok) {
+					console.log('status', response.status);
+	                if (response.status === 401) { // Unauthorized (session expired)
+	              //      window.location.replace("/login?sessionExpired=true");
+	                    window.location.href = "/login?sessionExpired=true";
+	                } else {
+	                    throw new Error('Network response was not ok');
+	                }
+	            }
+	  
+	        });
+	}
+	
 
 		const FileUploadComponent = () => {
 		    const [file, setFile] = React.useState(null);
@@ -86,6 +103,7 @@
 			}, []);
 		
 		    const handleFileChange = (event) => {
+		//		checkSession();
 				document.body.style.cursor = "wait"; 
 		        const selectedFile = event.target.files[0];
 		        const fileName = selectedFile.name;
@@ -115,6 +133,7 @@
 
 		
 		    const filterTableBySelectedColumns = () => {
+				checkSession();
 				document.body.style.cursor = "wait"; 
 		        const filteredData = attributeData.map((row) => {
 		            const newRow = {};
@@ -137,6 +156,8 @@
 
 		
 		    const handleFileUpload = async () => {
+//checkSession();
+			        
 				document.body.style.cursor = "wait";
 				if (!file) {
 			        return;
@@ -250,6 +271,7 @@
 		    
 
 		    const handleFilterClick = async () => {
+				checkSession();
 				document.body.style.cursor = "wait";
 		        const filteredData = filterTableBySelectedColumns();
 		        
@@ -291,6 +313,7 @@
 		    };
 		    
 		    const handleModifyParametersClick = () => {
+				checkSession();
 				document.body.style.cursor = "wait";
 		        // Show the form only if response1 was successful
 		        if (attributeData.length > 0) {
@@ -305,6 +328,7 @@
 		    };
 
 		    const handleFormSubmit = async (event) => {
+				checkSession();
 				document.body.style.cursor = "wait";
 		        event.preventDefault();
 		
@@ -521,7 +545,7 @@
       			</div>
 		    );
 		};
-		
+		checkSession();
 		ReactDOM.render(<FileUploadComponent />, document.getElementById('root'));
 		
 		

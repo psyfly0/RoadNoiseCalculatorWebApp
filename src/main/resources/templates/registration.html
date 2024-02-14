@@ -23,7 +23,7 @@
                         <a class="nav-link text-light" href="/contact">Kapcsolat</a>
                     </li>
                     <li class="nav-item">
-                    	<a class="nav-link text-light" data-bs-toggle="offcanvas" data-bs-target="#offcanvasWithBothOptions" aria-controls="offcanvasWithBothOptions">Segítség</a>
+                    	<a class="nav-link text-light" role="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasWithBothOptions" aria-controls="offcanvasWithBothOptions">Segítség</a>
  					</li>
                 </ul>
           </div>
@@ -65,7 +65,7 @@
 							<div th:if="${#fields.hasErrors('username')}" th:errors="*{username}" class="text-danger"></div>
 		                    <div th:if="${usernameExistError != null}" th:text="${usernameExistError}" class="text-danger"></div>
 		                    <div th:if="${bothExistError != null}" th:text="${bothExistError}" class="text-danger"></div>
-		                    <div th:if="${userDto.username != null && userDto.isUsernameValid() == false}" class="text-danger">Csak angol ábécé karaktereit és számokat lehet megadni.</div>	
+		                    <div th:if="${userDto.username != null && userDto.isUsernameValid() == false}" class="text-danger">Csak angol ábécé karaktereit(szóközt, írásjelet NEM) és számokat lehet megadni.</div>	
 		                    <!-- Email input -->
 							<div class="form-outline mb-4">
 								<input type="email" th:field="*{email}" required id="form3Example3" class="form-control form-control-lg" placeholder="Email" />
@@ -74,7 +74,7 @@
                     		<div th:if="${emailExistError != null}" th:text="${emailExistError}" class="text-danger"></div>	
                     		<div th:if="${userDto.email != null && userDto.isEmailValid() == false}" class="text-danger">Hibás email formátum.</div>	
 					      	<!-- Password input -->
-					      	<div class="form-outline mb-3">
+					      	<div class="form-outline mb-4">
 					        	<input type="password" th:field="*{password}" required  id="form3Example4" class="form-control form-control-lg" placeholder="Jelszó" />
 					      	</div>
 							<div th:if="${#fields.hasErrors('password')}" th:errors="*{password}" class="text-danger"></div>

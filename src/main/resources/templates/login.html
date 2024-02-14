@@ -23,7 +23,7 @@
                         <a class="nav-link text-light" href="/contact">Kapcsolat</a>
                     </li>
                     <li class="nav-item">
-                    	<a class="nav-link text-light" data-bs-toggle="offcanvas" data-bs-target="#offcanvasWithBothOptions" aria-controls="offcanvasWithBothOptions">Segítség</a>
+                    	<a class="nav-link text-light" role="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasWithBothOptions" aria-controls="offcanvasWithBothOptions">Segítség</a>
  					</li>               
                 </ul>
           </div>
@@ -60,8 +60,6 @@
 												<p class="text-center text-dark-emphasis h1 fw-bold mb-5 mx-1 mx-md-4 mt-4">Bejelentkezés</p>
 						<div class="text-danger" th:if="${param.error}">
 							Hibás felhasználónév vagy jelszó</div>
-						<div class="text-success" th:if="${param.logout}">
-							Sikeres kijelentkezés</div>
 				    	<form th:action="@{/login}" method="post" id="loginForm" class="mb-4">
 					      <!-- Username input -->
 							<div class="form-outline mb-4">
@@ -80,11 +78,81 @@
 					    					    
 					    <form th:action="@{/registration/registerGuest}" method="post" class="mt-4">
 							<input type="submit" class="btn btn-secondary btn-lg" value="Bejelentkezés vendégként" style="padding-left: 2.5rem; padding-right: 2.5rem;"></input>
+							<span id="questionMark" class="btn text-light ms-2 rounded-circle d-inline-flex justify-content-center align-items-center border border-2 border-white">?</span>
 						</form>		    
 					</div>
 			    </div>	    
 			</div>		
 		</section>
+		
+		<!-- Registration Success Modal -->
+		<!-- Button trigger modal -->
+		<button type="button" id="registrationModalTriggerButton" class="btn btn-primary d-none" data-bs-toggle="modal" data-bs-target="#staticBackdrop">
+		  Launch static backdrop modal
+		</button>
+		
+		<div class="modal fade" id="staticBackdrop" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+		  <div class="modal-dialog">
+		    <div class="modal-content">
+		      <div class="modal-header">
+		        <h1 class="modal-title fs-5" id="staticBackdropLabel">Regisztráció sikeres!</h1>
+		      </div>
+		      <div class="modal-body">
+		        <p>Most már be tudsz jelentkezni.</p>
+		      </div>
+		      <div class="modal-footer">
+		        <button type="button" class="btn btn-dark" data-bs-dismiss="modal">OK</button>
+		      </div>
+		    </div>
+		  </div>
+		</div>
+		
+		<!-- Logout Success Modal -->
+		<!-- Button trigger modal -->
+		<button type="button" id="logoutModalTriggerButton" class="btn btn-primary d-none" data-bs-toggle="modal" data-bs-target="#staticBackdropLogout">
+		  Launch static backdrop modal
+		</button>
+		
+		<div class="modal fade" id="staticBackdropLogout" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+		  <div class="modal-dialog">
+		    <div class="modal-content">
+		      <div class="modal-header">
+		        <h1 class="modal-title fs-5" id="staticBackdropLabel">Kijelentkezés sikeres!</h1>
+		      </div>
+		      <div class="modal-body">
+		        <p>Viszlát, és kösz a halakat!</p>
+		      </div>
+		      <div class="modal-footer">
+		        <button type="button" class="btn btn-dark" data-bs-dismiss="modal">OK</button>
+		      </div>
+		    </div>
+		  </div>
+		</div>
+		
+		<!-- Session Expired Modal -->
+		<!-- Button trigger modal -->
+		
+		<button type="button" id="sessionExpiredModalTriggerButton" class="btn btn-primary d-none" data-bs-toggle="modal" data-bs-target="#staticBackdropSessionExpired">
+		  Launch static backdrop modal
+		</button>
+		
+		<div class="modal fade" id="staticBackdropSessionExpired" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+		  <div class="modal-dialog">
+		    <div class="modal-content">
+		      <div class="modal-header">
+		        <h1 class="modal-title fs-5" id="staticBackdropLabel">Kijelentkezve!</h1>
+		      </div>
+		      <div class="modal-body">
+		        <p>Inaktivitás (10 perc) miatt a rendszer kiléptetett!</p>
+		      </div>
+		      <div class="modal-footer">
+				  <a class="btn btn-dark" role="button" href="/login">OK</a>
+		      <!--  <button type="button" class="btn btn-dark" data-bs-dismiss="modal">OK</button>-->
+		      </div>
+		    </div>
+		  </div>
+		</div>
+		
 
 		<footer class="bg-dark text-light text-center py-2 fixed-bottom footer">
 	        <p>"Copyright &#169;" Ákos Szabó - 2024</p>
@@ -99,6 +167,61 @@
 		    })
 		    .catch(error => console.error('Error loading offcanvas content:', error));
 		</script>
+		
+		<!-- Listener successful registration -->
+		<script th:inline="javascript">
+		    /*<![CDATA[*/
+		    document.addEventListener("DOMContentLoaded", function() {
+		        var regSuccess = /*[[${regSuccess}]]*/ false;
+		
+		        // Show the modal when regSuccess is true
+		        console.log('regSuccess', regSuccess);
+		        if (regSuccess) {
+		            document.getElementById('registrationModalTriggerButton').click();
+		        }
+		    });
+		    /*]]>*/
+		</script>
+		
+		<!-- Listener successful logout -->
+		<script th:inline="javascript">
+		    /*<![CDATA[*/
+		    document.addEventListener("DOMContentLoaded", function() {
+		        var logout = /*[[${logout}]]*/ false;
+		
+		        // Show the modal when regSuccess is true
+		        console.log('logout', logout);
+		        if (logout) {
+		            document.getElementById('logoutModalTriggerButton').click();
+		        }
+		    });
+		    /*]]>*/
+		</script>
+		
+		<!-- Listener session expired -->
+		<script th:inline="javascript">
+		    /*<![CDATA[*/
+		    document.addEventListener("DOMContentLoaded", function() {
+		        var sessionExpired = /*[[${sessionExpired}]]*/ false;
+		
+		        // Show the modal when regSuccess is true
+		        console.log('sessionExpired', sessionExpired);
+		        if (sessionExpired) {
+		            document.getElementById('sessionExpiredModalTriggerButton').click();
+		        }
+		    });
+		    /*]]>*/
+		</script>
+		
+		<script>
+		    // Add event listener to the question mark icon
+		    document.getElementById('questionMark').addEventListener('click', function() {
+		        // Trigger the offcanvas to open
+		        var offcanvas = new bootstrap.Offcanvas(document.getElementById('offcanvasWithBothOptions'));
+		        offcanvas.show();
+		    });
+		</script>
+		
 		
 		<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL" crossorigin="anonymous"></script>    	
 	</body>
