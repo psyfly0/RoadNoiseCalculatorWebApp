@@ -33,11 +33,11 @@ public class SortAndDifferencesController {
 	@PostMapping("differences/{fileId1}/{fileId2}")
 	public ResponseEntity<String> calculateDifferences(@PathVariable int fileId1, @PathVariable int fileId2, @RequestBody Map<String, Object> requestBody) {
 		try {
-			log.info("fileId1: {}", fileId1);
-			log.info("fileId2: {}", fileId2);
+//			log.info("fileId1: {}", fileId1);
+	//		log.info("fileId2: {}", fileId2);
 			
 			int differenceColumnToUpdate = (int) requestBody.get("differenceColumnToUpdate");
-		    log.info("differenceColumnToUpdate: {}", differenceColumnToUpdate);
+//		    log.info("differenceColumnToUpdate: {}", differenceColumnToUpdate);
 		    
 			differenceCalcService.calculateDifferences(fileId1, fileId2, differenceColumnToUpdate);
 			return ResponseEntity.ok("Difference-Calculation performed and database successfully modifed");

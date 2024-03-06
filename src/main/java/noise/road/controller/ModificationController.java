@@ -38,7 +38,7 @@ public class ModificationController {
 		
 		try {
 		
-			log.info("activeFileId, row, columnName, updatedCellValue: {}", activeFileId, row, columnName, updatedCellValue);
+	//		log.info("activeFileId, row, columnName, updatedCellValue: {}", activeFileId, row, columnName, updatedCellValue);
 			modificationService.modifyCellValue(activeFileId, row, columnName, updatedCellValue);
 			
 			return ResponseEntity.ok("Cell modification performed and saved it to the database");
@@ -57,8 +57,8 @@ public class ModificationController {
 	@GetMapping("/getMutableParameters/{activeFileId}/{rowNumber}")
 	public ResponseEntity<?> getMutableParameters(@PathVariable int activeFileId, @PathVariable int rowNumber) {
 		try {
-			log.info("activeFileId: {}", activeFileId);
-			log.info("rowNumber: {}", rowNumber);
+	//		log.info("activeFileId: {}", activeFileId);
+	//		log.info("rowNumber: {}", rowNumber);
 			
 			MutableParametersDTO fetchedMutableParams = modificationService.getMutableParametersForRow(activeFileId, rowNumber);
 			return ResponseEntity.ok(fetchedMutableParams);
@@ -78,8 +78,8 @@ public class ModificationController {
 														@RequestBody MutableParametersDTO parameters) {
 		
 		try {
-			log.info("activeFileId, rowNumber: {}", activeFileId, rowNumber);
-			log.info("MutableParams: {}", parameters);
+	//		log.info("activeFileId, rowNumber: {}", activeFileId, rowNumber);
+	//		log.info("MutableParams: {}", parameters);
 			
 			modificationService.setMutableParametersForRow(activeFileId, rowNumber, parameters);
 			
@@ -117,8 +117,8 @@ public class ModificationController {
 	                    .collect(Collectors.toList()) :
 	            Collections.emptyList();
 	    
-	    log.info("selectedRows: {}", selectedRows);
-	    log.info("selectedColumns: {}", selectedColumns);
+//	    log.info("selectedRows: {}", selectedRows);
+//	    log.info("selectedColumns: {}", selectedColumns);
 	    
 	    try {
 	    	modificationService.deleteRowsColumns(activeFileId, selectedRows, selectedColumns);

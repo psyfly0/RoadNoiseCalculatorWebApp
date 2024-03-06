@@ -23,11 +23,11 @@ public class SessionListener  implements HttpSessionListener {
 	@Autowired
     private UserDataCleanupService userDataCleanupService;
 	
-/*	@Override
+	@Override
 	public void sessionCreated(HttpSessionEvent event) {
 		HttpSession session = event.getSession();
 		session.setMaxInactiveInterval(600);
-	}*/
+	}
     
     @Override
     public void sessionDestroyed(HttpSessionEvent event) {

@@ -26,10 +26,10 @@ public class CustomLogoutHandler implements LogoutHandler {
             if (userDetails.getAuthorities().stream().anyMatch(grantedAuthority -> grantedAuthority.getAuthority().equals("ROLE_USER"))) {
                 // Cleanup for ROLE_USER
                 userDataCleanupService.cleanupUserData(userDetails.getUsername());
-            } else if (userDetails.getAuthorities().stream().anyMatch(grantedAuthority -> grantedAuthority.getAuthority().equals("ROLE_GUEST"))) {
+            } /*else if (userDetails.getAuthorities().stream().anyMatch(grantedAuthority -> grantedAuthority.getAuthority().equals("ROLE_GUEST"))) {
                 // Cleanup for ROLE_GUEST
                 userDataCleanupService.deleteGuestSchema(userDetails.getUsername());
-            }
+            }*/
         }
     }
 }

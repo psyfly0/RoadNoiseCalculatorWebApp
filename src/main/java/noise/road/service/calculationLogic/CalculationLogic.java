@@ -12,10 +12,10 @@ public class CalculationLogic {
 							MutableParametersDTO mutableParamDTO, 
 							ConstantParametersDTO constantParamDTO, Double distanceToCalculate) {
 		
-		log.info("dbfDataDTO: {}", dbfDataDTO);
-		log.info("mutableParamsDTO: {}", mutableParamDTO);
-		log.info("constantParamsDTO {}", constantParamDTO);
-		log.info("distanceToCalculate {}", distanceToCalculate);
+	//	log.info("dbfDataDTO: {}", dbfDataDTO);
+	//	log.info("mutableParamsDTO: {}", mutableParamDTO);
+	//	log.info("constantParamsDTO {}", constantParamDTO);
+	//	log.info("distanceToCalculate {}", distanceToCalculate);
 		
 		boolean isDistanceGiven = false;
 		// partial results

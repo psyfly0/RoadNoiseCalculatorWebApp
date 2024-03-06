@@ -4,6 +4,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.annotation.Order;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.access.hierarchicalroles.RoleHierarchy;
 import org.springframework.security.access.hierarchicalroles.RoleHierarchyImpl;
 import org.springframework.security.config.Customizer;
@@ -86,7 +87,7 @@ public class WebSecurityConfig {
 	    return http
 	    		
 	    		.csrf(csrf -> csrf.disable())
-	            .securityMatcher("/console/**", "/calculations/**", "/sortAndDifferences/**", "/modification/**")
+	            .securityMatcher("/console/**", "/calculations/**", "/sortAndDifferences/**", "/modification/**", "/profile/**")
 	            .authorizeHttpRequests(auth -> {
 	            	auth.requestMatchers("/console/display", "/console/displayData",
 	            			"/console/saveFile/**", "/console/saveProtectiveDistance/**",
@@ -95,7 +96,7 @@ public class WebSecurityConfig {
 	            	auth.requestMatchers("/console/**").hasAnyRole("ADMIN", "USER");
 	                auth.anyRequest().authenticated();
 	            })	 
-	            .httpBasic(Customizer.withDefaults())
+	          //  .httpBasic(Customizer.withDefaults())
 	            .build();
 	}
 	
@@ -122,6 +123,7 @@ public class WebSecurityConfig {
 	    return http
 	            .authorizeHttpRequests(auth -> {
 	                    auth.requestMatchers("/").permitAll();
+	                    auth.requestMatchers("/forgotPassword/**").permitAll();
 	                    auth.requestMatchers("/static/**").permitAll();
 	                    auth.requestMatchers("/registration/**").permitAll();
 	                    auth.requestMatchers("/contact/**").permitAll();

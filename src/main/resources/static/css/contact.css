@@ -1,0 +1,38 @@
+.spinner {
+    position: fixed;
+    top: 45%;
+    left: 45%;
+text-align: center;
+    z-index: 999;
+    
+}
+
+.spinner-border {
+	--bs-spinner-width: 6rem;
+    --bs-spinner-height: 6rem;
+    --bs-spinner-border-width: 0.75rem;
+    color: yellow;
+    animation: rotateAndBlink 1s linear infinite;
+}
+
+.spinner-border span {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+}
+
+@keyframes rotateAndBlink {
+    0% {
+        opacity: 1;
+        transform: rotate(0deg);
+    }
+    50% {
+        opacity: 0;
+        transform: rotate(180deg);
+    }
+    100% {
+        opacity: 1;
+        transform: rotate(360deg);
+    }
+}

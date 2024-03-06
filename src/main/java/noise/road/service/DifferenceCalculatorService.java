@@ -97,7 +97,7 @@ public class DifferenceCalculatorService {
                 log.warn("Index out of bounds for resultsEntitiesToUpdate at index {}", i);
             }   
 		}
-		log.info("Differences - resultEntitiesList: {}", resultEntitiesList);
+	//	log.info("Differences - resultEntitiesList: {}", resultEntitiesList);
     	resultsRepository.saveAll(resultEntitiesList);	
 		
 	}

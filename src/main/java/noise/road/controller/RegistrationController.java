@@ -108,7 +108,7 @@ public class RegistrationController {
     	String pass = "guest";
     	String password = pass + guestCounter;
     	User newGuest = userDetailsService.registerNewUser(incrementedUsername, password, null);
-    	log.info("Authenticating guest: username={}, encodedPassword={}", username, newGuest.getPassword());
+    //	log.info("Authenticating guest: username={}, encodedPassword={}", username, newGuest.getPassword());
     	
     	try {    	    
     		UserDetails userDetails = userDetailsService.loadUserByUsername(newGuest.getUsername());
@@ -121,7 +121,7 @@ public class RegistrationController {
             session.setAttribute("guest", true);
             session.setMaxInactiveInterval(600);
             boolean isauth = authentication.isAuthenticated();
-    	    log.info("is authenticated: {}", isauth);
+  //  	    log.info("is authenticated: {}", isauth);
     	} catch (Exception e) {
     		log.error("auth error: {}", e);
     	}

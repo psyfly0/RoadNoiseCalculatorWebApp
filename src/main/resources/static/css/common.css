@@ -11,3 +11,19 @@ body {
 .footer p {
     margin: 0; 
 }
+
+@media (max-width: 768px) {
+    .offcanvas {
+        width: 100%;
+        max-width: 100%;
+    }
+}
+
+#footerButton {
+	font-size: medium;
+}
+
+.dropdown-menu .dropdown-item {
+        color: white;
+		font-size: medium;
+    }

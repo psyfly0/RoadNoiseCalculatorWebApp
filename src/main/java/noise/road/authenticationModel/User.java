@@ -1,7 +1,10 @@
 package noise.road.authenticationModel;
 
+import java.time.Duration;
+import java.time.LocalDateTime;
 import java.util.Collection;
 
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
@@ -30,6 +33,7 @@ public class User {
 	private String password;
 	private String email;
 	private boolean enabled;
+
 	
 	@ManyToMany(fetch = FetchType.EAGER)
 	@JoinTable( 

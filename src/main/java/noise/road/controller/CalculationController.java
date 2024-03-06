@@ -37,7 +37,7 @@ public class CalculationController {
 	@PostMapping("/laeq/{fileId}")
 	public ResponseEntity<String> calculateLAeq(@PathVariable int fileId) {
 		try {
-			log.info("fileId: {}", fileId);
+	//		log.info("fileId: {}", fileId);
 			calculationsService.calculateLAeq(fileId);	
 			return ResponseEntity.ok("LAeq-Calculation performed and database successfully modifed");
 		} catch (DataAccessException e) {
@@ -94,8 +94,8 @@ public class CalculationController {
 	@PostMapping("givenDistance/{fileId}/{userInput}")
 	public ResponseEntity<String> calculateNoiseAtGivenDistance(@PathVariable int fileId, @PathVariable double userInput) {
 		try {
-			log.info("fileId: {}", fileId);
-			log.info("userInput: {}", userInput);
+	//		log.info("fileId: {}", fileId);
+	//		log.info("userInput: {}", userInput);
 			calculationsService.calculateNoiseAtGivenDistance(fileId, userInput);
 			return ResponseEntity.ok("NoiseAtGivenDistance-Calculation performed and database successfully modifed");
 		} catch (DataAccessException e) {

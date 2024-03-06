@@ -1,8 +1,20 @@
 <!DOCTYPE html>
 <html lang="hu">
 	<head>
+		<!-- Google tag (gtag.js) -->
+		<script async src="https://www.googletagmanager.com/gtag/js?id=G-CDR561E72H"></script>
+		<script>
+		  window.dataLayer = window.dataLayer || [];
+		  function gtag(){dataLayer.push(arguments);}
+		  gtag('js', new Date());
+		
+		  gtag('config', 'G-CDR561E72H');
+		</script>
+		
 		<meta charset="utf-8">
-	    <title>Főoldal</title>
+		<meta name="viewport" content="width=device-width, initial-scale=1">
+		<meta name="keywords" content="közúti zajszámító, zajszámító applikáció, zaj, közúti zajterhelés, védőtávolság, hatásterület, egyenértékű A-hangyomásszint">
+	    <title>KözútiZajSzámítóApp - Számítások</title>
 	    <!-- Load React Libraries -->
 	    <!-- Note: when deploying, replace “development.js” with “production.min.js”. -->
 		<script src="https://unpkg.com/react@17/umd/react.production.min.js" crossorigin></script>
@@ -21,6 +33,9 @@
                 <ul class="navbar-nav">
                     <li class="nav-item">
                         <a class="nav-link text-light" href="/">Főoldal</a>  
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link text-light" href="/profile">Saját profil</a>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link text-light" href="/login">Bejelentkezés</a>
@@ -53,7 +68,7 @@
         
         <div class="offcanvas offcanvas-start w-25" data-bs-scroll="true" tabindex="-1" id="offcanvasWithBothOptions" aria-labelledby="offcanvasWithBothOptionsLabel" data-bs-theme="dark">
 		  <div class="offcanvas-header">
-		    <h5 class="offcanvas-title fw-bold" id="offcanvasWithBothOptionsLabel">Útmutató</h5>
+		    <h5 class="offcanvas-title fw-bold fs-3" id="offcanvasWithBothOptionsLabel">Útmutató</h5>
 		    <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
 		  </div>
 		  <div class="offcanvas-body" id="offcanvasContentContainer">
@@ -74,6 +89,12 @@
                 </a>
                 </div>
 			</div> 
+			
+			<!-- spinner for loading status -->
+			<div id="spinner" class="spinner-border spinner" role="status" style="display: none;">
+			    <span>Loading...</span>
+			</div>
+			
 			
 			<!-- row 1: calculations, given distance, submit button -->
 			<div class="row pt-2 pb-2">
@@ -121,7 +142,7 @@
 			</div>
 			
 			<!-- row 3: save --> 
-			<div class="row pt-2 pb-2">  
+			<div class="row pt-2">  
 				<div id="saveFile">
 					<button class="btn btn-dark" onclick="handleFileSave()">Fájl mentése</button>
 					<button class="btn btn-dark" onclick="handleProtectiveDistanceSave()">Védőtávolság mentése</button>
@@ -141,19 +162,40 @@
 			<!-- Horizontal line for separation -->
 			<hr id="line" class="my-3">
 			
-			<!-- row 5: tabs and table --> 
+			
 		</div>
-			<div id="root" class="container-fluid"></div>
-		
+		<!-- row 5: tabs and table --> 
+			<div id="root" class="container-fluid pb-5 mb-5"></div>
 			
-			
-		
-		
-		<footer class="bg-dark text-light text-center py-2 fixed-bottom footer">
-	        <p>"Copyright &#169;" Ákos Szabó - 2024</p>
+		<div class="mt-5 pt-5">
+    	<footer class="bg-dark text-light text-center py-2 fixed-bottom footer">
+			<div class="row align-items-center">			
+				<div class="col-md-4 text-start ps-4">
+					<div class="btn-group dropup" data-bs-theme="dark">
+						<button type="button" id="footerButton" class="btn btn-dark dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
+							v2.1 - 2024.03.06.
+						</button>
+						<ul id="footer-menu" class="dropdown-menu">
+							<li><a class="dropdown-item disabled" href="#">v1.0 - 2024.02.08.</a></li>
+					    	<li><a class="dropdown-item disabled" href="#">v2.0 - 2024.02.23.</a></li>				    	
+					  	</ul>
+					</div>
+				</div>
+				<div class="col-md-4">
+					<p>"Copyright &#169;" Ákos Szabó - 2024</p>
+				</div>
+				<div class="col-md-4 text-end pe-4">
+					<p>TESZTELÉS ALATT! Hibák előfordulhatnak a programban!</p>
+				</div>	        
+	        </div>
 		</footer>
+			
+		</div>	
 		
-		<script>
+		
+
+		
+		<script async>
 		  // Use fetch to load the offcanvas content
 		  fetch('/static/offcanvas-content.html')
 		    .then(response => response.text())
@@ -163,31 +205,12 @@
 		    .catch(error => console.error('Error loading offcanvas content:', error));
 		</script>
 		
-		<script>
-		    setInterval(function() {
-		        fetch("/session/check-session")
-		            .then(response => {
-		                if (!response.ok) {
-		                    if (response.status === 401) { // Unauthorized (session expired)
-		                        window.location.replace("/login?sessionExpired=true");
-		                    } else {
-		                        throw new Error('Network response was not ok');
-		                    }
-		                }
-		                return response;
-		            })
-		            .catch(error => {
-		                console.error('There was a problem with the fetch operation:', error);
-		                // Handle error appropriately, e.g., inform the user
-		            });
-		    }, 660000);
-		</script>
 		
 		
 	<!-- 	<div id="table-container"></div>-->
-		<script type="text/babel" src="/displayJS/display.js"></script>
+		<script async type="text/babel" src="/displayJS/display.js"></script>
 		
-		 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL" crossorigin="anonymous"></script>    	
+		 <script async src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL" crossorigin="anonymous"></script>    	
 		
 	</body>
 </html>

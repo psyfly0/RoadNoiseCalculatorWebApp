@@ -60,10 +60,14 @@ public class ModifyUserController {
     
     @GetMapping("/deleteUser/{userId}")
     public String deleteUser(@PathVariable Integer userId) {
-    	User user = userService.getUserById(userId);
-    	String username = user.getUsername();
-    	
-        userService.deleteUser(userId, username);
+    	try {
+	    	User user = userService.getUserById(userId);
+	    	String username = user.getUsername();
+	    	
+	        userService.deleteUser(userId, username);
+    	} catch (Exception e) {
+    		e.printStackTrace();
+    	}
         return "redirect:/admin/registeredUsers";
     }
 }

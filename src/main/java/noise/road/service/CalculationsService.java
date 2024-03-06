@@ -36,17 +36,17 @@ public class CalculationsService {
 
     		dbfDataDTOList = new ArrayList<>();
     		dbfDataDTOList = dataService.fetchDbfData(fileId);
-    		log.info("dbfDataDTOList: {}", dbfDataDTOList);
+  //  		log.info("dbfDataDTOList: {}", dbfDataDTOList);
 
             constantParameters = dataService.fetchConstantParameters();
-            log.info("constantParameters: {}", constantParameters);
+    //        log.info("constantParameters: {}", constantParameters);
 
     		mutableParameters = new ArrayList<>();
     		mutableParameters = dataService.fetchMutableParameters(fileId);
-    		log.info("mutableParameters: {}", mutableParameters);
+  //  		log.info("mutableParameters: {}", mutableParameters);
 
     		resultsList = getAllResults(fileId);
-    		log.info("resultsList: {}", resultsList);
+    //		log.info("resultsList: {}", resultsList);
 
     }
     

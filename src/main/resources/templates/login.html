@@ -1,7 +1,20 @@
 <!DOCTYPE html>
 <html xmlns:th="https://www.thymeleaf.org">
 	<head>
-		<title>Bejelentkezés</title>
+		<!-- Google tag (gtag.js) -->
+		<script async src="https://www.googletagmanager.com/gtag/js?id=G-CDR561E72H"></script>
+		<script>
+		  window.dataLayer = window.dataLayer || [];
+		  function gtag(){dataLayer.push(arguments);}
+		  gtag('js', new Date());
+		
+		  gtag('config', 'G-CDR561E72H');
+		</script>
+		
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1">
+		<meta name="keywords" content="közúti zajszámító, zajszámító applikáció, zaj, közúti zajterhelés, védőtávolság, hatásterület, egyenértékű A-hangyomásszint">
+		<title>KözútiZajSzámítóApp - Bejelentkezés</title>
 		<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
 		<link rel="stylesheet" type="text/css" href="/static/css/common.css">
 		<link rel="stylesheet" type="text/css" href="/static/css/login.css">
@@ -39,9 +52,9 @@
           </div>
         </nav>
         
-        <div class="offcanvas offcanvas-start w-25" data-bs-scroll="true" tabindex="-1" id="offcanvasWithBothOptions" aria-labelledby="offcanvasWithBothOptionsLabel" data-bs-theme="dark">
+        <div class="offcanvas offcanvas-start" data-bs-scroll="true" tabindex="-1" id="offcanvasWithBothOptions" aria-labelledby="offcanvasWithBothOptionsLabel" data-bs-theme="dark">
 		  <div class="offcanvas-header">
-		    <h5 class="offcanvas-title fw-bold" id="offcanvasWithBothOptionsLabel">Útmutató</h5>
+		    <h5 class="offcanvas-title fw-bold fs-3" id="offcanvasWithBothOptionsLabel">Útmutató</h5>
 		    <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
 		  </div>
 		  <div class="offcanvas-body" id="offcanvasContentContainer">
@@ -49,35 +62,38 @@
 		  </div>
 		</div>
 		
-		
+		<div class="container-fluid">
 		<section class="vh-100">
 	  		<div class="container-fluid h-custom">
 			    <div class="row d-flex justify-content-center align-items-center h-100">
 					<div class="col-md-9 col-lg-6 col-xl-5 mt-5 pt-5 pb-5">
 						<img src="/static/images/soundWaveEar.jpeg" class="img-fluid" alt="Sample image">
 					</div>
-					<div class="col-md-8 col-lg-6 col-xl-4 offset-xl-1">
+					<div class="col-md-8 col-lg-6 col-xl-4 offset-xl-1 pb-5">
 												<p class="text-center text-dark-emphasis h1 fw-bold mb-5 mx-1 mx-md-4 mt-4">Bejelentkezés</p>
 						<div class="text-danger" th:if="${param.error}">
 							Hibás felhasználónév vagy jelszó</div>
 				    	<form th:action="@{/login}" method="post" id="loginForm" class="mb-4">
 					      <!-- Username input -->
-							<div class="form-outline mb-4">
+							<div class="form-floating mb-4">
 								<input type="text" id="form3Example3" name="username" class="form-control form-control-lg" placeholder="Felhasználó név" />
+								<label>Felhasználó név</label>
 							</div>				
 					      <!-- Password input -->
-					      	<div class="form-outline mb-3">
+					      	<div class="form-floating mb-3">
 					        	<input type="password" id="form3Example4" name="password" class="form-control form-control-lg" placeholder="Jelszó" />
+					        	<label>Jelszó</label>
+				      			<p class="text-light small fw-bold mt-1 pt-10 mb-10">Elfelejtetted a jelszavad? <a href="/forgotPassword" class="link-danger">Új jelszó igénylése</a></p>
 					      	</div>
 					
-					      	<div class="text-center text-lg-start mt-4 pt-2 mb-4">
-					        	<input type="submit" class="btn btn-secondary btn-lg" value="Bejelentkezés" style="padding-left: 2.5rem; padding-right: 2.5rem;"></input>
+					      	<div class="text-lg-start mt-4 pt-2 mb-4">
+					        	<input type="submit" class="btn btn-secondary btn-lg" value="Bejelentkezés" style="padding-left: 1rem; padding-right: 1rem;"></input>
 					        	<p class="text-light small fw-bold mt-1 pt-10 mb-10">Nincs felhasználód még? <a href="/registration" class="link-danger">Regisztráció</a></p>
 					      	</div>
 				    	</form>
 					    					    
-					    <form th:action="@{/registration/registerGuest}" method="post" class="mt-4">
-							<input type="submit" class="btn btn-secondary btn-lg" value="Bejelentkezés vendégként" style="padding-left: 2.5rem; padding-right: 2.5rem;"></input>
+					    <form th:action="@{/registration/registerGuest}" method="post" class="mt-4 mb-5 pb-5">
+							<input type="submit" class="btn btn-secondary btn-lg" value="Bejelentkezés vendégként" style="padding-left: 1rem; padding-right: 1rem;"></input>
 							<span id="questionMark" class="btn text-light ms-2 rounded-circle d-inline-flex justify-content-center align-items-center border border-2 border-white">?</span>
 						</form>		    
 					</div>
@@ -85,6 +101,30 @@
 			</div>		
 		</section>
 		
+		
+    	<footer class="bg-dark text-light text-center py-2 fixed-bottom footer">
+			<div class="row align-items-center">			
+				<div class="col-md-4 text-start ps-4">
+					<div class="btn-group dropup" data-bs-theme="dark">
+						<button type="button" id="footerButton" class="btn btn-dark dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
+							v2.1 - 2024.03.06.
+						</button>
+						<ul id="footer-menu" class="dropdown-menu">
+							<li><a class="dropdown-item disabled" href="#">v1.0 - 2024.02.08.</a></li>
+					    	<li><a class="dropdown-item disabled" href="#">v2.0 - 2024.02.23.</a></li>				    	
+					  	</ul>
+					</div>
+				</div>
+				<div class="col-md-4">
+					<p>"Copyright &#169;" Ákos Szabó - 2024</p>
+				</div>
+				<div class="col-md-4 text-end pe-4">
+					<p>TESZTELÉS ALATT! Hibák előfordulhatnak a programban!</p>
+				</div>	        
+	        </div>
+		</footer>
+		
+		</div>
 		<!-- Registration Success Modal -->
 		<!-- Button trigger modal -->
 		<button type="button" id="registrationModalTriggerButton" class="btn btn-primary d-none" data-bs-toggle="modal" data-bs-target="#staticBackdrop">
@@ -153,12 +193,56 @@
 		  </div>
 		</div>
 		
-
-		<footer class="bg-dark text-light text-center py-2 fixed-bottom footer">
-	        <p>"Copyright &#169;" Ákos Szabó - 2024</p>
-		</footer>
+		<!-- New Password Sent Success Modal -->
+		<!-- Button trigger modal -->
 		
-		<script>
+		<button type="button" id="newPasswordSentModalTriggerButton" class="btn btn-primary d-none" data-bs-toggle="modal" data-bs-target="#staticBackdropNewPasswordSent">
+		  Launch static backdrop modal
+		</button>
+		
+		<div class="modal fade" id="staticBackdropNewPasswordSent" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+		  <div class="modal-dialog">
+		    <div class="modal-content">
+		      <div class="modal-header">
+		        <h1 class="modal-title fs-5" id="staticBackdropLabel">Elfelejtett jelszó</h1>
+		      </div>
+		      <div class="modal-body">
+		        <p>Az új jelszavad a megadott email-címre elküldve! Belépés után változtasd meg!</p>
+		      </div>
+		      <div class="modal-footer">
+				  <a class="btn btn-dark" role="button" href="/login">OK</a>
+		      <!--  <button type="button" class="btn btn-dark" data-bs-dismiss="modal">OK</button>-->
+		      </div>
+		    </div>
+		  </div>
+		</div>
+		
+		<!-- User Deleted Success Modal -->
+		<!-- Button trigger modal -->
+		
+		<button type="button" id="userDeletedModalTriggerButton" class="btn btn-primary d-none" data-bs-toggle="modal" data-bs-target="#staticBackdropUserDeleted">
+		  Launch static backdrop modal
+		</button>
+		
+		<div class="modal fade" id="staticBackdropUserDeleted" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+		  <div class="modal-dialog">
+		    <div class="modal-content">
+		      <div class="modal-header">
+		        <h1 class="modal-title fs-5" id="staticBackdropLabel">Felhasználó törlése</h1>
+		      </div>
+		      <div class="modal-body">
+		        <p>Sikeresen törölted magad a rendszerből!</p>
+		      </div>
+		      <div class="modal-footer">
+				  <a class="btn btn-dark" role="button" href="/login">OK</a>
+		      <!--  <button type="button" class="btn btn-dark" data-bs-dismiss="modal">OK</button>-->
+		      </div>
+		    </div>
+		  </div>
+		</div>
+		
+		
+		<script async>
 		  // Use fetch to load the offcanvas content
 		  fetch('/static/offcanvas-content.html')
 		    .then(response => response.text())
@@ -168,6 +252,36 @@
 		    .catch(error => console.error('Error loading offcanvas content:', error));
 		</script>
 		
+		<!-- Listener successful user deleted -->
+		<script th:inline="javascript">
+		    /*<![CDATA[*/
+		    document.addEventListener("DOMContentLoaded", function() {
+		        var userDeleted = /*[[${userDeleted}]]*/ false;
+		
+		        // Show the modal when regSuccess is true
+		        console.log('userDeleted', userDeleted);
+		        if (userDeleted) {
+		            document.getElementById('userDeletedModalTriggerButton').click();
+		        }
+		    });
+		    /*]]>*/
+		</script>
+		
+		<!-- Listener successful new password sent -->
+		<script th:inline="javascript">
+		    /*<![CDATA[*/
+		    document.addEventListener("DOMContentLoaded", function() {
+		        var newPasswordSent = /*[[${newPasswordSent}]]*/ false;
+		
+		        // Show the modal when regSuccess is true
+		        console.log('newPasswordSent', newPasswordSent);
+		        if (newPasswordSent) {
+		            document.getElementById('newPasswordSentModalTriggerButton').click();
+		        }
+		    });
+		    /*]]>*/
+		</script>
+
 		<!-- Listener successful registration -->
 		<script th:inline="javascript">
 		    /*<![CDATA[*/
@@ -213,7 +327,7 @@
 		    /*]]>*/
 		</script>
 		
-		<script>
+		<script async>
 		    // Add event listener to the question mark icon
 		    document.getElementById('questionMark').addEventListener('click', function() {
 		        // Trigger the offcanvas to open
@@ -223,6 +337,6 @@
 		</script>
 		
 		
-		<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL" crossorigin="anonymous"></script>    	
+		<script async src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL" crossorigin="anonymous"></script>    	
 	</body>
 </html>

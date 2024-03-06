@@ -209,6 +209,8 @@ public class SaveDisplayService {
 			return speed;
 		} else if (speed > 70 && speed <= 90) {
 			return 70;
+		} else if (speed > 90 && speed <= 110) {
+			return 70;
 		} else {
 			return 80;
 		}

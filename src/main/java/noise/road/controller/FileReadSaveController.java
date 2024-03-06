@@ -95,8 +95,9 @@ public class FileReadSaveController {
 	        List<DbfDataPreprocessDTO> requestBody = saveDbfRequest.getMappedData();
 	        List<Geometry> geometries = shapeData.getGeometries();
 	        String username = auth.getName();
+	  
 	        
-	        log.info("requestBody: {}", requestBody);
+	  //      log.info("requestBody: {}", requestBody);
 	        
 	        saveDisplayService.saveData(requestBody, fileName, geometries, username);
 	    	
@@ -120,7 +121,7 @@ public class FileReadSaveController {
     
     @PostMapping("/saveMutableParameters")
     public ResponseEntity<String> saveMutableParametersToDatabase(@RequestBody MutableParametersDTO parameters, Authentication auth) {
-    	log.info("Mutable parameters: {}", parameters);
+    //	log.info("Mutable parameters: {}", parameters);
     	try {
     		String username = auth.getName();
 	    	mutableParametersService.saveInitialMutableParameters(parameters, uploadedDataLength, username);	    	
@@ -143,8 +144,8 @@ public class FileReadSaveController {
 												@PathVariable String fileName, 
 												@RequestBody List<String> columnNames) {
     	
-    	log.info("fileName: {}", fileName);
-    	log.info("Received column names: {}", columnNames);
+    //	log.info("fileName: {}", fileName);
+    //	log.info("Received column names: {}", columnNames);
     	
     	File generatedZipFile = null;
     	

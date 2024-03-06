@@ -58,6 +58,23 @@ public class MyUserDetailsService implements UserDetailsService {
         return userRepository.findAll();
     }
     
+    public void saveUser(User user) {
+    	userRepository.save(user);
+    }
+    
+    public User getUserByUsername(String username) {
+    	return userRepository.findByUsername(username);
+    }
+    
+    public User getUserByEmail(String email) {
+    	return userRepository.findByEmail(email);
+    }
+    
+    public void deleteUser(User user) {
+    	userRepository.delete(user);
+    }
+
+    
     public int getMaxGuest() {
     	List<User> guestUsers = userRepository.findByUsernameStartingWith("guest");
     	// Determine the max counter value

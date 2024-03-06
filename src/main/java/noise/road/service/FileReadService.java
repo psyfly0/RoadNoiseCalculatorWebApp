@@ -87,15 +87,24 @@ public class FileReadService {
         return null;
     }
            
-    private void extractEntry(ZipInputStream zipInputStream, File entryFile) throws IOException {
-        byte[] buffer = new byte[1024];
-        try (BufferedOutputStream bos = new BufferedOutputStream(new FileOutputStream(entryFile))) {
-            int len;
-            while ((len = zipInputStream.read(buffer)) > 0) {
-                bos.write(buffer, 0, len);
-            }
-        }
-    }
+	private void extractEntry(ZipInputStream zipInputStream, File entryFile) throws IOException {
+	    byte[] buffer = new byte[1024];
+	    try (BufferedOutputStream bos = new BufferedOutputStream(new FileOutputStream(entryFile))) {
+	        int len;
+	        while ((len = zipInputStream.read(buffer)) > 0) {
+	            bos.write(buffer, 0, len);
+	        }
+	    }
+
+	    // Rename the file to lowercase if it's not already
+	    String lowercaseFileName = entryFile.getName().toLowerCase();
+	    if (!lowercaseFileName.equals(entryFile.getName())) {
+	        File newFile = new File(entryFile.getParent(), lowercaseFileName);
+	        if (!entryFile.renameTo(newFile)) {
+	            throw new IOException("Failed to rename file: " + entryFile.getName());
+	        }
+	    }
+	}
     
     
    // Method to extract geometries and schema from a shapefile

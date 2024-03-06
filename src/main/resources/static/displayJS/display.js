@@ -52,16 +52,37 @@
 			    'R_I_ak_kat_E': 'acousticCatNight1R',
 			    'R_II_ak_kat_E': 'acousticCatNight2R',
 			    'R_III_ak_kat_E': 'acousticCatNight3R',
-			    'LAeq Nappal' : 'laeqDay',
-			    'LAeq Éjjel' : 'laeqNight',
-			    'LW Nappal' : 'lwDay',
-			    'LW Éjjel' : 'lwNight',
-			    'Védőtávolság Nappal' : 'protectiveDistanceDay',
-			    'Védőtávolság Éjjel' : 'protectiveDistanceNight',
-			    'Hatásterület Nappal' : 'impactAreaDay',
-			    'Hatásterület Éjjel' : 'impactAreaNight',
+			    'LAeq Nappal(ref) [dB]' : 'laeqDay',
+			    'LAeq Éjjel(ref) [dB]' : 'laeqNight',
+			    'LW Nappal [dB]' : 'lwDay',
+			    'LW Éjjel [dB]' : 'lwNight',
+			    'Védőtávolság Nappal [m]' : 'protectiveDistanceDay',
+			    'Védőtávolság Éjjel [m]' : 'protectiveDistanceNight',
+			    'Hatásterület Nappal [m]' : 'impactAreaDay',
+			    'Hatásterület Éjjel [m]' : 'impactAreaNight',
 			};
 		}
+		
+	const requiredFields = {
+	    'I_km/h': 'speed1',
+	    'II_km/h': 'speed2',
+	    'III_km/h': 'speed3',
+	    'I_ak_kat_N': 'acousticCatDay1',
+	    'II_ak_kat_N': 'acousticCatDay2',
+	    'III_ak_kat_N': 'acousticCatDay3',
+	    'I_ak_kat_E': 'acousticCatNight1',
+	    'II_ak_kat_E': 'acousticCatNight2',
+	    'III_ak_kat_E': 'acousticCatNight3',
+	    'R_I_km/h': 'speed1R',
+	    'R_II_km/h': 'speed2R',
+	    'R_III_km/h': 'speed3R',
+	    'R_I_ak_kat_N': 'acousticCatDay1R',
+	    'R_II_ak_kat_N': 'acousticCatDay2R',
+	    'R_III_ak_kat_N': 'acousticCatDay3R',
+	    'R_I_ak_kat_E': 'acousticCatNight1R',
+	    'R_II_ak_kat_E': 'acousticCatNight2R',
+	    'R_III_ak_kat_E': 'acousticCatNight3R',		
+	};
     
 		    
 	const editableColumns = [
@@ -113,6 +134,15 @@
 		'slopeElevation' : true
 	};
 	
+	const showSpinner = () => {
+	    document.getElementById('spinner').style.display = 'block';
+	};
+	
+	// Function to hide the loading indicator
+	const hideSpinner = () => {
+	    document.getElementById('spinner').style.display = 'none';
+	};
+	
 
     let differenceColumnDefault = [0, 1, 2];
     let differenceColumnTemp = [];
@@ -122,9 +152,12 @@
 	let previousDifferenceColumnTemp;
 	let previousDifferenceColumnDefault;
 	
+	let loading = true;
+	
 	function handleExcelSave() {
 		checkSession();
-		document.body.style.cursor = "wait"; 
+	//	document.body.style.cursor = "wait"; 
+		showSpinner();
 		console.log('groupedData[activeFileId]', groupedData[activeFileId]);
 		console.log('groupedData[activeFileId][0]', groupedData[activeFileId][0]);
 		if (groupedData[activeFileId] === null) {
@@ -162,16 +195,19 @@
 	            a.click();
 	            a.remove();
 	            window.URL.revokeObjectURL(url);
-	            document.body.style.cursor = "auto"; 
+	        //    document.body.style.cursor = "auto"; 
+	        	hideSpinner();
         	} else {
 				const errorMessage = await response.text();
 	            console.error('Error during saving the file:', errorMessage);
 	            alert(`Hiba: ${errorMessage}`);
+	            hideSpinner();
 	            throw new Error('Network response was not ok');
 			}
 		})
 		.catch((error) => {
 			console.error('Error in saving the file:', error);
+			hideSpinner();
 		});
 		
 	}
@@ -231,7 +267,8 @@
 	// Function to delete selected rows and columns
 	function deleteSelected() {
 		checkSession();
-		document.body.style.cursor = "wait"; 
+	//	document.body.style.cursor = "wait"; 
+		showSpinner();
         const selectedRowNumbers = Array.from(selectedRows); // Get an array of selected row numbers
         const incrementedRowNumbers = selectedRowNumbers.map(rowNumber => rowNumber + 1);
 	    // Ensure selectedColumns contains keys from columnMapping
@@ -269,17 +306,20 @@
 				handleDeleteRowsColumns();
 			//	renderTable(groupedData[activeFileId]);
 				fetchDataAndRenderTabs();
-				document.body.style.cursor = "auto"; 
+			//	document.body.style.cursor = "auto"; 
+				hideSpinner();
 			} else {
 				const errorMessage = response.text();
 	            console.error('Error during deleting rows/columns:', errorMessage);
 	            alert(`Hiba: ${errorMessage}`);
+	            hideSpinner();
 	            throw new Error('Network response was not ok');
 			}
 	    })
 	    .catch(error => {
 	        // Handle any errors that occur during the fetch
 	        console.error('Error:', error);
+	        hideSpinner();
 	    });
 	}
 	
@@ -345,7 +385,7 @@
 	    selectedColumns.forEach(columnIndex => {
 	        const cellsInColumn = Array.from(table.querySelectorAll(`th:nth-child(${columnIndex + 1}), td:nth-child(${columnIndex + 1})`));
 	        cellsInColumn.forEach(cell => {
-	            cell.style.backgroundColor = 'lightblue';
+	            cell.classList.add('highlighted-cell');
 	        });
 	    });
 	    
@@ -357,7 +397,7 @@
 	        const row = rows[rowIndex]; // Access the rows in the <tbody> directly
 	        const cellsInRow = Array.from(row.cells);
 	        cellsInRow.forEach(cell => {
-	            cell.style.backgroundColor = 'lightblue';
+	            cell.classList.add('highlighted-cell');
 	        });
 	    });
 	};
@@ -367,22 +407,27 @@
 	    const allCells = Array.from(table.querySelectorAll('td, th'));
 	    allCells.forEach(cell => {
 	        cell.style.backgroundColor = '';
+	        cell.classList.remove('highlighted-cell');
 	    });
 	};
 			
 	// handle ImpactArea Save
 	function handleImpactAreaSave() {
 		checkSession();
-		document.body.style.cursor = "wait"; 
+		//document.body.style.cursor = "wait"; 
+		showSpinner();
 		if (groupedData[activeFileId] === null) {
+			hideSpinner();
 			return;
 		}
 		if (groupedData[activeFileId][0].impactAreaDay === null) {
 			alert('Hatásterület Nappal mező nincs kiszámolva!');
+			hideSpinner();
 			return;
 		}
 		if (groupedData[activeFileId][0].impactAreaNight === null) {
 			alert('Hatásterület Éjjel mező nincs számolva!');
+			hideSpinner();
 			return;
 		}
 		
@@ -407,32 +452,39 @@
 	            a.click();
 	            a.remove();
 	            window.URL.revokeObjectURL(url);
-	            document.body.style.cursor = "auto"; 
+	            //document.body.style.cursor = "auto"; 
+	            hideSpinner();
         	} else {
 				const errorMessage = await response.text();
 	            console.error('Error during saving impactArea:', errorMessage);
 	            alert(`Hiba: ${errorMessage}`);
+	            hideSpinner();
 	            throw new Error('Network response was not ok');
 			}
 		})
 		.catch((error) => {
 			console.error('Error in saving the file:', error);
+			hideSpinner();
 		});		
 	}	
 	
 	// handle ProtectiveDistance Save
 	function handleProtectiveDistanceSave() {
 		checkSession();
-		document.body.style.cursor = "wait"; 
+		//document.body.style.cursor = "wait"; 
+		showSpinner();
 		if (groupedData[activeFileId] === null) {
+			hideSpinner();
 			return;
 		}
 		if (groupedData[activeFileId][0].protectiveDistanceDay === null) {
 			alert('Védőtávolság Nappal mező nincs kiszámolva!');
+			hideSpinner();
 			return;
 		}
 		if (groupedData[activeFileId][0].protectiveDistanceNight === null) {
 			alert('Védőtávolság Éjjel mező nincs számolva!');
+			hideSpinner();
 			return;
 		}
 		
@@ -457,23 +509,27 @@
 	            a.click();
 	            a.remove();
 	            window.URL.revokeObjectURL(url);
-	            document.body.style.cursor = "auto"; 
+	            //document.body.style.cursor = "auto"; 
+	            hideSpinner();
         	} else {
 				const errorMessage = await response.text();
 	            console.error('Error during saving protectiveDistance:', errorMessage);
 	            alert(`Hiba: ${errorMessage}`);
+	            hideSpinner();
 	            throw new Error('Network response was not ok');
 			}
 		})
 		.catch((error) => {
 			console.error('Error in saving the file:', error);
+			hideSpinner();
 		});
 	}
 			
 	// handle File Save
 	function handleFileSave() {
 		checkSession();
-		document.body.style.cursor = "wait"; 
+		//document.body.style.cursor = "wait"; 
+		showSpinner();
 		console.log('groupedData[activeFileId]', groupedData[activeFileId]);
 		console.log('groupedData[activeFileId][0]', groupedData[activeFileId][0]);
 		if (groupedData[activeFileId] === null) {
@@ -481,10 +537,12 @@
 		}
 		if (groupedData[activeFileId][0].lwDay === null) {
 			alert('LW Nappal mező nincs kiszámolva!');
+			hideSpinner();
 			return;
 		}
 		if (groupedData[activeFileId][0].lwNight === null) {
 			alert('LW Éjjel mező nincs számolva!');
+			hideSpinner();
 			return;
 		}
 		
@@ -519,16 +577,19 @@
 	            a.click();
 	            a.remove();
 	            window.URL.revokeObjectURL(url);
-	            document.body.style.cursor = "auto"; 
+	            //document.body.style.cursor = "auto"; 
+	            hideSpinner();
         	} else {
 				const errorMessage = await response.text();
 	            console.error('Error during saving the file:', errorMessage);
 	            alert(`Hiba: ${errorMessage}`);
+	            hideSpinner();
 	            throw new Error('Network response was not ok');
 			}
 		})
 		.catch((error) => {
 			console.error('Error in saving the file:', error);
+			hideSpinner();
 		});
 		
 	}
@@ -557,7 +618,7 @@
 				const errorMessage = await response.text();
                 console.error('Error occured during mutable params modification:', errorMessage);
                 alert(`Hiba: ${errorMessage}`);
-	            throw new Error('Failed to save data to the backend');
+	            return;
 	        }
 		    const data = await response.json();
 		    
@@ -630,7 +691,8 @@
 		    });
 		    
 		    const handleSubmit = () => {
-				document.body.style.cursor = "wait"; 
+				//document.body.style.cursor = "wait"; 
+				showSpinner();
 			    const formData = {};
 			
 			    // Iterate through all form elements
@@ -654,12 +716,15 @@
 							const errorMessage = response.text();
 			                console.error('Error occured during mutable param modification:', errorMessage);
 			                alert(`Hiba: ${errorMessage}`);
+			                hideSpinner();
 			                throw new Error('Network response was not ok');
 						}
 				        console.log('Mutable Parameters modified for the row.', response);
-				        document.body.style.cursor = "auto"; 
+				        //document.body.style.cursor = "auto"; 
+				        hideSpinner();
 				    }).catch((error) => {
 				        console.error('There was a problem with the fetch operation:', error);
+				        hideSpinner();
 				    });
 			};
 	
@@ -783,7 +848,8 @@
 			// Function to send updated data to the backend
 			const saveCellDataToBackend = (activeFileId, row, columnName, updatedCellValue) => {
 				checkSession();
-				document.body.style.cursor = "wait"; 
+				//document.body.style.cursor = "wait"; 
+				showSpinner();
 			    fetch(`/modification/cellValue/${activeFileId}/${row}/${columnName}/${updatedCellValue}`, {
 			        method: 'PUT',
 			        headers: {
@@ -795,15 +861,18 @@
 						const errorMessage = response.text();
 		                console.error('Error occured during cell modification:', errorMessage);
 		                alert(`Hiba: ${errorMessage}`);
+		                hideSpinner();
 			            throw new Error('Failed to save data to the backend');
 			        }
 			        const activeData = groupedData[activeFileId];
 			        console.log('activeData in saveCellDataToBackend, RESPONSE OK', activeData);
 			        isModificationHappened = true;
-			        document.body.style.cursor = "auto"; 
+			        //document.body.style.cursor = "auto";
+			        hideSpinner(); 
 			    })
 			    .catch(error => {
 			        console.error('Error while updating data:', error);
+			        hideSpinner();
 			    });
 			};
 
@@ -811,7 +880,8 @@
 			// handle sorting request
 			function handleSorting() {
 				checkSession();
-				document.body.style.cursor = "wait"; 
+				//document.body.style.cursor = "wait"; 
+				showSpinner();
 				console.log('groupedData in sorting:', groupedData);
 				if (groupedData[activeFileId][0].laeqDay !== null && groupedData[activeFileId][0].laeqNight !== null) {
 					fetch(`/sortAndDifferences/sortByLaeq/${activeFileId}`, {
@@ -824,6 +894,7 @@
 							const errorMessage = response.text();
 			                console.error('Error occured during calculation:', errorMessage);
 			                alert(`Hiba: ${errorMessage}`);
+			                hideSpinner();
 			                throw new Error('Network response was not ok');
 						}
 						return response.json();
@@ -831,13 +902,16 @@
 				    .then(data => {
 				        console.log('Fetched Data after Sorting:', data);
 				        renderTable(data);
-				        document.body.style.cursor = "auto"; 
+				        //document.body.style.cursor = "auto"; 
+				        hideSpinner();
 				    })
 				    .catch(error => {
 				        console.error('There was a problem with the fetch operation:', error);
+				        hideSpinner();
 				    });
 				} else {
 					alert('LAeq éjjel érték szükséges a rendezéshez.')
+					hideSpinner();
 				}
 			}
 
@@ -957,6 +1031,7 @@
 				    }, 10000);
 
 			    } else {
+					alert('Legalább két fájl szükséges a különbségszámításhoz!')
 			        console.log('At least two files are required for comparison.');
 			    }
 			}
@@ -966,8 +1041,8 @@
 				let fileName2 = groupedData[fileId2][0].fileName;
 				
 				if (differenceColumnTemp.length < 3) {
-					let newKeyDay = `${fileName1} - ${fileName2} különbsége Nappal`;
-					let newKeyNight = `${fileName1} - ${fileName2} különbsége Éjjel`;
+					let newKeyDay = `${fileName1} - ${fileName2} különbsége Nappal [dB]`;
+					let newKeyNight = `${fileName1} - ${fileName2} különbsége Éjjel [dB]`;
 					
 					updateDifferenceColumns();
 					
@@ -1050,7 +1125,8 @@
 			
 			function sendFilesToBackend(fileId1, fileId2) {
 				checkSession();
-				document.body.style.cursor = "wait"; 
+				//document.body.style.cursor = "wait"; 
+				showSpinner();
 				console.log('compare files id to backend:', fileId1, fileId2);
 			    fetch(`/sortAndDifferences/differences/${fileId1}/${fileId2}`, {
 			        method: 'POST',
@@ -1067,14 +1143,17 @@
 						const errorMessage = response.text();
 		                console.error('Error occured during calculation:', errorMessage);
 		                alert(`Hiba a számítások során: ${errorMessage}`);
+		                hideSpinner();
 		                throw new Error('Network response was not ok');
 			        }
 			        			        
 			        fetchDataAndRenderTabs();
-			        document.body.style.cursor = "auto"; 
+			        //document.body.style.cursor = "auto"; 
+			        hideSpinner();
 			    })
 			    .catch(error => {
 			        console.error('There was a problem with the fetch operation:', error);
+			        hideSpinner();
 			    });
 			}
 
@@ -1099,7 +1178,8 @@
 			}
 			 function handleSubmit() {
 				 checkSession();
-				 document.body.style.cursor = "wait"; 
+				 //document.body.style.cursor = "wait"; 
+				 showSpinner();
 				if (selectedValue === '/calculations/givenDistance') {
 					const userInput = document.getElementById('userInput').value;
 					console.log('userInput for noiseAtGivenDistance:', userInput);
@@ -1149,6 +1229,11 @@
 						});
 						console.log('updatedColumnMapping before check:', updatedColumnMapping);
 						console.log('columnMapping before check of previous existence', columnMapping);
+						
+							// Add the remaining columns after the new ones
+						keysAfterImpactArea.forEach((key) => {
+						    updatedColumnMapping[key] = columnMapping[key];
+						});
 	
 						// Create the new mapping for the two columns to add
 						const newKeyDay = `Zajterhelés ${userInput} m távolságon Nappal`;
@@ -1158,15 +1243,26 @@
 						
 						console.log('updatedColumnMapping before remaining map:', updatedColumnMapping);
 						
-						// Add the remaining columns after the new ones
-						keysAfterImpactArea.forEach((key) => {
-						    updatedColumnMapping[key] = columnMapping[key];
-						});
+					
 						
 						console.log('updatedColumnMapping before assigning to columnMapping:', updatedColumnMapping);
 			            columnMapping = updatedColumnMapping;
 			            saveColumnMapping(activeFileId, columnMapping);
-													
+						
+						
+						columnMapping = getColumnMapping(activeFileId);
+				
+						// Check if all required fields are selected
+						const missingFields = Object.keys(requiredFields).filter((field) => !Object.values(columnMapping).includes(requiredFields[field]));
+						
+						if (missingFields.length > 0) {
+						    // Alert the user about missing fields
+						    alert(`Nem lehet elvégezni a számítást! Hiányzó oszlop(ok): ${missingFields.join(', ')}`);
+						    //document.body.style.cursor = "auto"; 
+						    hideSpinner();
+						    return;
+						}
+												
 						// for givenDistance endpoint
 						console.log('userInput:', userInput);
 						fetch(`${selectedValue}/${activeFileId}/${userInput}`, {
@@ -1180,18 +1276,35 @@
 								const errorMessage = response.text();
 				                console.error('Error occured during calculation:', errorMessage);
 				                alert(`Hiba a számítások során: ${errorMessage}`);
+				                hideSpinner();
 				                throw new Error('Network response was not ok');
 							}
 							fetchDataAndRenderTabs();
-							document.body.style.cursor = "auto"; 
+							//document.body.style.cursor = "auto"; 
+							hideSpinner();
 						})
 						.catch(error => {
 							console.error('There was a problem with the fetch operation:', error);
+							hideSpinner();
 						});
 					} else {
 						console.log('User input is empty')
+						hideSpinner();
 					}
 				} else {
+					columnMapping = getColumnMapping(activeFileId);
+					
+					// Check if all required fields are selected
+					const missingFields = Object.keys(requiredFields).filter((field) => !Object.values(columnMapping).includes(requiredFields[field]));
+					console.log('missingFields in givenDistance: ', missingFields);
+					if (missingFields.length > 0) {
+					    // Alert the user about missing fields
+					    alert(`Nem lehet elvégezni a számítást! Hiányzó oszlop(ok): ${missingFields.join(', ')}`);
+					    //document.body.style.cursor = "auto"; 
+					    hideSpinner();
+					    return;
+					}
+				    	
 					// for other endpoints
 					if (selectedValue !== '' && activeFileId) {
 						fetch(`${selectedValue}/${activeFileId}`, {
@@ -1205,13 +1318,16 @@
 								const errorMessage = response.text();
 				                console.error('Error occured during calculation:', errorMessage);
 				                alert(`Hiba a számítások során: ${errorMessage}`);
+				                hideSpinner();
 								throw new Error('Network response was not ok');
 							}
 							fetchDataAndRenderTabs();
-							document.body.style.cursor = "auto"; 
+							//document.body.style.cursor = "auto"; 
+							hideSpinner();
 						})
 						.catch(error => {
 							console.error('There was a problem with the fetch operation:', error);
+							hideSpinner();
 						});
 					}
 				}
@@ -1221,7 +1337,8 @@
 			// Function to fetch data, group by file_id, and render tabs and tables
 			const fetchDataAndRenderTabs = () => {
 				checkSession();
-				document.body.style.cursor = "wait"; 
+			//	document.body.style.cursor = "wait"; 
+				showSpinner();
 			    fetch('/console/displayData')
 			        .then(response => {
 			            if (!response.ok) {
@@ -1233,15 +1350,17 @@
 			            console.log('Fetched Data:', data);
 			            groupedData = data
 			            renderTabsAndTables(data);
-			            document.body.style.cursor = "auto"; 
+			       //     document.body.style.cursor = "auto"; 
+			       		hideSpinner();
 			        })
 			        .catch(error => {
 			            console.error('There was a problem with the fetch operation:', error);
+			            hideSpinner();
 			        });
 			};
 
 
-			let activeFileId;
+			let activeFileId = null;
 			let tbody;
 			let thead;
 			let tableHeadersBody;
@@ -1249,19 +1368,21 @@
 			let file_id;
 			// Function to render tabs and tables using grouped data
 			const renderTabsAndTables = (groupedData) => {
-				document.body.style.cursor = "wait"; 
+				showSpinner();
 			    console.log('Grouped Data:', groupedData);
 			    
 			        const tabs = Object.keys(groupedData).map(fileId => {
 					file_id = fileId;
 			        const fileName = groupedData[fileId][0].fileName;
+			        const isActive = fileId === activeFileId;
 
 			        return (	
 				            <span key={fileId}>
-				                <button className="btn btn-dark" style={{ marginRight: '1%', marginBottom: '1%' }} onClick={() => {
+				                <button className={`btn btn-dark ${isActive ? 'flashing' : ''}`} style={{ marginRight: '1%', marginBottom: '1%' }} onClick={() => {
 									activeFileId = fileId; // Set the active file_id
 									console.log('activeFileId on tabClick', activeFileId);
 									console.log('FileId on tabClick', fileId);
+									renderTabsAndTables(groupedData); // Re-render tabs
 				                    renderTable(groupedData[fileId]);		                    
 				                }}>
 				                    {fileName}
@@ -1276,28 +1397,30 @@
 					activeFileId = lowestFileId;
 				} 
 			    
-			
-
-			    ReactDOM.render(
-			     
-				        <><div className="row pt-2 pb-2">
-                        <div className="col">
-                            {tabs}
-                        </div>
-                    </div><div className="row mb-5 table-responsive mx-auto" id="table-container">
-                        </div></>
+		
+			    ReactDOM.render(			     
+				        <>
+				        <div className="row pt-2 pb-2">
+	                        <div className="col">
+	                            {tabs}
+	                        </div>
+                    	</div>
+                    	<div className="row mb-5 table-responsive mx-auto" id="table-container"></div> 
+                        </>
 				 ,
 				    document.getElementById('root')
 			    );
 			console.log('activeFileId in renderTabsAndTables:', activeFileId);
 			    // Display the table for the lowest file_id by default
 			  //  const lowestFileId = Math.min(...Object.keys(groupedData));
+			  
 			    renderTable(groupedData[activeFileId]);
-			    document.body.style.cursor = "auto"; 
+			    hideSpinner();
+		//	    document.body.style.cursor = "auto"; 
 			};
 			
 			// Function to render a specific table for a file
-			const renderTable = (data) => {
+			const renderTable = (data) => {	
 				columnMapping = getColumnMapping(activeFileId);
 
 			    console.log('Data for Table:', data);
@@ -1346,7 +1469,7 @@
 			            </tbody>
 			        </table>
 			    );
-
+			    
 			    console.log('Rendering Table:', table);
 			    ReactDOM.render(table, document.getElementById('table-container'));
 			    
@@ -1385,11 +1508,18 @@
 				        }, 500);
 				    }
 				});
-
 			};
+
+
+			
+
 			
 			// Call the function to fetch data and render tabs on page load
 			checkSession();
 			fetchDataAndRenderTabs();
+
+
+
+
 			
 			

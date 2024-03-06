@@ -59,7 +59,7 @@ public class DataService {
                 .orElse(Collections.emptyList());
 
         // Log the mapped data
-        log.info("Mapped DbfDataDTO List: {}", mappedDbfDataDTOList);
+   //     log.info("Mapped DbfDataDTO List: {}", mappedDbfDataDTOList);
 
         return mappedDbfDataDTOList;
     }

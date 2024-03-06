@@ -53,7 +53,7 @@ public class DisplayController {
         	 	
         	try {
 				Map<Integer, List<DbfDataDTO>> data = saveDisplayService.getAll();
-				log.info("All files: {}", data);
+			//	log.info("All files: {}", data);
 				return data;
 			} catch (DataAccessException e) {
 	            log.error("Database access error occurred", e);
@@ -70,7 +70,7 @@ public class DisplayController {
         	// Serve content for other ROLES
 			try {
 				Map<Integer, List<DbfDataDTO>> data = saveDisplayService.getAll();
-				log.info("All files: {}", data);
+	//			log.info("All files: {}", data);
 				return data;
 			} catch (DataAccessException e) {
 	            log.error("Database access error occurred", e);

@@ -88,6 +88,7 @@
 		    const [isFlashingModify, setIsFlashingModify] = React.useState(false);
 		    const [isFlashingModifySubmit, setIsFlashingModifySubmit] = React.useState(false);
 		    const [hasSavedData, setHasSavedData] = React.useState(false);
+		    const [loading, setLoading] = React.useState(false);
 		    let columnNamesAreEqual = false;
 		    
 		    React.useEffect(() => {
@@ -103,8 +104,9 @@
 			}, []);
 		
 		    const handleFileChange = (event) => {
-		//		checkSession();
-				document.body.style.cursor = "wait"; 
+				checkSession();
+	//			document.body.style.cursor = "wait"; 
+				setLoading(true);
 		        const selectedFile = event.target.files[0];
 		        const fileName = selectedFile.name;
 		        
@@ -128,13 +130,15 @@
 		        setFileName(fileName);
 		        setIsFlashingUpload(true);
 		        setShowModifyForm(false);
-				document.body.style.cursor = "auto"; 
+			//	document.body.style.cursor = "auto"; 
+				setLoading(false);
 		    };
 
 		
 		    const filterTableBySelectedColumns = () => {
 				checkSession();
-				document.body.style.cursor = "wait"; 
+				setLoading(true);
+			//	document.body.style.cursor = "wait"; 
 		        const filteredData = attributeData.map((row) => {
 		            const newRow = {};
 		            
@@ -150,21 +154,26 @@
 		            console.log('NewRow:', newRow);
 		            return newRow;
 		        });
-		        document.body.style.cursor = "auto";
+		       // document.body.style.cursor = "auto";
+		       	setLoading(false);
 		        return filteredData;
 		    };
 
 		
 		    const handleFileUpload = async () => {
-//checkSession();
+			checkSession();
 			        
-				document.body.style.cursor = "wait";
+			//	document.body.style.cursor = "wait";
+			setLoading(true);
 				if (!file) {
+					setLoading(false);
 			        return;
 			    }
 
-			    if (file.name.split('.').pop() !== 'zip') {
+			    const fileExtension = file.name.split('.').pop().toLowerCase();
+			    if (fileExtension !== 'zip') {
 			        alert('Csak .zip fájlt lehet felölteni.');
+					setLoading(false);
 			        return;
 			    }
 		        const formData = new FormData();
@@ -230,22 +239,40 @@
 		                setIsFlashingFilter(true);
 		                console.log('file column names', columnNames);
 		                console.log('original names', Object.keys(data[0]));
-			                
+		                setLoading(false);
 		            } else {
 		                const errorMessage = await response.text();
         				console.error('Failed to upload file:', errorMessage);
         				alert(`Hiba: ${errorMessage}`);
+        				setLoading(false);
 		            }
 			        } catch (error) {
 			            console.error('Error uploading file:', error);
 			        } finally {
-						document.body.style.cursor = "auto";
+				//		document.body.style.cursor = "auto";
+						setLoading(false);;
+						
 					}
 		    };
 		      
 		    const saveColumnSelection = (columnSelection) => {
 			  sessionStorage.setItem('columnSelection', JSON.stringify(columnSelection));
 			  sessionStorage.setItem('originalColumnNames', JSON.stringify(originalColumnNames));
+			};
+			
+			// Render options for the select element
+			const renderOptions = (index, selectedValue) => {
+			    const options = [<option key="" value="">Select Column Name</option>];
+			    for (const [displayName, backendName] of Object.entries(columnMapping)) {
+			        if (!Object.values(columnNames).includes(backendName) || backendName === selectedValue) {
+			            options.push(
+			                <option key={backendName} value={backendName}>
+			                    {displayName}
+			                </option>
+			            );
+			        }
+			    }
+			    return options;
 			};
 
 			const getColumnSelection = () => {
@@ -272,7 +299,8 @@
 
 		    const handleFilterClick = async () => {
 				checkSession();
-				document.body.style.cursor = "wait";
+			//	document.body.style.cursor = "wait";
+				setLoading(true);
 		        const filteredData = filterTableBySelectedColumns();
 		        
 		        const mappedData = filteredData.map((row) => {
@@ -309,19 +337,22 @@
 				setFileUploadSuccess(true);
                 setIsFlashingFilter(false);
                 setIsFlashingModify(true);
-                document.body.style.cursor = "auto";
+               // document.body.style.cursor = "auto";
+               	setLoading(false);
 		    };
 		    
 		    const handleModifyParametersClick = () => {
 				checkSession();
-				document.body.style.cursor = "wait";
+			//	document.body.style.cursor = "wait";
+				setLoading(true);
 		        // Show the form only if response1 was successful
 		        if (attributeData.length > 0) {
 					console.log('SaveToDatabase Request Data:', { fileName, mappedData });
 		            setShowModifyForm(true);
 		            setIsFlashingModify(false);
 		            setIsFlashingModifySubmit(true);
-		            document.body.style.cursor = "auto";
+		           // document.body.style.cursor = "auto";
+		           setLoading(false);
 		        } else {
 		            console.error('No data available to modify parameters');
 		        }
@@ -329,7 +360,8 @@
 
 		    const handleFormSubmit = async (event) => {
 				checkSession();
-				document.body.style.cursor = "wait";
+			//	document.body.style.cursor = "wait";
+				setLoading(true);
 		        event.preventDefault();
 		
 			// Create a copy of modifiedParameters to retain unchanged parameters
@@ -361,12 +393,14 @@
 		        } catch (error) {
 		            console.error('Error filtering data:', error);
 		        } finally {
-					document.body.style.cursor = "auto";
+				//	document.body.style.cursor = "auto";
+					setLoading(false);
 				}
 		
 		        // Send modifiedParameters to '/console/saveMutableParameters' endpoint
 		        try {
-					document.body.style.cursor = "wait";
+					//document.body.style.cursor = "wait";
+					setLoading(true);
 		            console.log('SaveMutableParameters Request Data:', updatedParameters);
 		            const response2 = await fetch('/console/saveMutableParameters', {
 		                method: 'POST',
@@ -390,7 +424,8 @@
 		        } catch (error) {
 		            console.error('Error sending Modified Parameters:', error);
 		        } finally {
-					document.body.style.cursor = "auto";
+				//	document.body.style.cursor = "auto";
+					setLoading(false);
 				}
 		    };
 		    
@@ -403,11 +438,18 @@
 			    // Check if the value is a double
 			    return /^-?\d+(\.\d+)?$/.test(value);
 			};
+
 		
 		    return (
-			        <div className="container-fluid">
+			        <div className="container-fluid mb-5 pb-5">
+			        	{loading && (			    
+			                    <div className="spinner-border spinner" role="status">
+			                        <span>Loading...</span>
+			                    </div>			               
+			            )}
+			            
 			            <div className="row mt-5 pt-5">
-        					<div className="col">
+        					<div className="col-md">
 			            
 					            <div id="buttons">
 					             <label id="browseFile" className="btn btn-dark" >
@@ -499,8 +541,8 @@
 				    </div>
 				</div>
 		            
-		             <div className="row mt-5 mb-5 pt-1">
-        				<div className="col">
+		             <div className="row mt-5 mb-5 pb-5 pt-1">
+        				<div className="col-md">
 		            
 							<div id="tableContainer" className={`table-responsive mx-auto ${isFlashingUpload ? 'd-none' : ''}`}>
 					            <table id="uploadTable" className="table table-dark table-striped table-sm table-hover caption-top">
@@ -513,12 +555,7 @@
 					                                    <div>
 					                                        <span>{key}</span>
 					                                        <select value={columnNames[index]} onChange={handleSelectChange(index)}>
-					                                            <option value="">Select Column Name</option>
-					                                            {Object.entries(columnMapping).map(([displayName, backendName], idx) => (
-									                                <option key={idx} value={backendName}>
-									                                    {displayName}
-					                                                </option>
-					                                            ))}
+					                                            {renderOptions(index, columnNames[index])}
 					                                        </select>
 					                                    </div>
 					                                </th>

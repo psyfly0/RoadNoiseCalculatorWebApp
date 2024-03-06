@@ -38,13 +38,7 @@ public class MySimpleUrlAuthenticationSuccessHandler implements AuthenticationSu
       HttpServletResponse response, Authentication authentication)
       throws IOException {
 		
-		// keep track of logged in users
-		HttpSession session = request.getSession(false);
-        if (session != null) {
-            LoggedUser user = new LoggedUser(authentication.getName(), getEmail(authentication), activeUserStore);
-            activeUserStore.getLoggedUsers().add(user);
-            session.setAttribute("user", user);
-        }
+		trackLoggedUsers(request, authentication);
         
         handle(request, response, authentication);
         clearAuthenticationAttributes(request);
@@ -66,7 +60,7 @@ public class MySimpleUrlAuthenticationSuccessHandler implements AuthenticationSu
 	    }
 	    
 	    // Set the session timeout 
-        request.getSession().setMaxInactiveInterval(600);
+   //     request.getSession().setMaxInactiveInterval(600);
         
         // clear tables before login
         userDataCleanupService.cleanupUserData(authentication.getName());
@@ -77,7 +71,7 @@ public class MySimpleUrlAuthenticationSuccessHandler implements AuthenticationSu
 	protected String determineTargetUrl(final Authentication authentication) {
 
 	    Map<String, String> roleTargetUrlMap = new HashMap<>();
-	    roleTargetUrlMap.put("ROLE_USER", "/console/upload");
+	    roleTargetUrlMap.put("ROLE_USER", "/profile");
 	    roleTargetUrlMap.put("ROLE_ADMIN", "/admin/home");
 	    roleTargetUrlMap.put("ROLE_GUEST", "/console/display");
 
@@ -98,6 +92,16 @@ public class MySimpleUrlAuthenticationSuccessHandler implements AuthenticationSu
 	        return;
 	    }
 	    session.removeAttribute(WebAttributes.AUTHENTICATION_EXCEPTION);
+	}
+	
+	public void trackLoggedUsers(HttpServletRequest request, Authentication authentication) {
+		// keep track of logged in users
+		HttpSession session = request.getSession(false);
+        if (session != null) {
+            LoggedUser user = new LoggedUser(authentication.getName(), getEmail(authentication), activeUserStore);
+            activeUserStore.getLoggedUsers().add(user);
+            session.setAttribute("user", user);
+        }
 	}
 	
 	private String getEmail(Authentication authentication) {

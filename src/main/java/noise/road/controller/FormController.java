@@ -20,13 +20,16 @@ public class FormController {
 			@RequestParam(value = "logout", defaultValue = "false") boolean logout, 
 			@RequestParam(value = "error", defaultValue = "false") boolean error,
 			@RequestParam(name = "regSuccess", required = false) boolean regSuccess,
-			@RequestParam(name = "sessionExpired", required = false) boolean sessionExpired) {
+			@RequestParam(name = "sessionExpired", required = false) boolean sessionExpired,
+			@RequestParam(name = "newPasswordSent", required = false) boolean newPasswordSent,
+			@RequestParam(name = "userDeleted", required = false) boolean userDeleted) {
 		
 		model.addAttribute("logout", logout);
 		model.addAttribute("error", error);
 		model.addAttribute("regSuccess", regSuccess);
 		model.addAttribute("sessionExpired", sessionExpired);
-
+		model.addAttribute("newPasswordSent", newPasswordSent);
+		model.addAttribute("userDeleted", userDeleted);
 	
 		// After the user logged in, can't reach this page, only by manually typing in "pageName/login" url.
 		// The user shouldn't do it, but who knows...

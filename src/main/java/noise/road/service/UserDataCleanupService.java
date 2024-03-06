@@ -7,12 +7,14 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import lombok.extern.slf4j.Slf4j;
+import noise.road.authenticationModel.User;
 import noise.road.repository.ConstantParametersRepository;
 import noise.road.repository.DbfDataRepository;
 import noise.road.repository.MutableParametersRepository;
 import noise.road.repository.ResultsRepository;
 import noise.road.repository.ShapeGeometryRepository;
 import noise.road.repository.UserFileCounterRepository;
+import noise.road.repository.UserRepository;
 
 @Service
 @Slf4j
@@ -37,6 +39,9 @@ public class UserDataCleanupService {
 	private UserFileCounterRepository userFileCounterRepsository;
 	
 	@Autowired
+	private UserRepository userRepository;
+	
+	@Autowired
     private JdbcTemplate jdbcTemplate;
 
 	@Transactional(propagation = Propagation.REQUIRES_NEW)
@@ -48,6 +53,10 @@ public class UserDataCleanupService {
     
 	@Transactional(propagation = Propagation.REQUIRES_NEW)
     public void deleteGuestSchema(String username) {
+		Integer guestId = userRepository.findUserIdByUsername(username);
+		if (guestId != null) {
+			dropGuest(guestId);
+		}
         dropSchema(username);
         log.info("data deleted for guest: {}", username);
     }
@@ -67,6 +76,8 @@ public class UserDataCleanupService {
 	
 	private void deleteData(String username) {	
 		
+		jdbcTemplate.execute("SET SCHEMA '" + username + "'");
+		
 		userFileCounterRepsository.deleteAllData();
 		userFileCounterRepsository.resetIdSequence();
 		
@@ -84,7 +95,14 @@ public class UserDataCleanupService {
     	
         dbfDataRepository.deleteAllData();
         dbfDataRepository.resetIdSequence();
+        
+        jdbcTemplate.execute("SET SCHEMA 'admin'");
 
+	}
+	
+	private void dropGuest(Integer guestId) {
+		userRepository.deleteGuestFromUSERS_ROLES(guestId);
+		userRepository.deleteGuestFromUSERS(guestId);
 	}
     
     private void dropSchema(String schemaName) {

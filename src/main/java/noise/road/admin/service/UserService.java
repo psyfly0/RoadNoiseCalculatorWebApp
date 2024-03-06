@@ -23,12 +23,12 @@ public class UserService {
 
 	public List<User> getAllUsers() {
 	//	return userRepository.findAll();
-		List<User> allUsers = userRepository.findAll();
-
+		//List<User> allUsers = userRepository.findAll();
+return userRepository.findAll();
         // Filter out users with the "GUEST" role
-        return allUsers.stream()
+   /*     return allUsers.stream()
                 .filter(user -> user.getRoles().stream().noneMatch(role -> "ROLE_GUEST".equals(role.getName())))
-                .collect(Collectors.toList());
+                .collect(Collectors.toList());*/
     
 	}
 	

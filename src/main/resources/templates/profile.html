@@ -1,0 +1,524 @@
+<!DOCTYPE html>
+<html xmlns:th="https://www.thymeleaf.org">
+	<head>
+		<!-- Google tag (gtag.js) -->
+		<script async src="https://www.googletagmanager.com/gtag/js?id=G-CDR561E72H"></script>
+		<script>
+		  window.dataLayer = window.dataLayer || [];
+		  function gtag(){dataLayer.push(arguments);}
+		  gtag('js', new Date());
+		
+		  gtag('config', 'G-CDR561E72H');
+		</script>
+		
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1">
+		<meta name="keywords" content="közúti zajszámító, zajszámító applikáció, zaj, közúti zajterhelés, védőtávolság, hatásterület, egyenértékű A-hangyomásszint">
+		<title>KözútiZajSzámítóApp - Saját profil</title>
+		<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
+		<link rel="stylesheet" type="text/css" href="/static/css/common.css">
+		<link rel="stylesheet" type="text/css" href="/static/css/profile.css">
+		<link rel="icon" type="image/ico" th:href="@{../static/favicon.ico}">
+	</head>
+	<body>
+		<!-- Nav bar and Collapse menu -->
+        <div class="collapse" id="navbarToggleExternalContent" data-bs-theme="dark">
+          <div class="bg-dark p-4">
+            <h4>-</h4>
+                <ul class="navbar-nav">
+                    <li class="nav-item">
+                        <a class="nav-link text-light" href="/">Főoldal</a>  
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link text-light" href="/console/upload">Fájl feltöltés</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link text-light" href="/login">Bejelentkezés</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link text-light" href="/contact">Kapcsolat</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link text-light" href="/logout">Kijelentkezés</a>
+                    </li>
+                    <li class="nav-item">
+                    	<a class="nav-link text-light" role="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasWithBothOptions" aria-controls="offcanvasWithBothOptions">Segítség</a>
+ 					</li>               
+                </ul>
+          </div>
+        </div>
+        <nav class="navbar navbar-dark bg-dark fixed-top">
+          <div class="container-fluid">
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarToggleExternalContent" aria-controls="navbarToggleExternalContent" aria-expanded="false" aria-label="Toggle navigation">
+              <span class="navbar-toggler-icon"></span>                   
+            </button>  
+            <div class="d-flex text-center">
+                <span class="text-light">Saját profil</span>
+            </div>                              
+          </div>
+        </nav>
+        
+        <div class="offcanvas offcanvas-start w-25" data-bs-scroll="true" tabindex="-1" id="offcanvasWithBothOptions" aria-labelledby="offcanvasWithBothOptionsLabel" data-bs-theme="dark">
+		  <div class="offcanvas-header">
+		    <h5 class="offcanvas-title fw-bold fs-3" id="offcanvasWithBothOptionsLabel">Útmutató</h5>
+		    <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+		  </div>
+		  <div class="offcanvas-body" id="offcanvasContentContainer">
+			 <!-- Content loads dynamically -->
+		  </div>
+		</div>
+		
+		<!-- spinner for loading status -->
+		<div id="spinner" class="spinner-border spinner" role="status" style="display: none;">
+		    <span>Loading...</span>
+		</div>
+		
+		<div class="container-fluid">
+			<div class="row mt-5 pt-5 pb-2">
+				<h1 id="greet" class="text-center font-monospace">Helló <span th:text="${username}"></span>!</h1>
+			</div>
+			<div class="row">
+				<div class="col-md-6">
+					<div class="row pt-5 pb-3 ps-5 ms-5">
+				
+						<span>
+						<h2 class="text-light fs-2 fw-bold" style="display: inline;">Dolgoznék! </h2>
+						<h2 class="text-light fs-4" style="display: inline;"> Irány a fájlok </h2>
+						
+							<a 
+								id="linkGoToWork" 
+								class="text-light fs-4 link-underline-warning link-offset-1 link-underline-opacity-50 link-underline-opacity-100-hover" 
+								role="button"
+								href="/console/upload"
+								style="display: inline-block;" 
+								onclick="checkSessionBeforeNavigation(event)">
+								felöltése
+							</a>
+							<h2 class="text-light fs-4" style="display: inline;"> oldalra!</h2>
+						</span>
+					</div>
+					<div class="row pt-3 pb-2 ps-5 ms-5" id="savedDataLinkContainer" style="display: none;">
+						<span>
+							<p class="text-light fs-4" style="display: inline;"> Van már felöltött fájlod? Vissza a </p>
+							<a
+								id="linkBackToCalculations"
+								class="text-light fs-4 link-underline-warning link-offset-1 link-underline-opacity-50 link-underline-opacity-100-hover"
+								role="button"
+								href="/console/display"
+								style="display: inline-block;"
+								onClick="checkSessionBeforeNavigation(event)">
+								számítások
+							</a>
+							<p class="text-light fs-4" style="display: inline;"> oldalra!</p>
+						</span>
+					</div>
+					<div class="row pt-1 pb-3 ps-4 ms-4 pe-4 me-4">
+						<hr id="line" class="my-3">
+					</div>
+					
+					
+					<div class="row mt-5 pt-1 pb-3 ps-5 ms-5" id="modification">
+						<h2 class="text-light fs-4 pb-3">Személyes adatok módosítása:</h2>
+						<button id="usernameMod" class="btn btn-dark me-4" onClick="toggleUsernameFormVisibility()">
+							Felhasználó név módosítása
+						</button>
+						<button id="emailMod" class="btn btn-dark me-4" onClick="toggleEmailFormVisibility()">
+							Email-cím módosítása
+						</button>
+						<button id="passwordMod" class="btn btn-dark me-4" onClick="togglePasswordFormVisibility()">
+							Jelszó módosítása
+						</button>
+						<button id="passwordMod" class="btn btn-danger" onClick="toggleDeleteFormVisibility()">
+							Fiók törlése!
+						</button>
+					</div>
+					<div class="row mt-1 pt-1 pb-5 mb-5 ps-5 ms-5">
+						<!-- Username form -->
+						<form id="usernameForm" class="form-control w-50 bg-black text-light" th:action="@{/profile/update-username}" method="post" onsubmit="showSpinner()" th:style="${showUsernameForm} ? '' : 'display: none;'">
+							<label><span class="pe-4">Jelenlegi Felhasználónév: </span><span th:text="${username}" class="fw-bold fs-4"></span></label>
+							<input type="text" class="form-control mb-4" name="newUsername" placeholder="Új felhasználó név" required>
+							<div th:if="${newUsernameEmptyError != null}" th:text="${newUsernameEmptyError}" class="text-danger"></div>
+							<div th:if="${existingUserNotFoundError != null}" th:text="${existingUserNotFoundError}" class="text-danger"></div>
+							<div th:if="${usernameAlreadyExistsError != null}" th:text="${usernameAlreadyExistsError}" class="text-danger"></div>
+							<div th:if="${usernameInvalidFormatError != null}" th:text="${usernameInvalidFormatError}" class="text-danger"></div>
+						    <button type="submit" class="btn btn-dark me-3 mb-2">OK</button>
+						    <button type="button" class="btn btn-dark mb-2" onclick="cancelUsernameModification()">Mégsem</button>
+						</form>
+						
+						<!-- Email form -->
+						<form id="emailForm" class="form-control w-50 bg-black text-light" th:action="@{/profile/update-email}" method="post" onsubmit="showSpinner()" th:style="${showEmailForm} ? '' : 'display: none;'">
+							<label><span class="pe-4">Jelenlegi Email: </span><span th:text="${email}" class="fw-bold fs-4"></span></label>
+							<input type="text" class="form-control mb-4" name="newEmail" placeholder="Új Email" required>
+							<div th:if="${newEmailEmptyError != null}" th:text="${newEmailEmptyError}" class="text-danger"></div>
+							<div th:if="${existingUserNotFoundError != null}" th:text="${existingUserNotFoundError}" class="text-danger"></div>
+							<div th:if="${emailAlreadyExistsError != null}" th:text="${emailAlreadyExistsError}" class="text-danger"></div>
+							<div th:if="${emailInvalidFormatError != null}" th:text="${emailInvalidFormatError}" class="text-danger"></div>
+						    <button type="submit" class="btn btn-dark me-3 mb-2">OK</button>
+						    <button type="button" class="btn btn-dark mb-2" onclick="cancelEmailModification()">Mégsem</button>
+						</form>
+						
+						<!-- Password form -->
+						<form id="passwordForm" class="form-control w-50 bg-black text-light" th:action="@{/profile/update-password}" method="post" onsubmit="showSpinner()" th:style="${showPasswordForm} ? '' : 'display: none;'">
+							<label>Régi jelszó:</label>					
+							<span><input type="password" class="form-control mb-2" name="oldPassword" placeholder="Régi jelszó" required></span>
+							<label>Új jelszó:</label>				
+							<span><input type="password" class="form-control mb-2" name="newPassword" placeholder="Új jelszó" required></span>
+							<label>Új jelszó megerősítése:</label>					
+							<span><input type="password" class="form-control mb-4" name="newPasswordConfirm" placeholder="Új jelszó megerősítése" required></span>
+		
+							<div th:if="${newPasswordEmptyError != null}" th:text="${newPasswordEmptyError}" class="text-danger"></div>
+							<div th:if="${existingUserNotFoundError != null}" th:text="${existingUserNotFoundError}" class="text-danger"></div>
+							<div th:if="${oldPasswordsDontMatchError != null}" th:text="${oldPasswordsDontMatchError}" class="text-danger"></div>
+							<div th:if="${newPasswordsDontMatchError != null}" th:text="${newPasswordsDontMatchError}" class="text-danger"></div>
+							<div th:if="${oldAndNewAreSameError != null}" th:text="${oldAndNewAreSameError}" class="text-danger"></div>
+						    <button type="submit" class="btn btn-dark me-3 mb-2">OK</button>
+						    <button type="button" class="btn btn-dark mb-2" onclick="cancelPasswordModification()">Mégsem</button>
+						</form>
+						
+						<!-- Delete form -->
+						<form id="deleteForm" class="form-control w-50 bg-black text-light" th:action="@{/profile/delete-user}" method="post" onsubmit="showSpinner()" th:style="${showDeleteForm} ? '' : 'display: none;'">
+		
+							<div th:if="${newPasswordEmptyError != null}" th:text="${newPasswordEmptyError}" class="text-danger"></div>
+							<div th:if="${existingUserNotFoundError != null}" th:text="${existingUserNotFoundError}" class="text-danger"></div>
+							<div th:if="${oldPasswordsDontMatchError != null}" th:text="${oldPasswordsDontMatchError}" class="text-danger"></div>
+							<div th:if="${newPasswordsDontMatchError != null}" th:text="${newPasswordsDontMatchError}" class="text-danger"></div>
+							<div th:if="${oldAndNewAreSameError != null}" th:text="${oldAndNewAreSameError}" class="text-danger"></div>
+						    <button type="submit" class="btn btn-danger me-3 mb-2">Törlöm magam!!</button>
+						    <button type="button" class="btn btn-dark mb-2" onclick="cancelDeleteModification()">Mégsem</button>
+						</form>
+					</div>		
+				</div>
+				
+				<div class="col-md-6">
+					<div class="text-center mt-5 pt-5 pb-5 mb-5">
+						<img id="splashImage" class="img-fluid pb-5 mb-5" src="/static/images/splash4.png" alt="Sample image">
+					</div>
+				</div>
+			</div>
+		</div>
+		
+		
+		<!-- Username modification Success Modal -->
+		<!-- Button trigger modal -->
+		<button type="button" id="usernameModificationModalTriggerButton" class="btn btn-primary d-none" data-bs-toggle="modal" data-bs-target="#staticBackdropUsernameMod">
+		  Launch static backdrop modal
+		</button>
+		
+		<div class="modal fade" id="staticBackdropUsernameMod" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+		  <div class="modal-dialog">
+		    <div class="modal-content">
+		      <div class="modal-header">
+		        <h1 class="modal-title fs-5" id="staticBackdropLabel">Felhasználó név módosítása sikeres!</h1>
+		      </div>
+		      <div class="modal-body">
+		        <p>Az új felhasználó neved: <span th:text="${username}"></span></p>
+		      </div>
+		      <div class="modal-footer">
+		        <button type="button" class="btn btn-dark" data-bs-dismiss="modal">OK</button>
+		      </div>
+		    </div>
+		  </div>
+		</div>
+		
+		<!-- email modification Success Modal -->
+		<!-- Button trigger modal -->
+		<button type="button" id="emailModificationModalTriggerButton" class="btn btn-primary d-none" data-bs-toggle="modal" data-bs-target="#staticBackdropEmailMod">
+		  Launch static backdrop modal
+		</button>
+		
+		<div class="modal fade" id="staticBackdropEmailMod" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+		  <div class="modal-dialog">
+		    <div class="modal-content">
+		      <div class="modal-header">
+		        <h1 class="modal-title fs-5" id="staticBackdropLabel">Email-cím módosítása sikeres!</h1>
+		      </div>
+		      <div class="modal-body">
+		        <p>Az új emailed: <span th:text="${email}"></span></p>
+		      </div>
+		      <div class="modal-footer">
+		        <button type="button" class="btn btn-dark" data-bs-dismiss="modal">OK</button>
+		      </div>
+		    </div>
+		  </div>
+		</div>
+		
+		<!-- password modification Success Modal -->
+		<!-- Button trigger modal -->
+		<button type="button" id="passwordModificationModalTriggerButton" class="btn btn-primary d-none" data-bs-toggle="modal" data-bs-target="#staticBackdropPasswordMod">
+		  Launch static backdrop modal
+		</button>
+		
+		<div class="modal fade" id="staticBackdropPasswordMod" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+		  <div class="modal-dialog">
+		    <div class="modal-content">
+		      <div class="modal-header">
+		        <h1 class="modal-title fs-5" id="staticBackdropLabel">Jelszó módosítása sikeres!</h1>
+		      </div>
+		      <div class="modal-footer">
+		        <button type="button" class="btn btn-dark" data-bs-dismiss="modal">OK</button>
+		      </div>
+		    </div>
+		  </div>
+		</div>
+		
+		
+    	<footer class="bg-dark text-light text-center py-2 fixed-bottom footer">
+			<div class="row align-items-center">			
+				<div class="col-md-4 text-start ps-4">
+					<div class="btn-group dropup" data-bs-theme="dark">
+						<button type="button" id="footerButton" class="btn btn-dark dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
+							v2.1 - 2024.03.06.
+						</button>
+						<ul id="footer-menu" class="dropdown-menu">
+							<li><a class="dropdown-item disabled" href="#">v1.0 - 2024.02.08.</a></li>
+					    	<li><a class="dropdown-item disabled" href="#">v2.0 - 2024.02.23.</a></li>				    	
+					  	</ul>
+					</div>
+				</div>
+				<div class="col-md-4">
+					<p>"Copyright &#169;" Ákos Szabó - 2024</p>
+				</div>
+				<div class="col-md-4 text-end pe-4">
+					<p>TESZTELÉS ALATT! Hibák előfordulhatnak a programban!</p>
+				</div>	        
+	        </div>
+		</footer>
+		
+		<!-- Session expired check -->
+		<script async>
+			function checkSession() {
+			    fetch("/session/check-session")
+			        .then(response => {
+						console.log('session check invoked');
+			            if (!response.ok) {
+							console.log('status', response.status);
+			                if (response.status === 401) {
+			                    window.location.href = "/login?sessionExpired=true";
+			                } else {
+			                    throw new Error('Network response was not ok');
+			                }
+			            }
+			  
+			        });
+			}
+		</script>
+		
+		<script async>
+			function showSpinner() {
+		        document.getElementById('spinner').style.display = 'block';
+		        document.getElementById('submitButton').disabled = true; // Disable the submit button
+		    }
+		</script>
+		
+		<script>
+		    fetch('/console/checkSavedData')
+		        .then(response => response.json())
+		        .then(hasSavedData => {
+		            if (hasSavedData) {
+		                document.getElementById('savedDataLinkContainer').style.display = 'block';
+		            }
+		        })
+		        .catch(error => {
+		            console.error('Error checking saved data:', error);
+		        });
+		</script>
+		
+		<script async>
+			function checkSessionBeforeNavigation(event) {
+			    event.preventDefault();
+			    checkSession();
+			    
+			    window.location.href = event.target.href;
+			}
+		</script>
+		
+		
+		<!-- Listener successful username modification -->
+		<script th:inline="javascript">
+		    /*<![CDATA[*/
+		    document.addEventListener("DOMContentLoaded", function() {
+		        var usernameModSuccess = /*[[${usernameModSuccess}]]*/ false;
+		
+		        // Show the modal when regSuccess is true
+		        console.log('usernameModSuccess', usernameModSuccess);
+		        if (usernameModSuccess) {
+		            document.getElementById('usernameModificationModalTriggerButton').click();
+		        }
+		    });
+		    /*]]>*/
+		</script>
+		
+		<!-- Listener successful email modification -->
+		<script th:inline="javascript">
+		    /*<![CDATA[*/
+		    document.addEventListener("DOMContentLoaded", function() {
+		        var emailModSuccess = /*[[${emailModSuccess}]]*/ false;
+		
+		        // Show the modal when regSuccess is true
+		        console.log('emailModSuccess', emailModSuccess);
+		        if (emailModSuccess) {
+		            document.getElementById('emailModificationModalTriggerButton').click();
+		        }
+		    });
+		    /*]]>*/
+		</script>
+		
+		<!-- Listener successful password modification -->
+		<script th:inline="javascript">
+		    /*<![CDATA[*/
+		    document.addEventListener("DOMContentLoaded", function() {
+		        var passwordModSuccess = /*[[${passwordModSuccess}]]*/ false;
+		
+		        // Show the modal when regSuccess is true
+		        console.log('passwordModSuccess', passwordModSuccess);
+		        if (passwordModSuccess) {
+		            document.getElementById('passwordModificationModalTriggerButton').click();
+		        }
+		    });
+		    /*]]>*/
+		</script>
+		
+		
+		<!-- Toggle Username Form -->
+		<script async>
+		    function toggleUsernameFormVisibility() {
+				checkSession();
+		        // Get the form elements
+		        var usernameForm = document.getElementById("usernameForm");
+		        var emailForm = document.getElementById("emailForm");
+		        var passwordForm = document.getElementById("passwordForm");
+		        var deleteForm = document.getElementById("deleteForm");
+		        
+		        // Hide all forms
+		        hideForm(usernameForm);
+		        hideForm(emailForm);
+		        hideForm(passwordForm);
+		        hideForm(deleteForm);
+		        
+		        // Toggle the visibility of the username form
+		        toggleFormVisibility(usernameForm);
+		    }
+		    
+		    // Toggle Email Form -->
+		    function toggleEmailFormVisibility() {
+				checkSession();
+		        // Get the form elements
+		        var usernameForm = document.getElementById("usernameForm");
+		        var emailForm = document.getElementById("emailForm");
+		        var passwordForm = document.getElementById("passwordForm");
+		        var deleteForm = document.getElementById("deleteForm");
+		        
+		        // Hide all forms
+		        hideForm(usernameForm);
+		        hideForm(emailForm);
+		        hideForm(passwordForm);
+		        hideForm(deleteForm);
+		        
+		        // Toggle the visibility of the email form
+		        toggleFormVisibility(emailForm);
+		    }
+		    
+		    // Toggle Password Form -->
+		    function togglePasswordFormVisibility() {
+				checkSession();
+		        // Get the form elements
+		        var usernameForm = document.getElementById("usernameForm");
+		        var emailForm = document.getElementById("emailForm");
+		        var passwordForm = document.getElementById("passwordForm");
+		        var deleteForm = document.getElementById("deleteForm");
+		        
+		        // Hide all forms
+		        hideForm(usernameForm);
+		        hideForm(emailForm);
+		        hideForm(passwordForm);
+		        hideForm(deleteForm);
+		        
+		        // Toggle the visibility of the email form
+		        toggleFormVisibility(passwordForm);
+		    }
+		    
+		    // Toggle Delete Form -->
+		    function toggleDeleteFormVisibility() {
+				checkSession();
+		        // Get the form elements
+		        var usernameForm = document.getElementById("usernameForm");
+		        var emailForm = document.getElementById("emailForm");
+		        var passwordForm = document.getElementById("passwordForm");
+		        var deleteForm = document.getElementById("deleteForm");
+		        
+		        // Hide all forms
+		        hideForm(usernameForm);
+		        hideForm(emailForm);
+		        hideForm(passwordForm);
+		        hideForm(deleteForm);
+		        
+		        // Toggle the visibility of the email form
+		        toggleFormVisibility(deleteForm);
+		    }
+		
+		    // Function to hide a form
+		    function hideForm(form) {
+				console.log("hide form: ", form)
+		        form.style.display = "none";
+		    }
+		
+		    // Function to toggle form visibility
+		    function toggleFormVisibility(form) {
+		        // Toggle the visibility of the form
+		        if (form.style.display === "none" || form.style.display === "") {
+		            form.style.display = "block";
+		        } else {
+		            form.style.display = "none";
+		        }
+		    }
+		</script>
+		
+		<!-- Cancel Username Form -->
+		<script async>
+			function cancelUsernameModification() {
+			    var form = document.getElementById("usernameForm");
+			    form.style.display = "none";
+			    window.location.href = "/profile";
+			}
+		</script>
+		
+		<!-- Cancel Email Form -->
+		<script async>
+			function cancelEmailModification() {
+			    var form = document.getElementById("emailForm");
+			    form.style.display = "none";
+			    window.location.href = "/profile";
+			}
+		</script>
+		
+		<!-- Cancel Password Form -->
+		<script async>
+			function cancelPasswordModification() {
+			    var form = document.getElementById("passwordForm");
+			    form.style.display = "none";
+			    window.location.href = "/profile";
+			}
+		</script>
+		
+		<!-- Cancel Delete Form -->
+		<script async>
+			function cancelDeleteModification() {
+			    var form = document.getElementById("deleteForm");
+			    form.style.display = "none";
+			    window.location.href = "/profile";
+			}
+		</script>
+
+		<script async>
+		  // Use fetch to load the offcanvas content
+		  fetch('/static/offcanvas-content.html')
+		    .then(response => response.text())
+		    .then(html => {
+		      document.getElementById('offcanvasContentContainer').innerHTML = html;
+		    })
+		    .catch(error => console.error('Error loading offcanvas content:', error));
+		</script>
+		
+		<script async src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL" crossorigin="anonymous"></script>    	
+	</body>
+</html>
